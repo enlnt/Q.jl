@@ -1,6 +1,7 @@
 module JuQ
-export K
+export K, hopen, hclose, hget
 module k
+export k_, khp, kclose
 export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, kf, ks
 export ktn, knk
@@ -109,6 +110,22 @@ ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
 ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_Ptr, (I_, J_), t, n)
 knk(n) = begin @assert n == 0; ccall((@k_sym :ktn), K_Ptr, (I_,), 0) end
 knk(n::I_, x::K_Ptr...) = ccall((@k_sym :ktn), K_Ptr, (I_, K_Ptr...), n, x...)
+
+# communications
+# extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
+khpun(h::String, p::Integer, u::String, n::Integer) =
+    ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
+khpu(h::String, p::Integer, u::String) =
+    ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
+khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
+
+kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
+
+# K k(I,const S,...)
+k_(h::Integer, m::String) =
+    ccall((@k_sym :k), K_Ptr, (I_, S_, K_Ptr), h, m, K_Ptr(C_NULL))
+k_(h::Integer, m::String, x::K_Ptr...) =
+    ccall((@k_sym :k), K_Ptr, (I_, S_, K_Ptr...), h, m, x..., K_Ptr(C_NULL))
 end # module k
 
 using JuQ.k
@@ -136,4 +153,26 @@ Base.length(x::K) = 0<=xt(x.x)<98?xn(x.x):1
 Base.size(x::K) = 0<=xt(x.x)<98?(xn(x.x),):()
 Base.ndims(x::K) = UInt(0<=xt(x.x)<98)
 
+# communications
+hopen(h::String, p::Integer) = khp(h, p)
+hclose = kclose
+
+hget(h::Integer, m::String) = K(k_(h, m))
+function hget(h::Integer, m::String, x...)
+   x = map(K, x)
+   r = k_(h, m, map(x->x.x, x)...)
+   return K(r)
+end
+function hget(h::Tuple{String,Integer}, m)
+   h = hopen(h...)
+   r = hget(h, m)
+   kclose(h)
+   return r
+end
+function hget(h::Tuple{String,Integer}, m, x...)
+   h = hopen(h...)
+   r = hget(h, m, x...)
+   kclose(h)
+   return r
+end
 end # module
