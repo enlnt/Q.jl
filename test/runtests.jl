@@ -8,6 +8,7 @@ function roundtrip_scalar(jk, kj, x)
     r0(k)
     return x == r
 end
+
 @testset "Low level (k)" begin
   @testset "Scalar roundtrip" begin
     @test roundtrip_scalar(xg, kg, I_(42))
@@ -16,5 +17,14 @@ end
     @test roundtrip_scalar(xj, kj, J_(1010101))
     @test roundtrip_scalar(xf, kf, F_(1e10))
     @test roundtrip_scalar(xs, ks, "abc")
+  end
+end
+
+@testset "High level (K objects)" begin
+  @testset "Scalar constructors" begin
+    @test begin x = K(1); eltype(x) === Int64 && Number(x) == 1 end
+  end
+  @testset "Vector constructors" begin
+    @test begin x = K([1, 2]); xt(x.x) == KJ && xn(x.x) == 2 end
   end
 end
