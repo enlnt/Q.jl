@@ -25,6 +25,6 @@ end
     @test begin x = K(1); eltype(x) === Int64 && Number(x) == 1 end
   end
   @testset "Vector constructors" begin
-    @test begin x = K([1, 2]); xt(x.x) == KJ && xn(x.x) == 2 end
+    @test begin a = [1, 2]; x = K(a); Array(x) == a end
   end
 end
