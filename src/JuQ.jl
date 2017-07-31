@@ -4,10 +4,10 @@ module k
 export k_, khp, kclose
 export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, kf, ks
-export ktn, knk
+export ktn, knk, kp
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, K_Ptr
-export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KV, KU, KT 
+export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KV, KU, KT
 export @k_sym
 
 const SYS_CHAR = Dict(
@@ -107,6 +107,7 @@ kc(x::I_) = ccall((@k_sym :kc), K_Ptr, (I_,), x)
 ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
 
 # vector constructors
+kp(x::String) = ccall((@k_sym :kp), K_Ptr, (S_,), x)
 ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_Ptr, (I_, J_), t, n)
 knk(n) = begin @assert n == 0; ccall((@k_sym :ktn), K_Ptr, (I_,), 0) end
 knk(n::I_, x::K_Ptr...) = ccall((@k_sym :ktn), K_Ptr, (I_, K_Ptr...), n, x...)

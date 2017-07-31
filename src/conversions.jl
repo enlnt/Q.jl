@@ -33,11 +33,23 @@ Base.convert(::Type{T}, x::K) where {T<:Number} =
     T(unsafe_load(Ptr{C_TYPE[-xt(x.x)]}(x.x+8)))
 
 function Base.convert(::Type{Array}, x::K)
+    p = x.x
+    t = xt(p)
+    n = xn(p)
+    T = C_TYPE[t]
+    a = zeros(T, n)
+    unsafe_copy!(pointer(a), Ptr{T}(p+16), n)
+    return a
+end
+
+function Base.convert(::Type{String}, x::K)
    p = x.x
    t = xt(p)
-   n = xn(p)
-   T = C_TYPE[t]
-   a = zeros(T, n)
-   unsafe_copy!(pointer(a), Ptr{T}(p+16), n)
-   return a
+   if (t == KC)
+       return unsafe_string(Ptr{C_}(p+16), xn(p))
+   end
+   if (t == -KS)
+       return unsafe_string(unsafe_load(Ptr{Ptr{C_}}(p+8)))
+   end
+   error("cannot convert")
 end
