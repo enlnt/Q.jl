@@ -1,5 +1,5 @@
 module JuQ
-export K, hopen, hclose, hget
+export K, K_Vector, hopen, hclose, hget
 module k
 export k_, khp, kclose
 export r0, r1
@@ -146,6 +146,23 @@ type K
         return px
     end
 end
+
+type K_Vector{T} <: AbstractArray{T,1}
+    o::K
+    function (::Type{K_Vector{T}}){T}(o::K)
+        t = xt(o.x)
+        if(t != K_TYPE[T])
+            throw(ArgumentError("type mismatch: t=$t, T=$T"))
+        end
+        return new{T}(o)
+    end
+end
+K_Vector(o::K) = K_Vector{C_TYPE[xt(o.x)]}(o)
+K_Vector{T}(a::Array{T,1}) = K_Vector(K(a))
+Base.eltype{T}(v::K_Vector{T}) = T
+Base.size{T}(v::K_Vector{T}) = (xn(v.o.x),)
+Base.getindex{T}(v::K_Vector{T}, i::Integer) =
+    unsafe_load(Ptr{T}(v.o.x + 16), i)
 
 include("conversions.jl")
 
