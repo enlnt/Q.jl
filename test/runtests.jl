@@ -2,6 +2,8 @@ using JuQ
 using JuQ.k
 using Base.Test
 
+NUMBER_TYPES = [Bool, UInt8, Int16, Int32, Int64, Float32, Float64]
+
 function roundtrip_scalar(jk, kj, x)
     k = kj(x)
     r = jk(k)
@@ -21,10 +23,15 @@ end
 end
 
 @testset "High level (K objects)" begin
-  @testset "Scalar constructors" begin
-    @test begin x = K(1); eltype(x) === Int64 && Number(x) == 1 end
-  end
-  @testset "Vector constructors" begin
-    @test begin a = [1, 2]; x = K(a); Array(x) == a end
+  @testset "Round trip" begin
+    for T in NUMBER_TYPES
+      a = [typemin(T), typemax(T), zero(T)]
+      x = K(a)
+      @test Array(x) == a
+      for n in a
+        x = K(n)
+        @test Number(x) == n
+      end
+    end
   end
 end

@@ -3,7 +3,7 @@ export K, K_Vector, hopen, hclose, hget
 module k
 export k_, khp, kclose
 export r0, r1
-export ktj, ka, kb, kg, kh, ki, kj, kf, ks
+export ktj, ka, kb, kg, kh, ki, kj, ke, kf, ks, kc
 export ktn, knk, kp
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, K_Ptr
@@ -95,15 +95,15 @@ xF(x::K_Ptr) = Ptr{F_}(x+16)
 
 # scalar constructors
 ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_Ptr, (I_, J_), t, x)
-ka(x::I_) = ccall((@k_sym :ka), K_Ptr, (I_,), x)
-kb(x::I_) = ccall((@k_sym :kb), K_Ptr, (I_,), x)
-kg(x::I_) = ccall((@k_sym :kg), K_Ptr, (I_,), x)
-kh(x::I_) = ccall((@k_sym :kh), K_Ptr, (I_,), x)
-ki(x::I_) = ccall((@k_sym :ki), K_Ptr, (I_,), x)
-kj(x::J_) = ccall((@k_sym :kj), K_Ptr, (J_,), x)
-ke(x::F_) = ccall((@k_sym :ke), K_Ptr, (F_,), x)
-kf(x::F_) = ccall((@k_sym :kf), K_Ptr, (F_,), x)
-kc(x::I_) = ccall((@k_sym :kc), K_Ptr, (I_,), x)
+kb(x::Integer) = ccall((@k_sym :kb), K_Ptr, (I_,), x)
+kg(x::Integer) = ccall((@k_sym :kg), K_Ptr, (I_,), x)
+ka(x::Integer) = ccall((@k_sym :ka), K_Ptr, (I_,), x)
+kh(x::Integer) = ccall((@k_sym :kh), K_Ptr, (I_,), x)
+ki(x::Integer) = ccall((@k_sym :ki), K_Ptr, (I_,), x)
+kj(x::Integer) = ccall((@k_sym :kj), K_Ptr, (J_,), x)
+ke(x::Real) = ccall((@k_sym :ke), K_Ptr, (F_,), x)
+kf(x::Real) = ccall((@k_sym :kf), K_Ptr, (F_,), x)
+kc(x::Integer) = ccall((@k_sym :kc), K_Ptr, (I_,), x)
 ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
 
 # vector constructors
@@ -135,21 +135,31 @@ using JuQ.k
 # Wrapper around q's C K type, with hooks to q reference
 # counting and conversion routines to/from C and Julia types.
 """
-    K(juliavar)
+    K_Object(x::K_Ptr)
 This converts a julia variable to a K object, which is a reference to a q object.
 """
-type K
-    x::K_Ptr # the actual K object
-    function K(x::K_Ptr)
+type K_Object
+    x::K_Ptr # pointer to the actual K object
+    function K_Object(x::K_Ptr)
         px = new(x)
         finalizer(px, (x->r0(x.x)))
         return px
     end
 end
-
+type K_Scalar{T}
+    o::K_Object
+    function (::Type{K_Scalar{T}}){T}(o::K_Object)
+        t = xt(o.x)
+        if(-t != K_TYPE[T])
+            throw(ArgumentError("type mismatch: t=$t, T=$T"))
+        end
+        return new{T}(o)
+    end
+end
+K_Scalar(o::K_Object) = K_Scalar{C_TYPE[-xt(o.x)]}(o)
 type K_Vector{T} <: AbstractArray{T,1}
-    o::K
-    function (::Type{K_Vector{T}}){T}(o::K)
+    o::K_Object
+    function (::Type{K_Vector{T}}){T}(o::K_Object)
         t = xt(o.x)
         if(t != K_TYPE[T])
             throw(ArgumentError("type mismatch: t=$t, T=$T"))
@@ -157,7 +167,7 @@ type K_Vector{T} <: AbstractArray{T,1}
         return new{T}(o)
     end
 end
-K_Vector(o::K) = K_Vector{C_TYPE[xt(o.x)]}(o)
+K_Vector(o::K_Object) = K_Vector{C_TYPE[xt(o.x)]}(o)
 K_Vector{T}(a::Array{T,1}) = K_Vector(K(a))
 Base.eltype{T}(v::K_Vector{T}) = T
 Base.size{T}(v::K_Vector{T}) = (xn(v.o.x),)
@@ -166,16 +176,11 @@ Base.getindex{T}(v::K_Vector{T}, i::Integer) =
 
 include("conversions.jl")
 
-Base.eltype(x::K) = C_TYPE[abs(xt(x.x))]
-Base.length(x::K) = 0<=xt(x.x)<98?xn(x.x):1
-Base.size(x::K) = 0<=xt(x.x)<98?(xn(x.x),):()
-Base.ndims(x::K) = UInt(0<=xt(x.x)<98)
-
 # communications
 hopen(h::String, p::Integer) = khp(h, p)
 hclose = kclose
 
-hget(h::Integer, m::String) = K(k_(h, m))
+hget(h::Integer, m::String) = K_Object(k_(h, m))
 function hget(h::Integer, m::String, x...)
    x = map(K, x)
    r = k_(h, m, map(x->x.x, x)...)
