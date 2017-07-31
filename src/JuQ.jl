@@ -157,6 +157,16 @@ type K_Scalar{T}
     end
 end
 K_Scalar(o::K_Object) = K_Scalar{C_TYPE[-xt(o.x)]}(o)
+type K_Chars
+    o::K_Object
+    function (::Type{K_Chars})(o::K_Object)
+        t = xt(o.x)
+        if(t != KC)
+            throw(ArgumentError("type mismatch: t=$t"))
+        end
+        return new(o)
+    end
+end
 type K_Vector{T} <: AbstractArray{T,1}
     o::K_Object
     function (::Type{K_Vector{T}}){T}(o::K_Object)
@@ -173,7 +183,15 @@ Base.eltype{T}(v::K_Vector{T}) = T
 Base.size{T}(v::K_Vector{T}) = (xn(v.o.x),)
 Base.getindex{T}(v::K_Vector{T}, i::Integer) =
     unsafe_load(Ptr{T}(v.o.x + 16), i)
-
+function Base.getindex(v::K_Chars, i::Integer)
+    # XXX: Assumes ascii encoding
+    n = xn(v.o.x)
+    if (1 <= i <= n)
+        return Char(unsafe_load(Ptr{C_}(v.o.x + 16), i))
+    else
+        throw(BoundsError(v, i))
+    end
+end
 include("conversions.jl")
 
 # communications

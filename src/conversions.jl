@@ -25,7 +25,7 @@ function K(i::Integer)
 end
 K(x::Symbol) = K_Scalar(K_Object(ks(String(x))))
 K(x::Char) = K_Scalar(K_Object(kc(Int8(x))))
-
+K(x::String) = K_Chars(K_Object(kp(x)))
 function K{T}(a::Array{T,1})
     t = K_TYPE[T]
     n = length(a)
@@ -42,7 +42,8 @@ Base.convert(::Type{Symbol}, x::K_Scalar{Symbol}) = Symbol(String(x))
 Base.convert(::Type{Char}, x::K_Scalar{Char}) =
     Char(unsafe_load(Ptr{C_}(x.o.x+8)))
 Base.string(x::K_Scalar{Symbol}) = String(x)
-
+Base.convert(::Type{String}, s::K_Chars) =
+    unsafe_string(Ptr{C_}(s.o.x+16), xn(s.o.x))
 function Base.convert(::Type{Array}, x::K_Object)
     p = x.x
     t = xt(p)

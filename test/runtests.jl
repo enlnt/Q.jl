@@ -33,5 +33,13 @@ end
         @test Number(x) == n
       end
     end
+    # Strings and symbols
+    let s = "abc", x = K(s)
+      @test String(x) == s
+    end
+    let s = :abc, x = K(s)
+      @test Symbol(x) == s
+      @test String(x) == String(s)
+    end
   end
 end
