@@ -167,6 +167,12 @@ type K_Chars
         return new(o)
     end
 end
+type K_Other
+    o::K_Object
+    function (::Type{K_Other})(o::K_Object)
+        return new(o)
+    end
+end
 type K_Vector{T} <: AbstractArray{T,1}
     o::K_Object
     function (::Type{K_Vector{T}}){T}(o::K_Object)
@@ -192,6 +198,7 @@ function Base.getindex(v::K_Chars, i::Integer)
         throw(BoundsError(v, i))
     end
 end
+
 include("conversions.jl")
 
 # communications
@@ -201,7 +208,7 @@ hclose = kclose
 hget(h::Integer, m::String) = K_Object(k_(h, m))
 function hget(h::Integer, m::String, x...)
    x = map(K, x)
-   r = k_(h, m, map(x->x.x, x)...)
+   r = k_(h, m, map(x->x.o.x, x)...)
    return K(r)
 end
 function hget(h::Tuple{String,Integer}, m)

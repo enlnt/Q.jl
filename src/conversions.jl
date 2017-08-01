@@ -14,6 +14,19 @@ const C_TYPE = Dict(KB=>Bool,
                     KE=>Float32, KF=>Float64,
                     KC=>Char, KS=>Symbol)
 
+function K(x::K_Ptr)
+    o = K_Object(x)
+    t = xt(x)
+    if (t < 0)
+        return K_Scalar(o)
+    elseif (t == KC)
+        return K_Chars(o)
+    elseif (0 < t <= KS)
+        return K_Vector(o)
+    end
+    return K_Other(o)
+end
+
 K(x::Bool) = K_Scalar(K_Object(kb(x)))
 K(x::Float32) = K_Scalar(K_Object(ke(x)))
 K(x::Float64) = K_Scalar(K_Object(kf(x)))
