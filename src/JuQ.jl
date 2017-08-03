@@ -18,9 +18,9 @@ type K_Object
         return px
     end
 end
-const C_TYPE = Dict(KB=>Bool, KG=>G_,
-                    KH=>Int16, KI=>Int32, KJ=>Int64,
-                    KE=>Float32, KF=>Float64,
+const C_TYPE = Dict(KB=>G_, KG=>G_,
+                    KH=>H_, KI=>I_, KJ=>J_,
+                    KE=>E_, KF=>F_,
                     KC=>G_, KS=>S_,
                     KP=>J_, KM=>I_, KD=>I_,
                     KN=>J_, KU=>I_, KV=>I_, KT=>I_)
