@@ -65,7 +65,7 @@ type K_Other
         return new(o)
     end
 end
-type K_Vector{T} <: AbstractArray{T,1}
+type K_Vector{T} <: AbstractVector{T}
     o::K_Object
     function K_Vector{T}(o::K_Object) where T
         t = xt(o.x)
@@ -76,7 +76,7 @@ type K_Vector{T} <: AbstractArray{T,1}
     end
 end
 K_Vector(o::K_Object) = K_Vector{C_TYPE[xt(o.x)]}(o)
-K_Vector{T}(a::Array{T,1}) = K_Vector(K(a))
+K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
 Base.eltype{T}(v::K_Vector{T}) = T
 Base.size{T}(v::K_Vector{T}) = (xn(v.o.x),)
 Base.getindex{T}(v::K_Vector{T}, i::Integer) =
