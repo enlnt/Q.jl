@@ -21,7 +21,24 @@ end
     @test roundtrip_scalar(xs, ks, "abc")
   end
 end
+@testset "Low to high level - K(K_Ptr)" begin
+  @test Number(K(kb(1))) === true
+  @test Number(K(kg(1))) == 1
+  @test Number(K(kh(1))) == 1
+  @test Number(K(ki(1))) == 1
+  @test Number(K(kj(1))) == 1
+  @test Number(K(ke(1.5))) == 1.5
 
+  @test eltype(Array(K(ktn(KB, 0)))) === Bool
+  @test eltype(Array(K(ktn(KG, 0)))) === UInt8
+  @test eltype(Array(K(ktn(KH, 0)))) === Int16
+  @test eltype(Array(K(ktn(KI, 0)))) === Int32
+  @test eltype(Array(K(ktn(KJ, 0)))) === Int64
+  @test eltype(Array(K(ktn(KE, 0)))) === Float32
+  @test eltype(Array(K(ktn(KF, 0)))) === Float64
+
+  @test String(K(kp("abc"))) == "abc"
+end
 @testset "High level (K objects)" begin
   @testset "Round trip" begin
     for T in NUMBER_TYPES
