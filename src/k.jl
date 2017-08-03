@@ -5,7 +5,7 @@ export ktj, ka, kb, kg, kh, ki, kj, ke, kf, ks, kc
 export ktn, knk, kp
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, K_Ptr
-export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KV, KU, KT
+export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT
 export @k_sym
 
 const SYS_CHAR = Dict(

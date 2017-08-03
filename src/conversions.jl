@@ -8,11 +8,7 @@
 const K_TYPE = Dict(Bool=>KB,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
-                    Char=>KC, Symbol=>KS)
-const C_TYPE = Dict(KB=>Bool,
-                    KG=>UInt8, KH=>Int16, KI=>Int32, KJ=>Int64,
-                    KE=>Float32, KF=>Float64,
-                    KC=>Char, KS=>Symbol)
+                    Char=>KC, Symbol=>KS, Cstring=>KS)
 
 function K(x::K_Ptr)
     o = K_Object(x)
@@ -49,12 +45,12 @@ end
 
 Base.convert(::Type{S}, s::K_Scalar{T}) where {S<:Number, T<:S} =
     T(unsafe_load(Ptr{T}(s.o.x+8)))
-Base.convert(::Type{String}, s::K_Scalar{Symbol}) =
+Base.convert(::Type{String}, s::K_Scalar{Cstring}) =
     unsafe_string(unsafe_load(Ptr{S_}(s.o.x+8)))
-Base.convert(::Type{Symbol}, x::K_Scalar{Symbol}) = Symbol(String(x))
+Base.convert(::Type{Symbol}, x::K_Scalar{Cstring}) = Symbol(String(x))
 Base.convert(::Type{Char}, x::K_Scalar{Char}) =
     Char(unsafe_load(Ptr{C_}(x.o.x+8)))
-Base.string(x::K_Scalar{Symbol}) = String(x)
+Base.string(x::K_Scalar{Cstring}) = String(x)
 Base.convert(::Type{String}, s::K_Chars) =
     unsafe_string(Ptr{C_}(s.o.x+16), xn(s.o.x))
 function Base.convert(::Type{Array}, x::K_Object)

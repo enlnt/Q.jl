@@ -8,7 +8,7 @@ using JuQ.k
 # counting and conversion routines to/from C and Julia types.
 """
     K_Object(x::K_Ptr)
-This converts a julia variable to a K object, which is a reference to a q object.
+A K object reference managed by Julia GC.
 """
 type K_Object
     x::K_Ptr # pointer to the actual K object
@@ -18,6 +18,26 @@ type K_Object
         return px
     end
 end
+const C_TYPE = Dict(KB=>Bool, KG=>G_,
+                    KH=>Int16, KI=>Int32, KJ=>Int64,
+                    KE=>Float32, KF=>Float64,
+                    KC=>G_, KS=>S_,
+                    KP=>J_, KM=>I_, KD=>I_,
+                    KN=>J_, KU=>I_, KV=>I_, KT=>I_)
+import Base.start, Base.next, Base.done, Base.length, Base.eltype
+immutable _State ptr; stop; stride::Int64 end
+eltype(x::K_Ptr) = C_TYPE[xt(x)]
+function start(x::K_Ptr)
+    t = eltype(x)
+    ptr = Ptr{t}(x+16)
+    stride = sizeof(t)
+    stop = ptr + xn(x)*stride
+    return _State(ptr, stop, stride)
+end
+next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
+done(x, s) = s.ptr == s.stop
+length(x) = xn(x)
+
 type K_Scalar{T}
     o::K_Object
     function (::Type{K_Scalar{T}}){T}(o::K_Object)

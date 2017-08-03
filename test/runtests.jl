@@ -20,6 +20,9 @@ end
     @test roundtrip_scalar(xf, kf, F_(1e10))
     @test roundtrip_scalar(xs, ks, "abc")
   end
+  @testset "Vector types" begin
+    @test eltype(ktn(KH, 0)) === Int16
+  end
 end
 @testset "Low to high level - K(K_Ptr)" begin
   @test Number(K(kb(1))) === true
