@@ -40,7 +40,7 @@ length(x) = xn(x)
 
 type K_Scalar{T}
     o::K_Object
-    function (::Type{K_Scalar{T}}){T}(o::K_Object)
+    function K_Scalar{T}(o::K_Object) where T
         t = xt(o.x)
         if(-t != K_TYPE[T])
             throw(ArgumentError("type mismatch: t=$t, T=$T"))
@@ -51,7 +51,7 @@ end
 K_Scalar(o::K_Object) = K_Scalar{C_TYPE[-xt(o.x)]}(o)
 type K_Chars
     o::K_Object
-    function (::Type{K_Chars})(o::K_Object)
+    function K_Chars(o::K_Object)
         t = xt(o.x)
         if(t != KC)
             throw(ArgumentError("type mismatch: t=$t"))
@@ -61,13 +61,13 @@ type K_Chars
 end
 type K_Other
     o::K_Object
-    function (::Type{K_Other})(o::K_Object)
+    function K_Other(o::K_Object)
         return new(o)
     end
 end
 type K_Vector{T} <: AbstractArray{T,1}
     o::K_Object
-    function (::Type{K_Vector{T}}){T}(o::K_Object)
+    function K_Vector{T}(o::K_Object) where T
         t = xt(o.x)
         if(t != K_TYPE[T])
             throw(ArgumentError("type mismatch: t=$t, T=$T"))
