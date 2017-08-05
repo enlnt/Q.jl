@@ -37,10 +37,23 @@ K(x::Char) = K_Scalar(K_Object(kc(Int8(x))))
 K(x::String) = K_Chars(K_Object(kp(x)))
 function K{T}(a::Array{T,1})
     t = K_TYPE[T]
+    CT = C_TYPE[t]
     n = length(a)
     x = ktn(t, n)
     unsafe_copy!(Ptr{T}(x+16), pointer(a), n)
-    return K_Vector{T}(K_Object(x))
+    return K_Vector{t,CT,T}(K_Object(x))
+end
+function K(a::Vector{Symbol})
+    t = KS
+    CT = S_
+    JT = Symbol
+    n = length(a)
+    x = ktn(t, n)
+    for i in 1:n
+        si = ss(a[i])
+        unsafe_store!(Ptr{S_}(x+16), si, i)
+    end
+    return K_Vector{t,CT,JT}(K_Object(x))
 end
 
 Base.convert(::Type{S}, s::K_Scalar{T}) where {S<:Number, T<:S} =

@@ -47,7 +47,7 @@ end
   @test Number(K(kj(1))) == 1
   @test Number(K(ke(1.5))) == 1.5
 
-  @test_broken eltype(Array(K(ktn(KB, 0)))) === Bool
+  @test eltype(Array(K(ktn(KB, 0)))) === Bool
   @test eltype(Array(K(ktn(KG, 0)))) === UInt8
   @test eltype(Array(K(ktn(KH, 0)))) === Int16
   @test eltype(Array(K(ktn(KI, 0)))) === Int32
@@ -75,6 +75,9 @@ end
     let s = :abc, x = K(s)
       @test Symbol(x) == s
       @test String(x) == String(s)
+    end
+    let a = [:abc, :def], x = K(a)
+      @test Array(x) == a
     end
   end
 end

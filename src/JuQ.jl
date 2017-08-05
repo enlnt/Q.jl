@@ -18,12 +18,19 @@ type K_Object
         return px
     end
 end
-const C_TYPE = Dict(KB=>G_, KG=>G_,
+const C_TYPE = Dict(KB=>G_, UU=>UInt128, KG=>G_,
                     KH=>H_, KI=>I_, KJ=>J_,
                     KE=>E_, KF=>F_,
                     KC=>G_, KS=>S_,
                     KP=>J_, KM=>I_, KD=>I_,
                     KN=>J_, KU=>I_, KV=>I_, KT=>I_)
+const JULIA_TYPE = Dict(KB=>Bool, UU=>UInt128, KG=>G_,
+                    KH=>H_, KI=>I_, KJ=>J_,
+                    KE=>E_, KF=>F_,
+                    KC=>Char, KS=>String,
+                    KP=>J_, KM=>I_, KD=>I_,
+                    KN=>J_, KU=>I_, KV=>I_, KT=>I_)
+
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
 immutable _State ptr; stop; stride::Int64 end
 eltype(x::K_Ptr) = C_TYPE[xt(x)]
@@ -65,22 +72,30 @@ type K_Other
         return new(o)
     end
 end
-type K_Vector{T} <: AbstractVector{T}
+type K_Vector{t,CT,JT} <: AbstractVector{JT}
     o::K_Object
-    function K_Vector{T}(o::K_Object) where T
-        t = xt(o.x)
-        if(t != K_TYPE[T])
-            throw(ArgumentError("type mismatch: t=$t, T=$T"))
+    function K_Vector{t,CT,JT}(o::K_Object) where {t,CT,JT}
+        t′ = xt(o.x)
+        if(t != t′)
+            throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
         end
-        return new{T}(o)
+        return new{t,CT,JT}(o)
     end
 end
-K_Vector(o::K_Object) = K_Vector{C_TYPE[xt(o.x)]}(o)
+function K_Vector(o::K_Object)
+    t = xt(o.x)
+    CT = C_TYPE[t]
+    JT = JULIA_TYPE[t]
+    K_Vector{t,CT,JT}(o)
+end
+_get{T}(::Type{T}, x::T) = x
+_get{JT,CT}(::Type{JT}, x::CT) = JT(x)
+_get(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
 K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
-Base.eltype{T}(v::K_Vector{T}) = T
-Base.size{T}(v::K_Vector{T}) = (xn(v.o.x),)
-Base.getindex{T}(v::K_Vector{T}, i::Integer) =
-    unsafe_load(Ptr{T}(v.o.x + 16), i)
+Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
+Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
+Base.getindex{t,CT,JT}(v::K_Vector{t,CT,JT}, i::Integer) =
+    _get(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i))
 function Base.getindex(v::K_Chars, i::Integer)
     # XXX: Assumes ascii encoding
     n = xn(v.o.x)
