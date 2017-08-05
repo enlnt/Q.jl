@@ -40,7 +40,7 @@ end
   end
 end
 @testset "Low to high level - K(K_Ptr)" begin
-  @test_broken Number(K(kb(1))) === true
+  @test Number(K(kb(1))) === true
   @test Number(K(kg(1))) == 1
   @test Number(K(kh(1))) == 1
   @test Number(K(ki(1))) == 1

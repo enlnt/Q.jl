@@ -45,26 +45,21 @@ next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
 done(x, s) = s.ptr == s.stop
 length(x) = xn(x)
 
-type K_Scalar{T}
+type K_Scalar{t,CT,JT}
     o::K_Object
-    function K_Scalar{T}(o::K_Object) where T
-        t = xt(o.x)
-        if(-t != K_TYPE[T])
-            throw(ArgumentError("type mismatch: t=$t, T=$T"))
+    function K_Scalar{t,CT,JT}(o::K_Object) where {t,CT,JT}
+        t′ = -xt(o.x)
+        if(t != t′)
+            throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
         end
-        return new{T}(o)
+        return new{t,CT,JT}(o)
     end
 end
-K_Scalar(o::K_Object) = K_Scalar{C_TYPE[-xt(o.x)]}(o)
-type K_Chars
-    o::K_Object
-    function K_Chars(o::K_Object)
-        t = xt(o.x)
-        if(t != KC)
-            throw(ArgumentError("type mismatch: t=$t"))
-        end
-        return new(o)
-    end
+function K_Scalar(o::K_Object)
+    t = -xt(o.x)
+    CT = C_TYPE[t]
+    JT = JULIA_TYPE[t]
+    K_Scalar{t,CT,JT}(o)
 end
 type K_Other
     o::K_Object
@@ -82,6 +77,7 @@ type K_Vector{t,CT,JT} <: AbstractVector{JT}
         return new{t,CT,JT}(o)
     end
 end
+K_Chars = K_Vector{KC,C_,Char}
 function K_Vector(o::K_Object)
     t = xt(o.x)
     CT = C_TYPE[t]
