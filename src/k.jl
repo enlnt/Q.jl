@@ -1,11 +1,11 @@
 module k  # k.h wrappers
 export k_, khp, kclose
 export r0, r1
-export ktj, ka, kb, kg, kh, ki, kj, ke, kf, ks, kc
+export ktj, ka, kb, kg, kh, ki, kj, ke, kf, ss, ks, kc
 export ktn, knk, kp
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, K_Ptr
-export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KV, KU, KT
+export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT
 export @k_sym
 
 const SYS_CHAR = Dict(
@@ -102,6 +102,8 @@ kj(x::Integer) = ccall((@k_sym :kj), K_Ptr, (J_,), x)
 ke(x::Real) = ccall((@k_sym :ke), K_Ptr, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_Ptr, (F_,), x)
 kc(x::Integer) = ccall((@k_sym :kc), K_Ptr, (I_,), x)
+ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
+ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
 ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
 
 # vector constructors

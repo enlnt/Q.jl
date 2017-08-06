@@ -2,13 +2,22 @@ using JuQ
 using JuQ.k
 using Base.Test
 
-NUMBER_TYPES = [Bool, UInt8, Int16, Int32, Int64, Float32, Float64]
+NUMBER_TYPES = [UInt8, Int16, Int32, Int64, Float32, Float64]
 
 function roundtrip_scalar(jk, kj, x)
     k = kj(x)
     r = jk(k)
     r0(k)
     return x == r
+end
+
+function empty_vector(t, typ)
+  x = ktn(t, 0)
+  res = (eltype(x) === typ
+    && length(x) == 0
+    && collect(x) == typ[])
+  r0(x)
+  return res
 end
 
 @testset "Low level (k)" begin
@@ -19,6 +28,15 @@ end
     @test roundtrip_scalar(xj, kj, J_(1010101))
     @test roundtrip_scalar(xf, kf, F_(1e10))
     @test roundtrip_scalar(xs, ks, "abc")
+  end
+  @testset "Vector types" begin
+    @test empty_vector(KB, G_)
+    @test empty_vector(KG, G_)
+    @test empty_vector(KH, H_)
+    @test empty_vector(KI, I_)
+    @test empty_vector(KJ, J_)
+    @test empty_vector(KE, E_)
+    @test empty_vector(KF, F_)
   end
 end
 @testset "Low to high level - K(K_Ptr)" begin
@@ -57,6 +75,9 @@ end
     let s = :abc, x = K(s)
       @test Symbol(x) == s
       @test String(x) == String(s)
+    end
+    let a = [:abc, :def], x = K(a)
+      @test Array(x) == a
     end
   end
 end
