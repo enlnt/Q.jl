@@ -1,11 +1,13 @@
 module k  # k.h wrappers
-export k_, khp, kclose
+export k_, khpun, khpu, khp, okx, kclose
+export ymd, dj
 export r0, r1
-export ktj, ka, kb, kg, kh, ki, kj, ke, kf, ss, ks, kc
-export ktn, knk, kp
+export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
+export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn
-export C_, S_, G_, H_, I_, J_, E_, F_, V_, K_Ptr
-export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT
+export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_Ptr
+export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
+       XT, XD
 export @k_sym
 
 const SYS_CHAR = Dict(
@@ -44,6 +46,10 @@ const KU = 17 # 4 minute    int    kI
 const KV = 18 # 4 second    int    kI
 const KT = 19 # 4 time      int    kI (millisecond)
 
+# table,dict
+const XT = 98 #   x->k is XD
+const XD = 99 #   kK(x)[0] is keys. kK(x)[1] is values.
+
 C_ = Cchar
 S_ = Cstring
 G_ = Cuchar
@@ -53,6 +59,7 @@ J_ = Clonglong
 E_ = Cfloat
 F_ = Cdouble
 V_ = Void
+U_ = UInt128
 
 immutable k0
     m::C_
@@ -102,6 +109,7 @@ kj(x::Integer) = ccall((@k_sym :kj), K_Ptr, (J_,), x)
 ke(x::Real) = ccall((@k_sym :ke), K_Ptr, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_Ptr, (F_,), x)
 kc(x::Integer) = ccall((@k_sym :kc), K_Ptr, (I_,), x)
+sn(x::String, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
 ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
 ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
 ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
@@ -112,6 +120,10 @@ ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_Ptr, (I_, J_), t, n)
 knk(n) = begin @assert n == 0; ccall((@k_sym :ktn), K_Ptr, (I_,), 0) end
 knk(n::I_, x::K_Ptr...) = ccall((@k_sym :ktn), K_Ptr, (I_, K_Ptr...), n, x...)
 
+# table, dictionary
+xT(x::K_Ptr) =  ccall((@k_sym :xT), K_Ptr, (K_Ptr, ), x)
+xD(x::K_Ptr, y::K_Ptr) = ccall((@k_sym :xD), K_Ptr, (K_Ptr, ), x, y)
+
 # communications
 # extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
 khpun(h::String, p::Integer, u::String, n::Integer) =
@@ -119,8 +131,13 @@ khpun(h::String, p::Integer, u::String, n::Integer) =
 khpu(h::String, p::Integer, u::String) =
     ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
 khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
-
+okx(x::K_Ptr) = ccall((@k_sym :okx), I_, (K_Ptr, ), x)
 kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
+
+# Dates
+ymd(y::Integer, m::Integer, d::Integer) =
+    ccall((@k_sym :ymd), I_, (I_, I_, I_), y, m, d)
+dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
 # K k(I,const S,...)
 k_(h::Integer, m::String) =
