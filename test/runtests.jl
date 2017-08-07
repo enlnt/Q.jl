@@ -83,5 +83,9 @@ end
     let a = [:abc, :def], x = K(a)
       @test Array(x) == a
     end
+    @testset "Scalar to string" begin
+      @test string(K(42)) == "42"
+      @test string(K(:a)) == "a"
+    end
   end
 end

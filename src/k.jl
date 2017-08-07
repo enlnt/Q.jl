@@ -121,7 +121,7 @@ knk(n) = begin @assert n == 0; ccall((@k_sym :ktn), K_Ptr, (I_,), 0) end
 knk(n::I_, x::K_Ptr...) = ccall((@k_sym :ktn), K_Ptr, (I_, K_Ptr...), n, x...)
 
 # table, dictionary
-xT(x::K_Ptr) =  ccall((@k_sym :xT), K_Ptr, (K_Ptr, ), x)
+xT(x::K_Ptr) = ccall((@k_sym :xT), K_Ptr, (K_Ptr, ), x)
 xD(x::K_Ptr, y::K_Ptr) = ccall((@k_sym :xD), K_Ptr, (K_Ptr, ), x, y)
 
 # communications
