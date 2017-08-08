@@ -85,3 +85,5 @@ function Base.convert(::Type{String}, x::K_Object)
    end
    error("cannot convert")
 end
+
+Base.print{t,CT,JT}(io::IO, x::K_Scalar{t,CT,JT}) = print(io, JT(x))

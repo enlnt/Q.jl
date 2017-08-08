@@ -21,6 +21,10 @@ function empty_vector(t, typ)
 end
 
 @testset "Low level (k)" begin
+  @testset "Date conversions" begin
+    @test ymd(2000, 1, 1) == 0
+    @test dj(0) == 20000101
+  end
   @testset "Scalar roundtrip" begin
     @test roundtrip_scalar(xg, kg, I_(42))
     @test roundtrip_scalar(xh, kh, I_(101))
@@ -78,6 +82,10 @@ end
     end
     let a = [:abc, :def], x = K(a)
       @test Array(x) == a
+    end
+    @testset "Scalar to string" begin
+      @test string(K(42)) == "42"
+      @test string(K(:a)) == "a"
     end
   end
 end
