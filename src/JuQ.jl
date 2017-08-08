@@ -101,6 +101,7 @@ function Base.getindex(v::K_Chars, i::Integer)
         throw(BoundsError(v, i))
     end
 end
+K = Union{K_Scalar,K_Vector,K_Other}
 
 include("conversions.jl")
 

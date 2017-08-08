@@ -10,7 +10,7 @@ const K_TYPE = Dict(Bool=>KB,
                     Float32=>KE, Float64=>KF,
                     Char=>KC, Symbol=>KS, Cstring=>KS)
 
-function K(x::K_Ptr)
+function Base.convert(::Type{K}, x::K_Ptr)
     o = K_Object(x)
     t = xt(x)
     if (t < 0)
@@ -23,19 +23,19 @@ function K(x::K_Ptr)
     return K_Other(o)
 end
 
-K(x::Bool) = K_Scalar(K_Object(kb(x)))
-K(x::Float32) = K_Scalar(K_Object(ke(x)))
-K(x::Float64) = K_Scalar(K_Object(kf(x)))
+Base.convert(::Type{K}, x::Bool) = K_Scalar(K_Object(kb(x)))
+Base.convert(::Type{K}, x::Float32) = K_Scalar(K_Object(ke(x)))
+Base.convert(::Type{K}, x::Float64) = K_Scalar(K_Object(kf(x)))
 
-function K(i::Integer)
+function Base.convert(::Type{K}, i::Integer)
     t = -K_TYPE[typeof(i)]
     x = ktj(t, i)
     return K_Scalar(K_Object(x))
 end
-K(x::Symbol) = K_Scalar(K_Object(ks(String(x))))
-K(x::Char) = K_Scalar(K_Object(kc(Int8(x))))
-K(x::String) = K_Chars(K_Object(kp(x)))
-function K{T}(a::Vector{T})
+Base.convert(::Type{K}, x::Symbol) = K_Scalar(K_Object(ks(String(x))))
+Base.convert(::Type{K}, x::Char) = K_Scalar(K_Object(kc(Int8(x))))
+Base.convert(::Type{K}, x::String) = K_Chars(K_Object(kp(x)))
+function Base.convert{T}(::Type{K}, a::Vector{T})
     t = K_TYPE[T]
     CT = C_TYPE[t]
     n = length(a)
@@ -43,7 +43,7 @@ function K{T}(a::Vector{T})
     unsafe_copy!(Ptr{T}(x+16), pointer(a), n)
     return K_Vector{t,CT,T}(K_Object(x))
 end
-function K(a::Vector{Symbol})
+function Base.convert(::Type{K}, a::Vector{Symbol})
     t = KS
     CT = S_
     JT = Symbol
