@@ -122,7 +122,7 @@ knk(n::I_, x::K_Ptr...) = ccall((@k_sym :ktn), K_Ptr, (I_, K_Ptr...), n, x...)
 
 # table, dictionary
 xT(x::K_Ptr) = ccall((@k_sym :xT), K_Ptr, (K_Ptr, ), x)
-xD(x::K_Ptr, y::K_Ptr) = ccall((@k_sym :xD), K_Ptr, (K_Ptr, ), x, y)
+xD(x::K_Ptr, y::K_Ptr) = ccall((@k_sym :xD), K_Ptr, (K_Ptr, K_Ptr), x, y)
 
 # communications
 # extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
