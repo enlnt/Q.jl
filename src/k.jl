@@ -4,7 +4,7 @@ export ymd, dj
 export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export ktn, knk, kp, xT, xD
-export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn
+export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_Ptr
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD
@@ -25,30 +25,15 @@ end
 
 #########################################################################
 # k.h
-#      type bytes qtype     ctype  accessor
-const KB = 1  # 1 boolean   char   kG
-const UU = 2  # 16 guid     U      kU
-const KG = 4  # 1 byte      char   kG
-const KH = 5  # 2 short     short  kH
-const KI = 6  # 4 int       int    kI
-const KJ = 7  # 8 long      long   kJ
-const KE = 8  # 4 real      float  kE
-const KF = 9  # 8 float     double kF
-const KC = 10 # 1 char      char   kC
-const KS = 11 # * symbol    char*  kS
-
-const KP = 12 # 8 timestamp long   kJ (nanoseconds from 2000.01.01)
-const KM = 13 # 4 month     int    kI (months from 2000.01.01)
-const KD = 14 # 4 date      int    kI (days from 2000.01.01)
-
-const KN = 16 # 8 timespan  long   kJ (nanoseconds)
-const KU = 17 # 4 minute    int    kI
-const KV = 18 # 4 second    int    kI
-const KT = 19 # 4 time      int    kI (millisecond)
-
+TYPE_LETTERS = "b  ghijefcspmdznuvt"
+for (t, x) in enumerate(TYPE_LETTERS)
+    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(Int8(t))
+end
+# guid
+const UU = Int8(2)
 # table,dict
-const XT = 98 #   x->k is XD
-const XD = 99 #   kK(x)[0] is keys. kK(x)[1] is values.
+const XT = Int8(98) #   x->k is XD
+const XD = Int8(99) #   kK(x)[0] is keys. kK(x)[1] is values.
 
 C_ = Cchar
 S_ = Cstring
@@ -61,7 +46,7 @@ F_ = Cdouble
 V_ = Void
 U_ = UInt128
 
-immutable k0
+struct k0
     m::C_
     a::C_
     t::C_
@@ -97,6 +82,11 @@ xJ(x::K_Ptr) = Ptr{J_}(x+16)
 xE(x::K_Ptr) = Ptr{E_}(x+16)
 xF(x::K_Ptr) = Ptr{F_}(x+16)
 
+# table and dict accessors
+xk(x::K_Ptr) = unsafe_load(Ptr{K_Ptr}(x+8))
+xx(x::K_Ptr) = unsafe_load(Ptr{K_Ptr}(x+16), 1)
+xy(x::K_Ptr) = unsafe_load(Ptr{K_Ptr}(x+16), 2)
+
 
 # scalar constructors
 ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_Ptr, (I_, J_), t, x)
@@ -117,9 +107,14 @@ ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
 # vector constructors
 kp(x::String) = ccall((@k_sym :kp), K_Ptr, (S_,), x)
 ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_Ptr, (I_, J_), t, n)
-knk(n) = begin @assert n == 0; ccall((@k_sym :ktn), K_Ptr, (I_,), 0) end
-knk(n::I_, x::K_Ptr...) = ccall((@k_sym :ktn), K_Ptr, (I_, K_Ptr...), n, x...)
-
+#knk(n) = begin @assert n == 0; ccall((@k_sym :knk), K_Ptr, (I_,), 0) end
+function knk(n::Integer, x::K_Ptr...)
+    r = ktn(0, n)
+    for i in 1:n
+        unsafe_store!(Ptr{K_Ptr}(r+16), x[i], i)
+    end
+    return r
+end
 # table, dictionary
 xT(x::K_Ptr) = ccall((@k_sym :xT), K_Ptr, (K_Ptr, ), x)
 xD(x::K_Ptr, y::K_Ptr) = ccall((@k_sym :xD), K_Ptr, (K_Ptr, K_Ptr), x, y)

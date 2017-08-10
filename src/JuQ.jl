@@ -27,12 +27,12 @@ const C_TYPE = Dict(KB=>G_, UU=>UInt128, KG=>G_,
 const JULIA_TYPE = Dict(KB=>Bool, UU=>UInt128, KG=>G_,
                     KH=>H_, KI=>I_, KJ=>J_,
                     KE=>E_, KF=>F_,
-                    KC=>Char, KS=>String,
+                    KC=>Char, KS=>Symbol,
                     KP=>J_, KM=>I_, KD=>I_,
                     KN=>J_, KU=>I_, KV=>I_, KT=>I_)
 
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
-immutable _State ptr; stop; stride::Int64 end
+struct _State ptr; stop; stride::Int64 end
 eltype(x::K_Ptr) = C_TYPE[xt(x)]
 function start(x::K_Ptr)
     t = eltype(x)
@@ -91,7 +91,7 @@ K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
 Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
 Base.getindex{t,CT,JT}(v::K_Vector{t,CT,JT}, i::Integer) =
-    _get(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i))
+    _get(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
 function Base.getindex(v::K_Chars, i::Integer)
     # XXX: Assumes ascii encoding
     n = xn(v.o.x)
@@ -101,7 +101,8 @@ function Base.getindex(v::K_Chars, i::Integer)
         throw(BoundsError(v, i))
     end
 end
-K = Union{K_Scalar,K_Vector,K_Other}
+include("table.jl")
+const K = Union{K_Scalar,K_Vector,K_Table,K_Other}
 
 include("conversions.jl")
 
