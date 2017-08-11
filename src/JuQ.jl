@@ -106,6 +106,14 @@ const K = Union{K_Scalar,K_Vector,K_Table,K_Other}
 
 include("conversions.jl")
 
+# K[...] constructors
+
+Base.getindex(::Type{K}) = K(ktn(0,0))
+function Base.getindex(::Type{K}, x)
+    t = K_TYPE[typeof(x)]
+    p = ktn(t, 1)
+    K(p)
+end
 # communications
 hopen(h::String, p::Integer) = khp(h, p)
 hclose = kclose

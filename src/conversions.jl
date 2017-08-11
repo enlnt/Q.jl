@@ -19,31 +19,32 @@ function Base.convert(::Type{K}, x::K_Ptr)
         return K_Chars(o)
     elseif (0 < t <= KS)
         return K_Vector(o)
+    elseif (t == XT)
+        return K_Table(o)
     end
     return K_Other(o)
 end
 
-Base.convert(::Type{K}, x::Bool) = K_Scalar(K_Object(kb(x)))
-Base.convert(::Type{K}, x::Float32) = K_Scalar(K_Object(ke(x)))
-Base.convert(::Type{K}, x::Float64) = K_Scalar(K_Object(kf(x)))
-
-function Base.convert(::Type{K}, i::Integer)
-    t = -K_TYPE[typeof(i)]
-    x = ktj(t, i)
-    return K_Scalar(K_Object(x))
-end
-Base.convert(::Type{K}, x::Symbol) = K_Scalar(K_Object(ks(String(x))))
-Base.convert(::Type{K}, x::Char) = K_Scalar(K_Object(kc(Int8(x))))
-Base.convert(::Type{K}, x::String) = K_Chars(K_Object(kp(x)))
-function Base.convert{T}(::Type{K}, a::Vector{T})
+Base.convert(::Type{K_Ptr}, x::Bool) = kb(x)
+# TODO: guid
+Base.convert(::Type{K_Ptr}, x::UInt8) = kg(x)
+Base.convert(::Type{K_Ptr}, x::Int16) = kh(x)
+Base.convert(::Type{K_Ptr}, x::Int32) = ki(x)
+Base.convert(::Type{K_Ptr}, x::Int64) = kj(x)
+Base.convert(::Type{K_Ptr}, x::Float32) = ke(x)
+Base.convert(::Type{K_Ptr}, x::Float64) = kf(x)
+Base.convert(::Type{K_Ptr}, x::Symbol) = ks(String(x))
+Base.convert(::Type{K_Ptr}, x::Char) = kc(Int8(x))
+Base.convert(::Type{K_Ptr}, x::String) = kp(x)
+function Base.convert{T}(::Type{K_Ptr}, a::Vector{T})
     t = K_TYPE[T]
     CT = C_TYPE[t]
     n = length(a)
     x = ktn(t, n)
     unsafe_copy!(Ptr{T}(x+16), pointer(a), n)
-    return K_Vector{t,CT,T}(K_Object(x))
+    return x
 end
-function Base.convert(::Type{K}, a::Vector{Symbol})
+function Base.convert(::Type{K_Ptr}, a::Vector{Symbol})
     t = KS
     CT = S_
     JT = Symbol
@@ -53,13 +54,13 @@ function Base.convert(::Type{K}, a::Vector{Symbol})
         si = ss(a[i])
         unsafe_store!(Ptr{S_}(x+16), si, i)
     end
-    return K_Vector{t,CT,JT}(K_Object(x))
+    return x
 end
-
+Base.convert(::Type{K}, x) = K(K_Ptr(x))
 Base.convert(::Type{S}, s::K_Scalar{t,CT,JT}) where {S<:Number,t,CT,JT<:S} =
     JT(unsafe_load(Ptr{CT}(s.o.x+8)))
-#_K_symbol = K_Scalar{KS,S_,String}  # Should we make defs like this public?
-_K_symbol = typeof(K(:x))
+_K_symbol = K_Scalar{KS,S_,Symbol}  # Should we make defs like this public?
+
 Base.convert(::Type{String}, s::_K_symbol) =
     unsafe_string(unsafe_load(Ptr{S_}(s.o.x+8)))
 Base.convert(::Type{Symbol}, x::_K_symbol) = Symbol(String(x))
