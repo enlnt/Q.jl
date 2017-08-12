@@ -19,14 +19,6 @@ type K_Object
     end
 end
 
-const JULIA_TYPE = Dict(KB=>Bool, UU=>UInt128, KG=>G_,
-                    KH=>H_, KI=>I_, KJ=>J_,
-                    KE=>E_, KF=>F_,
-                    KC=>Char, KS=>Symbol,
-                    KP=>J_, KM=>I_, KD=>I_,
-                    KN=>J_, KU=>I_, KV=>I_, KT=>I_)
-
-
 type K_Scalar{t,CT,JT}
     o::K_Object
     function K_Scalar{t,CT,JT}(o::K_Object) where {t,CT,JT}
@@ -66,14 +58,14 @@ function K_Vector(o::K_Object)
     JT = JULIA_TYPE[t]
     K_Vector{t,CT,JT}(o)
 end
-_get{T}(::Type{T}, x::T) = x
-_get{JT,CT}(::Type{JT}, x::CT) = JT(x)
-_get(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
+_cast{T}(::Type{T}, x::T) = x
+_cast{JT,CT}(::Type{JT}, x::CT) = JT(x)
+_cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
 K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
 Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
 Base.getindex{t,CT,JT}(v::K_Vector{t,CT,JT}, i::Integer) =
-    _get(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
+    _cast(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
 function Base.getindex(v::K_Chars, i::Integer)
     # XXX: Assumes ascii encoding
     n = xn(v.o.x)
@@ -86,15 +78,67 @@ end
 include("table.jl")
 const K = Union{K_Scalar,K_Vector,K_Table,K_Other}
 
+const JULIA_TYPE = Dict(KK=>K, KB=>Bool, UU=>UInt128, KG=>G_,
+                        KH=>H_, KI=>I_, KJ=>J_,
+                        KE=>E_, KF=>F_,
+                        KC=>Char, KS=>Symbol,
+                        KP=>J_, KM=>I_, KD=>I_,
+                        KN=>J_, KU=>I_, KV=>I_, KT=>I_)
+
+
 include("conversions.jl")
+
+# Setting the vector elements
+_cast(::Type{K_}, x::K) = r1(x.o.x)
+import Base.pointer, Base.fill!, Base.copy!, Base.setindex!
+pointer{t,CT,JT}(x::K_Vector{t,CT,JT}, i=1::Integer) = Ptr{CT}(x.o.x+15+i)
+function fill!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT)
+    const n = xn(x.o.x)
+    const p = pointer(x)
+    el = _cast(CT, el)
+    for i in 1:n
+        unsafe_store!(p, el, i)
+    end
+end
+function copy!{t,CT,JT}(x::K_Vector{t,CT,JT}, iter)
+    const p = pointer(x)
+    for (i, el::JT) in enumerate(iter)
+        el = _cast(CT, el)
+        unsafe_store!(p, el, i)
+    end
+end
+function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT, i::Int)
+    const p = pointer(x)
+    el = _cast(CT, el)
+    unsafe_store!(p, el, i)
+end
 
 # K[...] constructors
 
 Base.getindex(::Type{K}) = K(ktn(0,0))
-function Base.getindex(::Type{K}, x)
-    t = K_TYPE[typeof(x)]
-    p = ktn(t, 1)
-    K(p)
+function Base.getindex(::Type{K}, v)
+    const t = K_TYPE[typeof(v)]
+    const x = ktn(t, 1)
+    const T = eltype(x)
+    v = _cast(T, v)
+    copy!(x, [v])
+    K(x)
+end
+function Base.getindex(::Type{K}, v...)
+    const n = length(v)
+    v = promote(v...)
+    u = unique(map(typeof, v))
+    if length(u) == 1
+        const t = K_TYPE[u[1]]
+        const x = ktn(t, n)
+        const T = eltype(x)
+        v = map(e->_cast(T, e), collect(v))
+        copy!(x, v)
+    else
+        const x = ktn(0, n)
+        copy!(x, map(K_, v))
+    end
+    K(x)
 end
 # communications
 hopen(h::String, p::Integer) = khp(h, p)

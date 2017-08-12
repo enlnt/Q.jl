@@ -71,6 +71,11 @@ end
   @test String(K(kp("abc"))) == "abc"
 end
 @testset "High level (K objects)" begin
+  @testset "Vector constructors" begin
+    @test (x = K[]; eltype(x) == K)
+    @test (x = K[1]; eltype(x) == Int64 && Array(x) == [1])
+    @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
+  end
   @testset "Round trip" begin
     for T in NUMBER_TYPES
       a = [typemin(T), typemax(T), zero(T)]
