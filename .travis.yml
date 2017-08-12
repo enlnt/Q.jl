@@ -22,9 +22,9 @@ git:
 #  apt: # apt-get for linux
 #    packages:
 #    - gfortran
-#before_script: # homebrew for mac
-#  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
-
+before_script: # homebrew for mac
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then mkdir -p $HOME/q/m64; else mkdir -p $HOME/q/l64; fi 
 ## uncomment the following lines to override the default test script
 #script:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
