@@ -26,4 +26,4 @@ DataFrames.columns(x::K_Table) = K(xx(xk(x.o.x)))
 cols(x::K_Table) = K(xx(xk(x.o.x)))
 Base.getindex(x::K_Table, i::Integer) =
     K(r1(unsafe_load(Ptr{K_}(xy(xk(x.o.x))+16), i)))
-Base.getindex(x::K_Table, i::Integer, j::Integer) = x[i][j]
+Base.getindex(x::K_Table, i::Integer, j::Integer) = x[j][i]

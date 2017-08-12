@@ -59,6 +59,7 @@ function Base.convert(::Type{K_}, a::Vector{Symbol})
     end
     return x
 end
+Base.convert(::Type{K}, x::K) = x
 Base.convert(::Type{K}, x) = K(K_(x))
 Base.convert(::Type{S}, s::K_Scalar{t,CT,JT}) where {S<:Number,t,CT,JT<:S} =
     JT(unsafe_load(Ptr{CT}(s.o.x+8)))
