@@ -5,7 +5,7 @@ export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn, xk, xx, xy
-export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_
+export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD
 export @k_sym
@@ -25,9 +25,9 @@ end
 
 #########################################################################
 # k.h
-TYPE_LETTERS = "b  ghijefcspmdznuvt"
+TYPE_LETTERS = "kb  ghijefcspmdznuvt"
 for (t, x) in enumerate(TYPE_LETTERS)
-    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(Int8(t))
+    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(Int8(t-1))
 end
 # guid
 const UU = Int8(2)
@@ -54,6 +54,13 @@ struct k0
     r::I_  # reference count
 end
 const K_ = Ptr{k0}
+
+const C_TYPE = Dict(KK=>K_, KB=>G_, UU=>U_, KG=>G_,
+                    KH=>H_, KI=>I_, KJ=>J_,
+                    KE=>E_, KF=>F_,
+                    KC=>G_, KS=>S_,
+                    KP=>J_, KM=>I_, KD=>I_,
+                    KN=>J_, KU=>I_, KV=>I_, KT=>I_)
 
 # reference management
 r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
@@ -139,4 +146,40 @@ k_(h::Integer, m::String) =
     ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_(C_NULL))
 k_(h::Integer, m::String, x::K_...) =
     ccall((@k_sym :k), K_, (I_, S_, K_...), h, m, x..., K_(C_NULL))
+
+# Iterator protocol
+import Base.start, Base.next, Base.done, Base.length, Base.eltype
+struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
+eltype(x::K_) = C_TYPE[xt(x)]
+function start(x::K_)
+    T = eltype(x)
+    ptr = Ptr{T}(x+16)
+    stride = sizeof(T)
+    stop = ptr + xn(x)*stride
+    return _State{T}(ptr, stop, stride)
+end
+next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
+done(x, s) = s.ptr == s.stop
+length(x) = xn(x)
+
+# Filling the elements
+import Base.pointer, Base.fill!, Base.copy!
+pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+15+i))
+function fill!(x::K_, el)
+    const n = xn(x)
+    const p = pointer(x)
+    const T = typeof(p).parameters[1]
+    const f = (T === K_ ? r1 : identity)
+    for i in 1:n
+        unsafe_store!(p, f(el::T), i)
+    end
+end
+function copy!(x::K_, iter)
+    const p = pointer(x)
+    const T = typeof(p).parameters[1]
+    const f = (T === K_ ? r1 : identity)
+    for (i, el::T) in enumerate(iter)
+        unsafe_store!(p, f(el), i)
+    end
+end
 end # module k

@@ -18,12 +18,7 @@ type K_Object
         return px
     end
 end
-const C_TYPE = Dict(KB=>G_, UU=>UInt128, KG=>G_,
-                    KH=>H_, KI=>I_, KJ=>J_,
-                    KE=>E_, KF=>F_,
-                    KC=>G_, KS=>S_,
-                    KP=>J_, KM=>I_, KD=>I_,
-                    KN=>J_, KU=>I_, KV=>I_, KT=>I_)
+
 const JULIA_TYPE = Dict(KB=>Bool, UU=>UInt128, KG=>G_,
                     KH=>H_, KI=>I_, KJ=>J_,
                     KE=>E_, KF=>F_,
@@ -31,19 +26,6 @@ const JULIA_TYPE = Dict(KB=>Bool, UU=>UInt128, KG=>G_,
                     KP=>J_, KM=>I_, KD=>I_,
                     KN=>J_, KU=>I_, KV=>I_, KT=>I_)
 
-import Base.start, Base.next, Base.done, Base.length, Base.eltype
-struct _State ptr; stop; stride::Int64 end
-eltype(x::K_) = C_TYPE[xt(x)]
-function start(x::K_)
-    t = eltype(x)
-    ptr = Ptr{t}(x+16)
-    stride = sizeof(t)
-    stop = ptr + xn(x)*stride
-    return _State(ptr, stop, stride)
-end
-next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
-done(x, s) = s.ptr == s.stop
-length(x) = xn(x)
 
 type K_Scalar{t,CT,JT}
     o::K_Object

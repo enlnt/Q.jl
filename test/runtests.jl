@@ -1,6 +1,7 @@
 using JuQ
 using JuQ.k
 using Base.Test
+using JuQ.K_Object
 
 NUMBER_TYPES = [UInt8, Int16, Int32, Int64, Float32, Float64]
 
@@ -41,6 +42,14 @@ end
     @test empty_vector(KJ, J_)
     @test empty_vector(KE, E_)
     @test empty_vector(KF, F_)
+  end
+  @testset "Vector ops" begin
+    let o = K_Object(ktn(KJ, 3)), x = o.x
+      @test eltype(x) === J_
+      @test length(x) == 3
+      @test (fill!(x, 42); collect(x)) == [42, 42, 42]
+      @test (copy!(x, [1, 2, 3]); collect(x)) == [1, 2, 3]
+    end
   end
 end
 @testset "Low to high level - K(K_)" begin
