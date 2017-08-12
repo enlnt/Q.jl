@@ -54,6 +54,7 @@ struct k0
     r::I_  # reference count
 end
 const K_ = Ptr{k0}
+Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
 const C_TYPE = Dict(KK=>K_, KB=>G_, UU=>U_, KG=>G_,
                     KH=>H_, KI=>I_, KJ=>J_,

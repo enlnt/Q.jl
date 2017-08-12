@@ -14,7 +14,7 @@ type K_Object
     x::K_ # pointer to the actual K object
     function K_Object(x::K_)
         px = new(x)
-        finalizer(px, (x->r0(x.x)))
+        finalizer(px, (o->(x = o.x;x == C_NULL || r0(x))))
         return px
     end
 end
@@ -77,6 +77,9 @@ function Base.getindex(v::K_Chars, i::Integer)
 end
 include("table.jl")
 const K = Union{K_Scalar,K_Vector,K_Table,K_Other}
+Base.show(io::IO, ::Type{K}) = write(io, "K")
+_cast(::Type{K}, x::K_) = K(x == C_NULL ? x : r1(x))
+_cast(::Type{K_}, x::K) = (x = x.o.x; x == C_NULL ? x : r1(x))
 
 const JULIA_TYPE = Dict(KK=>K, KB=>Bool, UU=>UInt128, KG=>G_,
                         KH=>H_, KI=>I_, KJ=>J_,
@@ -89,9 +92,8 @@ const JULIA_TYPE = Dict(KK=>K, KB=>Bool, UU=>UInt128, KG=>G_,
 include("conversions.jl")
 
 # Setting the vector elements
-_cast(::Type{K_}, x::K) = r1(x.o.x)
 import Base.pointer, Base.fill!, Base.copy!, Base.setindex!
-pointer{t,CT,JT}(x::K_Vector{t,CT,JT}, i=1::Integer) = Ptr{CT}(x.o.x+15+i)
+pointer{t,CT,JT}(x::K_Vector{t,CT,JT}, i::Integer=1) = Ptr{CT}(x.o.x+15+i)
 function fill!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT)
     const n = xn(x.o.x)
     const p = pointer(x)
@@ -128,8 +130,7 @@ function Base.getindex(::Type{K}, v...)
     const n = length(v)
     v = promote(v...)
     u = unique(map(typeof, v))
-    if length(u) == 1
-        const t = K_TYPE[u[1]]
+    if length(u) == 1 && (const t = get(K_TYPE, u[1], KK)) > KK
         const x = ktn(t, n)
         const T = eltype(x)
         v = map(e->_cast(T, e), collect(v))

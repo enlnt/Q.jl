@@ -9,8 +9,11 @@ const K_TYPE = Dict(Bool=>KB,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
                     Char=>KC, Symbol=>KS, Cstring=>KS)
-
+const K_None = K_Other(K_Object(ktj(101, 0)))
 function Base.convert(::Type{K}, x::K_)
+    if x == C_NULL
+        return K_None
+    end
     o = K_Object(x)
     t = xt(x)
     if (t < 0)
