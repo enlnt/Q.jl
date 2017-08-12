@@ -5,7 +5,7 @@ export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn, xk, xx, xy
-export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_Ptr
+export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD
 export @k_sym
@@ -35,89 +35,89 @@ const UU = Int8(2)
 const XT = Int8(98) #   x->k is XD
 const XD = Int8(99) #   kK(x)[0] is keys. kK(x)[1] is values.
 
-C_ = Cchar
-S_ = Cstring
-G_ = Cuchar
-H_ = Cshort
-I_ = Cint
-J_ = Clonglong
-E_ = Cfloat
-F_ = Cdouble
-V_ = Void
-U_ = UInt128
+const C_ = Cchar
+const S_ = Cstring
+const G_ = Cuchar
+const H_ = Cshort
+const I_ = Cint
+const J_ = Clonglong
+const E_ = Cfloat
+const F_ = Cdouble
+const V_ = Void
+const U_ = UInt128
 
 struct k0
     m::C_
     a::C_
-    t::C_
+    t::C_  # type code
     u::C_
-    r::I_
+    r::I_  # reference count
 end
-K_Ptr = Ptr{k0}
+const K_ = Ptr{k0}
 
 # reference management
-r0(x::K_Ptr) = ccall((@k_sym :r0), K_Ptr, (K_Ptr,), x)
-r1(x::K_Ptr) = ccall((@k_sym :r1), K_Ptr, (K_Ptr,), x)
+r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
+r1(x::K_) = ccall((@k_sym :r1), K_, (K_,), x)
 
 # head accessors
-xa(x::K_Ptr) = unsafe_load(x).a
-xt(x::K_Ptr) = unsafe_load(x).t
-xr(x::K_Ptr) = unsafe_load(x).r
+xa(x::K_) = unsafe_load(x).a
+xt(x::K_) = unsafe_load(x).t
+xr(x::K_) = unsafe_load(x).r
 
 # scalar accessors
-xg(x::K_Ptr) = unsafe_load(Ptr{G_}(x+8))
-xh(x::K_Ptr) = unsafe_load(Ptr{H_}(x+8))
-xi(x::K_Ptr) = unsafe_load(Ptr{I_}(x+8))
-xj(x::K_Ptr) = unsafe_load(Ptr{J_}(x+8))
-xe(x::K_Ptr) = unsafe_load(Ptr{E_}(x+8))
-xf(x::K_Ptr) = unsafe_load(Ptr{F_}(x+8))
-xs(x::K_Ptr) = unsafe_string(unsafe_load(Ptr{S_}(x+8)))
+xg(x::K_) = unsafe_load(Ptr{G_}(x+8))
+xh(x::K_) = unsafe_load(Ptr{H_}(x+8))
+xi(x::K_) = unsafe_load(Ptr{I_}(x+8))
+xj(x::K_) = unsafe_load(Ptr{J_}(x+8))
+xe(x::K_) = unsafe_load(Ptr{E_}(x+8))
+xf(x::K_) = unsafe_load(Ptr{F_}(x+8))
+xs(x::K_) = unsafe_string(unsafe_load(Ptr{S_}(x+8)))
 
 # vector accessors
-xn(x::K_Ptr) = unsafe_load(Ptr{J_}(x+8))
-xG(x::K_Ptr) = Ptr{G_}(x+16)
-xH(x::K_Ptr) = Ptr{H_}(x+16)
-xI(x::K_Ptr) = Ptr{I_}(x+16)
-xJ(x::K_Ptr) = Ptr{J_}(x+16)
-xE(x::K_Ptr) = Ptr{E_}(x+16)
-xF(x::K_Ptr) = Ptr{F_}(x+16)
+xn(x::K_) = unsafe_load(Ptr{J_}(x+8))
+xG(x::K_) = Ptr{G_}(x+16)
+xH(x::K_) = Ptr{H_}(x+16)
+xI(x::K_) = Ptr{I_}(x+16)
+xJ(x::K_) = Ptr{J_}(x+16)
+xE(x::K_) = Ptr{E_}(x+16)
+xF(x::K_) = Ptr{F_}(x+16)
 
 # table and dict accessors
-xk(x::K_Ptr) = unsafe_load(Ptr{K_Ptr}(x+8))
-xx(x::K_Ptr) = unsafe_load(Ptr{K_Ptr}(x+16), 1)
-xy(x::K_Ptr) = unsafe_load(Ptr{K_Ptr}(x+16), 2)
+xk(x::K_) = unsafe_load(Ptr{K_}(x+8))
+xx(x::K_) = unsafe_load(Ptr{K_}(x+16), 1)
+xy(x::K_) = unsafe_load(Ptr{K_}(x+16), 2)
 
 
 # scalar constructors
-ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_Ptr, (I_, J_), t, x)
-kb(x::Integer) = ccall((@k_sym :kb), K_Ptr, (I_,), x)
-kg(x::Integer) = ccall((@k_sym :kg), K_Ptr, (I_,), x)
-ka(x::Integer) = ccall((@k_sym :ka), K_Ptr, (I_,), x)
-kh(x::Integer) = ccall((@k_sym :kh), K_Ptr, (I_,), x)
-ki(x::Integer) = ccall((@k_sym :ki), K_Ptr, (I_,), x)
-kj(x::Integer) = ccall((@k_sym :kj), K_Ptr, (J_,), x)
-ke(x::Real) = ccall((@k_sym :ke), K_Ptr, (F_,), x)
-kf(x::Real) = ccall((@k_sym :kf), K_Ptr, (F_,), x)
-kc(x::Integer) = ccall((@k_sym :kc), K_Ptr, (I_,), x)
+ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
+kb(x::Integer) = ccall((@k_sym :kb), K_, (I_,), x)
+kg(x::Integer) = ccall((@k_sym :kg), K_, (I_,), x)
+ka(x::Integer) = ccall((@k_sym :ka), K_, (I_,), x)
+kh(x::Integer) = ccall((@k_sym :kh), K_, (I_,), x)
+ki(x::Integer) = ccall((@k_sym :ki), K_, (I_,), x)
+kj(x::Integer) = ccall((@k_sym :kj), K_, (J_,), x)
+ke(x::Real) = ccall((@k_sym :ke), K_, (F_,), x)
+kf(x::Real) = ccall((@k_sym :kf), K_, (F_,), x)
+kc(x::Integer) = ccall((@k_sym :kc), K_, (I_,), x)
 sn(x::String, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
 ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
 ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
-ks(x::String) = ccall((@k_sym :ks), K_Ptr, (S_,), x)
+ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
-kp(x::String) = ccall((@k_sym :kp), K_Ptr, (S_,), x)
-ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_Ptr, (I_, J_), t, n)
-#knk(n) = begin @assert n == 0; ccall((@k_sym :knk), K_Ptr, (I_,), 0) end
-function knk(n::Integer, x::K_Ptr...)
+kp(x::String) = ccall((@k_sym :kp), K_, (S_,), x)
+ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_, (I_, J_), t, n)
+#knk(n) = begin @assert n == 0; ccall((@k_sym :knk), K_, (I_,), 0) end
+function knk(n::Integer, x::K_...)
     r = ktn(0, n)
     for i in 1:n
-        unsafe_store!(Ptr{K_Ptr}(r+16), x[i], i)
+        unsafe_store!(Ptr{K_}(r+16), x[i], i)
     end
     return r
 end
 # table, dictionary
-xT(x::K_Ptr) = ccall((@k_sym :xT), K_Ptr, (K_Ptr, ), x)
-xD(x::K_Ptr, y::K_Ptr) = ccall((@k_sym :xD), K_Ptr, (K_Ptr, K_Ptr), x, y)
+xT(x::K_) = ccall((@k_sym :xT), K_, (K_, ), x)
+xD(x::K_, y::K_) = ccall((@k_sym :xD), K_, (K_, K_), x, y)
 
 # communications
 # extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
@@ -126,7 +126,7 @@ khpun(h::String, p::Integer, u::String, n::Integer) =
 khpu(h::String, p::Integer, u::String) =
     ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
 khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
-okx(x::K_Ptr) = ccall((@k_sym :okx), I_, (K_Ptr, ), x)
+okx(x::K_) = ccall((@k_sym :okx), I_, (K_, ), x)
 kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
 
 # Dates
@@ -136,7 +136,7 @@ dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
 # K k(I,const S,...)
 k_(h::Integer, m::String) =
-    ccall((@k_sym :k), K_Ptr, (I_, S_, K_Ptr), h, m, K_Ptr(C_NULL))
-k_(h::Integer, m::String, x::K_Ptr...) =
-    ccall((@k_sym :k), K_Ptr, (I_, S_, K_Ptr...), h, m, x..., K_Ptr(C_NULL))
+    ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_(C_NULL))
+k_(h::Integer, m::String, x::K_...) =
+    ccall((@k_sym :k), K_, (I_, S_, K_...), h, m, x..., K_(C_NULL))
 end # module k

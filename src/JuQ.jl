@@ -7,12 +7,12 @@ using JuQ.k
 # Wrapper around q's C K type, with hooks to q reference
 # counting and conversion routines to/from C and Julia types.
 """
-    K_Object(x::K_Ptr)
+    K_Object(x::K_)
 A K object reference managed by Julia GC.
 """
 type K_Object
-    x::K_Ptr # pointer to the actual K object
-    function K_Object(x::K_Ptr)
+    x::K_ # pointer to the actual K object
+    function K_Object(x::K_)
         px = new(x)
         finalizer(px, (x->r0(x.x)))
         return px
@@ -33,8 +33,8 @@ const JULIA_TYPE = Dict(KB=>Bool, UU=>UInt128, KG=>G_,
 
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
 struct _State ptr; stop; stride::Int64 end
-eltype(x::K_Ptr) = C_TYPE[xt(x)]
-function start(x::K_Ptr)
+eltype(x::K_) = C_TYPE[xt(x)]
+function start(x::K_)
     t = eltype(x)
     ptr = Ptr{t}(x+16)
     stride = sizeof(t)

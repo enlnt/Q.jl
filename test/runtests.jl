@@ -43,7 +43,7 @@ end
     @test empty_vector(KF, F_)
   end
 end
-@testset "Low to high level - K(K_Ptr)" begin
+@testset "Low to high level - K(K_)" begin
   @test Number(K(kb(1))) === true
   @test Number(K(kg(1))) == 1
   @test Number(K(kh(1))) == 1
