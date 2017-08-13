@@ -1,5 +1,5 @@
 module JuQ
-export K, K_Vector, hopen, hclose, hget
+export K, K_Scalar, K_Vector, K_Table, hopen, hclose, hget
 include("k.jl")
 using JuQ.k
 
@@ -145,22 +145,25 @@ end
 hopen(h::String, p::Integer) = khp(h, p)
 hclose = kclose
 
-hget(h::Integer, m::String) = K_Object(k_(h, m))
+hget(h::Integer, m::String) = K(k_(h, m))
 function hget(h::Integer, m::String, x...)
-   x = map(K, x)
-   r = k_(h, m, map(x->x.o.x, x)...)
+   r = k_(h, m, map(K_, x)...)
    return K(r)
 end
 function hget(h::Tuple{String,Integer}, m)
    h = hopen(h...)
-   r = hget(h, m)
-   kclose(h)
-   return r
+   try
+       return hget(h, m)
+   finally
+       kclose(h)
+   end
 end
 function hget(h::Tuple{String,Integer}, m, x...)
    h = hopen(h...)
-   r = hget(h, m, x...)
-   kclose(h)
-   return r
+   try
+       return hget(h, m, x...)
+   finally
+       kclose(h)
+   end
 end
-end # module
+end # module JuQ

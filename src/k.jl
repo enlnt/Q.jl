@@ -3,6 +3,7 @@ export k_, khpun, khpu, khp, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
+export js, jk
 export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
@@ -131,8 +132,8 @@ xT(x::K_) = ccall((@k_sym :xT), K_, (K_, ), x)
 xD(x::K_, y::K_) = ccall((@k_sym :xD), K_, (K_, K_), x, y)
 
 # ja(K*,V*),js(K*,S),jk(K*,K),jv(K*k,K)
+js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
-
 
 # communications
 # extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
@@ -196,7 +197,8 @@ end
 # arithmetic on K_ pointers. Consider using a different name
 # for K_ form Julia constructors.  For example K_new(x) instead
 # of K_(x).
-Base.convert(::Type{K_}, x::UInt64) = Core.Intrinsics.bitcast(Ptr{K_}, x)
+Base.convert(::Type{K_}, x::UInt64) = Core.Intrinsics.bitcast(K_, x)
+Base.convert(::Type{K_}, x::Ptr) = Core.Intrinsics.bitcast(K_, x)
 # XXX: A do nothing conversion. Should this call r1(⋅)?
 Base.convert(::Type{K_}, x::K_) = x  # allow K_(x::K_)
 ## Conversions of simple types

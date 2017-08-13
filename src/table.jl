@@ -17,6 +17,17 @@ struct K_Table  <: AbstractDataFrame
         o = K_Object(xT(xD(r1(x.o.x), y)))
         new(o)
     end
+    function K_Table(; kwargs...)
+        x = ktn(KS, 0)
+        y = ktn(KK, 0)
+        rx, ry = map(Ref{K_}, [x, y])
+        for (k, v) in kwargs
+            x = js(rx, ss(k))
+            y = jk(ry, K_(v))
+        end
+        o = K_Object(xT(xD(x, y)))
+        new(o)
+    end
 end
 
 DataFrames.ncol(x::K_Table) = xn(xx(xk(x.o.x)))
