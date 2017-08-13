@@ -1,7 +1,17 @@
 # Conversions between Julia and q types for the JuQ module.
 #########################################################################
 const K_None = K_Other(K_Object(ktj(101, 0)))
-
+Base.convert(::Type{K_}, x::K) = x.o.x
+# Conversion fom the Vector of K's to K_
+function Base.convert(::Type{K_}, v::Vector{K_Vector})
+    const n = length(v)
+    const x = ktn(KK, n)
+    const p = pointer(x)
+    for (i, vi) in enumerate(v)
+        unsafe_store!(p, r1(vi.o.x), i)
+    end
+    return x
+end
 # Julia to K conversions
 function Base.convert(::Type{K}, x::K_)
     if x == C_NULL
