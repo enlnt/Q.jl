@@ -130,6 +130,10 @@ end
 xT(x::K_) = ccall((@k_sym :xT), K_, (K_, ), x)
 xD(x::K_, y::K_) = ccall((@k_sym :xD), K_, (K_, K_), x, y)
 
+# ja(K*,V*),js(K*,S),jk(K*,K),jv(K*k,K)
+jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
+
+
 # communications
 # extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
 khpun(h::String, p::Integer, u::String, n::Integer) =
@@ -188,6 +192,13 @@ function copy!(x::K_, iter)
 end
 
 # Low level conversions
+# XXX: The following conversion is needed to allow pointer
+# arithmetic on K_ pointers. Consider using a different name
+# for K_ form Julia constructors.  For example K_new(x) instead
+# of K_(x).
+Base.convert(::Type{K_}, x::UInt64) = Core.Intrinsics.bitcast(Ptr{K_}, x)
+# XXX: A do nothing conversion. Should this call r1(⋅)?
+Base.convert(::Type{K_}, x::K_) = x  # allow K_(x::K_)
 ## Conversions of simple types
 Base.convert(::Type{K_}, x::Bool) = kb(x)
 # TODO: guid
@@ -220,5 +231,14 @@ function Base.convert(::Type{K_}, a::Vector{Symbol})
         unsafe_store!(Ptr{S_}(x+16), si, i)
     end
     return x
+end
+# Last resort - recursively step into literals
+function Base.convert(::Type{K_}, a::Any)
+    x = ktn(0, 0)
+    r = Ref{K_}(x)
+    for i in a
+        jk(r, i isa K_ ? r1(i) : K_(i))
+    end
+    r.x
 end
 end # module k
