@@ -5,7 +5,7 @@ export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn, xk, xx, xy
-export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE
+export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK
 export @k_sym
@@ -62,7 +62,10 @@ const C_TYPE = Dict(KK=>K_, KB=>G_, UU=>U_, KG=>G_,
                     KC=>G_, KS=>S_,
                     KP=>J_, KM=>I_, KD=>I_,
                     KN=>J_, KU=>I_, KV=>I_, KT=>I_)
-
+const K_TYPE = Dict(Bool=>KB,
+                    UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
+                    Float32=>KE, Float64=>KF,
+                    Char=>KC, Symbol=>KS, Cstring=>KS)
 # reference management
 r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
 r1(x::K_) = ccall((@k_sym :r1), K_, (K_,), x)
@@ -182,5 +185,40 @@ function copy!(x::K_, iter)
     for (i, el::T) in enumerate(iter)
         unsafe_store!(p, f(el), i)
     end
+end
+
+# Low level conversions
+## Conversions of simple types
+Base.convert(::Type{K_}, x::Bool) = kb(x)
+# TODO: guid
+Base.convert(::Type{K_}, x::UInt8) = kg(x)
+Base.convert(::Type{K_}, x::Int16) = kh(x)
+Base.convert(::Type{K_}, x::Int32) = ki(x)
+Base.convert(::Type{K_}, x::Int64) = kj(x)
+Base.convert(::Type{K_}, x::Float32) = ke(x)
+Base.convert(::Type{K_}, x::Float64) = kf(x)
+Base.convert(::Type{K_}, x::Symbol) = ks(String(x))
+Base.convert(::Type{K_}, x::Char) = kc(Int8(x))
+Base.convert(::Type{K_}, x::String) = kp(x)
+## Vector conversions
+function Base.convert(::Type{K_}, a::Vector{T}) where {T<:Number}
+    t = K_TYPE[T]
+    CT = C_TYPE[t]
+    n = length(a)
+    x = ktn(t, n)
+    unsafe_copy!(Ptr{T}(x+16), pointer(a), n)
+    return x
+end
+function Base.convert(::Type{K_}, a::Vector{Symbol})
+    t = KS
+    CT = S_
+    JT = Symbol
+    n = length(a)
+    x = ktn(t, n)
+    for i in 1:n
+        si = ss(a[i])
+        unsafe_store!(Ptr{S_}(x+16), si, i)
+    end
+    return x
 end
 end # module k
