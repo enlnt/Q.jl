@@ -9,20 +9,7 @@ export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK
-export @k_sym
-
-const SYS_CHAR = Dict(
-    :Linux => 'l',
-    :Darwin => 'm',
-)
-const SYS_ARCH = @sprintf("%c%d", SYS_CHAR[Sys.KERNEL], Sys.WORD_SIZE)
-const C_SO_PATH = joinpath(dirname(@__FILE__), SYS_ARCH, "c")
-const C_SO = Libdl.dlopen(C_SO_PATH,
-            Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
-
-macro k_sym(func)
-    :(($(esc(func)), C_SO_PATH))
-end
+include("startup.jl")
 
 #########################################################################
 # k.h
