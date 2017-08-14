@@ -5,7 +5,7 @@ export r0, r1
 export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export js, jk
 export ktn, knk, kp, xT, xD
-export xa, xt, xr, xg, xh, xi, xj, xf, xs, xn, xk, xx, xy
+export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK
@@ -99,21 +99,33 @@ xk(x::K_) = unsafe_load(Ptr{K_}(x+8))
 xx(x::K_) = unsafe_load(Ptr{K_}(x+16), 1)
 xy(x::K_) = unsafe_load(Ptr{K_}(x+16), 2)
 
-
 # scalar constructors
+ktj(t::I_, x::I_) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
 ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
+kb(x::I_) = ccall((@k_sym :kb), K_, (I_,), x)
 kb(x::Integer) = ccall((@k_sym :kb), K_, (I_,), x)
+kg(x::I_) = ccall((@k_sym :kg), K_, (I_,), x)
 kg(x::Integer) = ccall((@k_sym :kg), K_, (I_,), x)
+ka(x::I_) = ccall((@k_sym :ka), K_, (I_,), x)
 ka(x::Integer) = ccall((@k_sym :ka), K_, (I_,), x)
+kh(x::I_) = ccall((@k_sym :kh), K_, (I_,), x)
 kh(x::Integer) = ccall((@k_sym :kh), K_, (I_,), x)
+ki(x::I_) = ccall((@k_sym :ki), K_, (I_,), x)
 ki(x::Integer) = ccall((@k_sym :ki), K_, (I_,), x)
+kj(x::J_) = ccall((@k_sym :kj), K_, (J_,), x)
 kj(x::Integer) = ccall((@k_sym :kj), K_, (J_,), x)
+ke(x::F_) = ccall((@k_sym :ke), K_, (F_,), x)
 ke(x::Real) = ccall((@k_sym :ke), K_, (F_,), x)
+kf(x::F_) = ccall((@k_sym :kf), K_, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_, (F_,), x)
+kc(x::I_) = ccall((@k_sym :kc), K_, (I_,), x)
 kc(x::Integer) = ccall((@k_sym :kc), K_, (I_,), x)
+sn(x::S_, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
 sn(x::String, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
+ss(x::S_) = ccall((@k_sym :ss), S_, (S_,), x)
 ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
 ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
+ks(x::S_) = ccall((@k_sym :ks), K_, (S_,), x)
 ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
