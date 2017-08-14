@@ -166,4 +166,7 @@ function hget(h::Tuple{String,Integer}, m, x...)
        kclose(h)
    end
 end
+if GOT_Q
+    include("q.jl")
+end
 end # module JuQ
