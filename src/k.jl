@@ -150,12 +150,36 @@ ymd(y::Integer, m::Integer, d::Integer) =
     ccall((@k_sym :ymd), I_, (I_, I_, I_), y, m, d)
 dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
+const K_NULL = K_(C_NULL)
 # K k(I,const S,...)
+# TODO: Use Julia metaprogramming to avoid repetition
 k_(h::Integer, m::String) =
-    ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_(C_NULL))
-k_(h::Integer, m::String, x::K_...) =
-    ccall((@k_sym :k), K_, (I_, S_, K_...), h, m, x..., K_(C_NULL))
-
+    ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_NULL)
+k_(h::Integer, m::String, x1::K_) =
+    ccall((@k_sym :k), K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_) =
+    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_),
+            h, m, x1, x2, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
+    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_),
+            h, m, x1, x2, x3, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) =
+    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_),
+            h, m, x1, x2, x3, x4, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) =
+    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_),
+            h, m, x1, x2, x3, x4, x5, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) =
+    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_),
+            h, m, x1, x2, x3, x4, x5, x6, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
+    x7::K_) =
+        ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_),
+                h, m, x1, x2, x3, x4, x5, x6, x7, K_NULL)
+k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
+    x7::K_, x8::K_) =
+        ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
+                h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
 # Iterator protocol
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
 struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
