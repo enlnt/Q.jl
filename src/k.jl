@@ -149,6 +149,12 @@ ymd(y::Integer, m::Integer, d::Integer) =
     ccall((@k_sym :ymd), I_, (I_, I_, I_), y, m, d)
 dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
+if GOT_Q
+    export dot_, ee  # avoid conflict with Base.dot.
+    dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
+    ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
+end
+
 const K_NULL = K_(C_NULL)
 # K k(I,const S,...)
 # TODO: Use Julia metaprogramming to avoid repetition
