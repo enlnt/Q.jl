@@ -2,7 +2,7 @@
 language: julia
 os:
   - linux
-  - osx
+  # - osx
 julia:
   - 0.6
   - nightly
@@ -17,17 +17,43 @@ git:
 #  allow_failures:
 #  - julia: nightly
 
-## uncomment and modify the following lines to manually install system packages
-#addons:
-#  apt: # apt-get for linux
-#    packages:
-#    - gfortran
-before_script: # homebrew for mac
+addons:
+ apt:
+   packages:
+    - libc6:i386
+    - libncurses5:i386
+    - libstdc++6:i386
+    - libz-dev:i386
+    - clang-3.9:i386
+    - libssl1.0.0
+    - gcc-multilib
+    - g++-multilib
+    - make:i386
+    - libssl-dev:i386
+    - gfortran
+    - gfortran-multilib
+env:
+  - ARCH="i686"
+before_script:
+  # - sudo dpkg --add-architecture i386
+  # - sudo apt-get update && sudo apt-get install -y
+  - echo "Installing Julia 32-bit"
+  - CURL_USER_AGENT="Travis-CI $(curl --version | head -n 1)"
+  - mkdir -p ~/julia32
+  - curl -A "$CURL_USER_AGENT" -s -L --retry 7 'https://julialang-s3.julialang.org/bin/linux/x86/0.6/julia-0.6.0-linux-i686.tar.gz' | tar -C ~/julia32 -x -z --strip-components=1 -f -
+  - export PATH="${HOME}/julia32/bin:${PATH}"
+  - ls -la /home/travis/julia32/bin/julia
+  - julia -e 'versioninfo()'
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then mkdir -p $HOME/q/m64; else mkdir -p $HOME/q/l64; fi 
+  - if [ $TRAVIS_OS_NAME = osx ]; then curl -e https://kx.com "${KDBURL}/3.5/macosx.zip" -o /tmp/kdb.zip; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then curl -e https://kx.com "${KDBURL}/3.5/linuxx86.zip" -o /tmp/kdb.zip; fi
+  - unzip /tmp/kdb.zip -d "${HOME}" && rm "${HOME}/q/q.q"
+
 ## uncomment the following lines to override the default test script
-#script:
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
+script:
+ - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
+ - if [ $TRAVIS_OS_NAME = linux ]; then echo -e "J)println(42)\nexit 0" > test.q && $HOME/q/l32/q test.q -q; fi
 after_success:
   # push coverage results to Coveralls
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

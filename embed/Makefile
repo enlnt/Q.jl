@@ -9,7 +9,7 @@ SOFLAGS_Darwin = -bundle -undefined dynamic_lookup
 SOFLAGS  += $(SOFLAGS_$(shell uname))
 
 J.so: J.c
-	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS)
+        $(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS) -m32 -march=pentium4
 
 install: J.so
 	cp J.k julia.q $(QHOME)
