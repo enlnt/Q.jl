@@ -1,6 +1,7 @@
 using JuQ
 using JuQ.k
 using Base.Test
+using JuQ.K_Object
 
 NUMBER_TYPES = [UInt8, Int16, Int32, Int64, Float32, Float64]
 
@@ -19,8 +20,34 @@ function empty_vector(t, typ)
   r0(x)
   return res
 end
+# Adds r0(x) to the end and runs @test
+macro xtest(e::Expr)
+  quote
+    @test $(esc(Expr(:block, Expr(:(=), :r, e), :(r0(x)), :r)))
+  end
+end
 
 @testset "Low level (k)" begin
+  @testset "Reference counts" begin
+    @xtest begin
+      x = kj(0)
+      n = [xr(x)]
+      push!(n, xr(r1(x)))
+      push!(n, xr(r0(x)))
+      n == [0, 1, 0]
+    end
+  end
+  @testset "Scalar constructors" begin
+    @xtest (x = kb(1); xt(x) == -KB; xg(x) === G_(1))
+    @xtest (x = kg(8); xt(x) == -KG; xg(x) === G_(8))
+    @xtest (x = kh(100); xt(x) == -KH; xh(x) === H_(100))
+    @xtest (x = ki(100); xt(x) == -KI; xi(x) === I_(100))
+    @xtest (x = kj(100); xt(x) == -KJ; xj(x) === J_(100))
+    @xtest (x = ke(1.5); xt(x) == -KE; xe(x) === E_(1.5))
+    @xtest (x = kf(1.5); xt(x) == -KF; xf(x) === F_(1.5))
+    @xtest (x = kc(10); xt(x) == -KC; xg(x) == G_(10))
+    @xtest (x = ks("a"); xt(x) == -KS; xs(x) == "a")
+  end
   @testset "Date conversions" begin
     @test ymd(2000, 1, 1) == 0
     @test dj(0) == 20000101
@@ -42,8 +69,30 @@ end
     @test empty_vector(KE, E_)
     @test empty_vector(KF, F_)
   end
+  @testset "Vector ops" begin
+    let o = K_Object(ktn(KJ, 3)), x = o.x
+      @test eltype(x) === J_
+      @test length(x) == 3
+      @test (fill!(x, 42); collect(x)) == [42, 42, 42]
+      @test (copy!(x, [1, 2, 3]); collect(x)) == [1, 2, 3]
+    end
+  end
+  @testset "Vector extend" begin
+    @xtest begin
+      x = ktn(KS, 0)
+      x = js(Ref{K_}(x), ss("a"))
+      x= js(Ref{K_}(x), ss("b"))
+      map(unsafe_string, x) == ["a", "b"]
+    end
+    @xtest begin
+      x = ktn(KK, 0)
+      x = jk(Ref{K_}(x), ktn(0, 0))
+      x = jk(Ref{K_}(x), ktn(0, 0))
+      xn(x) == 2
+    end
+  end
 end
-@testset "Low to high level - K(K_Ptr)" begin
+@testset "Low to high level - K(K_)" begin
   @test Number(K(kb(1))) === true
   @test Number(K(kg(1))) == 1
   @test Number(K(kh(1))) == 1
@@ -62,6 +111,11 @@ end
   @test String(K(kp("abc"))) == "abc"
 end
 @testset "High level (K objects)" begin
+  @testset "Vector constructors" begin
+    @test (x = K[]; eltype(x) == K)
+    @test (x = K[1]; eltype(x) == Int64 && Array(x) == [1])
+    @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
+  end
   @testset "Round trip" begin
     for T in NUMBER_TYPES
       a = [typemin(T), typemax(T), zero(T)]
