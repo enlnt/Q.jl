@@ -141,5 +141,16 @@ end
       @test string(K(42)) == "42"
       @test string(K(:a)) == "a"
     end
+    @testset "K constructors" begin
+      @test (x = K(true); unsafe_load(pointer(x)) === 0x01)
+      @test (x = K(0x42); unsafe_load(pointer(x)) === 0x42)
+      @test (x = K(Int16(11)); unsafe_load(pointer(x)) === Int16(11))
+      @test (x = K(Int32(11)); unsafe_load(pointer(x)) === Int32(11))
+      @test (x = K(11); unsafe_load(pointer(x)) === 11)
+      @test (x = K(Float32(11)); unsafe_load(pointer(x)) === Float32(11))
+      @test (x = K(11.); unsafe_load(pointer(x)) === 11.)
+      @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
+      @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
+    end
   end
 end

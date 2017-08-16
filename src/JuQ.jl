@@ -115,6 +115,9 @@ function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT, i::Int)
     unsafe_store!(p, el, i)
 end
 
+# Payload of scalars
+pointer{t,CT,JT}(x::K_Scalar{t,CT,JT}) = Ptr{CT}(x.o.x+8)
+
 # K[...] constructors
 
 Base.getindex(::Type{K}) = K(ktn(0,0))
