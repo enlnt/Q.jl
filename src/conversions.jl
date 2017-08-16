@@ -31,7 +31,7 @@ function Base.convert(::Type{K}, x::K_)
     return K_Other(o)
 end
 Base.convert(::Type{K}, x::K) = x
-Base.convert(::Type{K}, x) = K(K_(x))
+Base.convert(::Type{K}, x) = K(K_new(x))
 
 # K to Julia type conversions
 Base.convert(::Type{S}, s::K_Scalar{t,CT,JT}) where {S<:Number,t,CT,JT<:S} =

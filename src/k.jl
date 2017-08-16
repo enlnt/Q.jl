@@ -9,6 +9,7 @@ export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK
+export K_new
 include("startup.jl")
 
 #########################################################################
@@ -188,7 +189,7 @@ k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
 # Iterator protocol
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
 struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
-eltype(x::K_) = C_TYPE[xt(x)]
+eltype(x::K_) = C_TYPE[abs(xt(x))]
 function start(x::K_)
     T = eltype(x)
     ptr = Ptr{T}(x+16)
@@ -221,29 +222,22 @@ function copy!(x::K_, iter)
     end
 end
 
-# Low level conversions
-# XXX: The following conversion is needed to allow pointer
-# arithmetic on K_ pointers. Consider using a different name
-# for K_ form Julia constructors.  For example K_new(x) instead
-# of K_(x).
-Base.convert(::Type{K_}, x::UInt64) = Core.Intrinsics.bitcast(K_, x)
-Base.convert(::Type{K_}, x::Ptr) = Core.Intrinsics.bitcast(K_, x)
-# XXX: A do nothing conversion. Should this call r1(⋅)?
-Base.convert(::Type{K_}, x::K_) = x  # allow K_(x::K_)
-## Conversions of simple types
-Base.convert(::Type{K_}, x::Bool) = kb(x)
+## New reference
+K_new(x::K_) = r1(x)
+## Conversion of simple types
+K_new(x::Bool) = kb(x)
 # TODO: guid
-Base.convert(::Type{K_}, x::UInt8) = kg(x)
-Base.convert(::Type{K_}, x::Int16) = kh(x)
-Base.convert(::Type{K_}, x::Int32) = ki(x)
-Base.convert(::Type{K_}, x::Int64) = kj(x)
-Base.convert(::Type{K_}, x::Float32) = ke(x)
-Base.convert(::Type{K_}, x::Float64) = kf(x)
-Base.convert(::Type{K_}, x::Symbol) = ks(String(x))
-Base.convert(::Type{K_}, x::Char) = kc(Int8(x))
-Base.convert(::Type{K_}, x::String) = kp(x)
+K_new(x::UInt8) = kg(x)
+K_new(x::Int16) = kh(x)
+K_new(x::Int32) = ki(x)
+K_new(x::Int64) = kj(x)
+K_new(x::Float32) = ke(x)
+K_new(x::Float64) = kf(x)
+K_new(x::Symbol) = ks(String(x))
+K_new(x::Char) = kc(Int8(x))
+K_new(x::String) = kp(x)
 ## Vector conversions
-function Base.convert(::Type{K_}, a::Vector{T}) where {T<:Number}
+function K_new(a::Vector{T}) where {T<:Number}
     t = K_TYPE[T]
     CT = C_TYPE[t]
     n = length(a)
@@ -251,7 +245,7 @@ function Base.convert(::Type{K_}, a::Vector{T}) where {T<:Number}
     unsafe_copy!(Ptr{T}(x+16), pointer(a), n)
     return x
 end
-function Base.convert(::Type{K_}, a::Vector{Symbol})
+function K_new(a::Vector{Symbol})
     t = KS
     CT = S_
     JT = Symbol
@@ -263,8 +257,8 @@ function Base.convert(::Type{K_}, a::Vector{Symbol})
     end
     return x
 end
-# Last resort - recursively step into literals
-function Base.convert(::Type{K_}, a::Any)
+# Last resort - recursively step into iterabels
+function K_new(a::Any)
     x = ktn(0, 0)
     r = Ref{K_}(x)
     for i in a
