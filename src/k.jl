@@ -50,7 +50,7 @@ Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 struct ∫
     number::C_
     letter::Char
-    name::Symbol
+    name::String
     c_type::Type
     jl_type::Type
     class::Symbol
@@ -58,29 +58,29 @@ end
 
 const TYPE_INFO = [
     # num ltr name c_type jl_type super
-    ∫(1, 'b', :boolean, G_, Bool, :Integer),
+    ∫(1, 'b', "boolean", G_, Bool, :Integer),
 
-    ∫(2, 'g', :guid, U_, UInt128, :Unsigned),
-    ∫(4, 'x', :byte, G_, UInt8, :Unsigned),
+    ∫(2, 'g', "guid", U_, UInt128, :Unsigned),
+    ∫(4, 'x', "byte", G_, UInt8, :Unsigned),
 
-    ∫(5, 'h', :short, H_, Int16, :Signed),
-    ∫(6, 'i', :int, I_, Int32, :Signed),
-    ∫(7, 'j', :long, J_, Int64, :Signed),
+    ∫(5, 'h', "short", H_, Int16, :Signed),
+    ∫(6, 'i', "int", I_, Int32, :Signed),
+    ∫(7, 'j', "long", J_, Int64, :Signed),
 
-    ∫(8, 'e', :real, E_, Float32, :Real),
-    ∫(9, 'f', :float, F_, Float64, :Real),
+    ∫(8, 'e', "real", E_, Float32, :Real),
+    ∫(9, 'f', "float", F_, Float64, :Real),
 
-    ∫(10, 'c', :char, C_, Char, :Any),
-    ∫(11, 's', :symbol, S_, Symbol, :Any),
-    
-    ∫(12, 'p', :timestamp, J_, Int64, :Temporal),
-    ∫(13, 'm', :month, I_, Int32, :Temporal),
-    ∫(14, 'd', :date, I_, Int32, :Temporal),
-    ∫(15, 'z', :datetime, I_, Int32, :Temporal),
-    ∫(16, 'n', :timespan, J_, Int64, :Temporal),
-    ∫(17, 'u', :minute, I_, Int32, :Temporal),
-    ∫(18, 'v', :second, I_, Int32, :Temporal),
-    ∫(19, 't', :time, I_, Int32, :Temporal),
+    ∫(10, 'c', "char", C_, Char, :Any),
+    ∫(11, 's', "symbol", S_, Symbol, :Any),
+
+    ∫(12, 'p', "timestamp", J_, Int64, :Temporal),
+    ∫(13, 'm', "month", I_, Int32, :Temporal),
+    ∫(14, 'd', "date", I_, Int32, :Temporal),
+    ∫(15, 'z', "datetime", I_, Int32, :Temporal),
+    ∫(16, 'n', "timespan", J_, Int64, :Temporal),
+    ∫(17, 'u', "minute", I_, Int32, :Temporal),
+    ∫(18, 'v', "second", I_, Int32, :Temporal),
+    ∫(19, 't', "time", I_, Int32, :Temporal),
 ]
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
