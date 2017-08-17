@@ -58,30 +58,31 @@ end
 
 const TYPE_INFO = [
     # num ltr name c_type jl_type super
-    ∫(1, 'b', "boolean", G_, Bool, :Integer),
+    ∫(1, 'b', "boolean", G_, Bool, :_Bool),
 
-    ∫(2, 'g', "guid", U_, UInt128, :Unsigned),
-    ∫(4, 'x', "byte", G_, UInt8, :Unsigned),
+    ∫(2, 'g', "guid", U_, UInt128, :_Unsigned),
+    ∫(4, 'x', "byte", G_, UInt8, :_Unsigned),
 
-    ∫(5, 'h', "short", H_, Int16, :Signed),
-    ∫(6, 'i', "int", I_, Int32, :Signed),
-    ∫(7, 'j', "long", J_, Int64, :Signed),
+    ∫(5, 'h', "short", H_, Int16, :_Signed),
+    ∫(6, 'i', "int", I_, Int32, :_Signed),
+    ∫(7, 'j', "long", J_, Int64, :_Signed),
 
-    ∫(8, 'e', "real", E_, Float32, :Real),
-    ∫(9, 'f', "float", F_, Float64, :Real),
+    ∫(8, 'e', "real", E_, Float32, :_Float),
+    ∫(9, 'f', "float", F_, Float64, :_Float),
 
-    ∫(10, 'c', "char", C_, Char, :Any),
-    ∫(11, 's', "symbol", S_, Symbol, :Any),
+    ∫(10, 'c', "char", C_, Char, :_Text),
+    ∫(11, 's', "symbol", S_, Symbol, :_Text),
 
-    ∫(12, 'p', "timestamp", J_, Int64, :Temporal),
-    ∫(13, 'm', "month", I_, Int32, :Temporal),
-    ∫(14, 'd', "date", I_, Int32, :Temporal),
-    ∫(15, 'z', "datetime", I_, Int32, :Temporal),
-    ∫(16, 'n', "timespan", J_, Int64, :Temporal),
-    ∫(17, 'u', "minute", I_, Int32, :Temporal),
-    ∫(18, 'v', "second", I_, Int32, :Temporal),
-    ∫(19, 't', "time", I_, Int32, :Temporal),
+    ∫(12, 'p', "timestamp", J_, Int64, :_Temporal),
+    ∫(13, 'm', "month", I_, Int32, :_Temporal),
+    ∫(14, 'd', "date", I_, Int32, :_Temporal),
+    ∫(15, 'z', "datetime", I_, Int32, :_Temporal),
+    ∫(16, 'n', "timespan", J_, Int64, :_Temporal),
+    ∫(17, 'u', "minute", I_, Int32, :_Temporal),
+    ∫(18, 'v', "second", I_, Int32, :_Temporal),
+    ∫(19, 't', "time", I_, Int32, :_Temporal),
 ]
+
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
     Dict(KK=>K_),

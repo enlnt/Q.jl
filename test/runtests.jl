@@ -2,6 +2,7 @@ using JuQ
 using JuQ.k
 using Base.Test
 using JuQ.K_Object
+using Base.Dates.AbstractTime
 
 NUMBER_TYPES = [UInt8, Int16, Int32, Int64, Float32, Float64]
 
@@ -112,6 +113,15 @@ end
 end
 @testset "High level (K objects)" begin
   @testset "Scalar supertypes" begin
+    @test K_boolean <: Integer
+    @test K_guid <: Unsigned
+    @test K_short <: Signed
+    @test K_int <: Signed
+    @test K_long <: Signed
+    @test K_float <: AbstractFloat
+    @test K_real <: AbstractFloat
+    @test K_date <: AbstractTime
+    # instances
     @test K(false) isa Integer
     @test K(0x23) isa Unsigned
     @test K(Int16(0)) isa Signed
