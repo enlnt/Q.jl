@@ -56,4 +56,6 @@ function Base.convert(::Type{String}, x::K_Object)
    error("cannot convert")
 end
 
+Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
+Base.show(io::IO, x::K_boolean) = print(io, x)
 Base.print(io::IO, x::K_symbol) = print(io, Symbol(x))

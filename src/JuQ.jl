@@ -27,13 +27,26 @@ K_CLASSES = Type[]
 # Create a parametrized type for each type class.
 for c in TYPE_CLASSES
     name = k_name(c)
+    super = k_super(c)
     @eval begin
         export $(name)
-        mutable struct $(name){t,CT,JT} <: $(k_super(c))
+        mutable struct $(name){t,CT,JT} <: $(super)
             o::K_Object
+            function $(name){t,CT,JT}(o::K_Object) where {t,CT,JT}
+                t′ = xt(o.x)
+                if t != -t′
+                    throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
+                end
+                new(o)
+            end
+            function $(name){t,CT,JT}(x::$(super)) where {t,CT,JT}
+                o = K_Object(K_new(_cast(CT, x)))
+                new(o)
+            end
         end
-        push!(K_CLASSES, $(name)) 
-        # Pointer to payload
+        push!(K_CLASSES, $(name))
+        # payload
+        Base.eltype{t,CT,JT}(x::$(name){t,CT,JT}) = JT
         Base.pointer{t,CT,JT}(x::$(name){t,CT,JT}) = Ptr{CT}(x.o.x+8)
         load{t,CT,JT}(x::$(name){t,CT,JT}) = unsafe_load(pointer(x))
         store!{t,CT,JT}(x::$(name){t,CT,JT}, y::JT) = unsafe_store!(pointer(x), _cast(JT, y))
@@ -61,8 +74,9 @@ for ti in TYPE_INFO
             r
         end
         K_CLASS[$(ti.number)] = $(class)
-        #Base.convert{T}(::Type{$(name)}, x::T) = convert(Type{$(name)}, $(ti.jl_type)(x))
+        Base.show(io::IO, ::Type{$(name)}) = print(io, $(string(name)))
         Base.convert(::Type{$(ti.jl_type)}, x::$(name)) = _cast($(ti.jl_type), load(x))
+        Base.promote_rule(::Type{$(ti.jl_type)}, ::Type{$(name)}) = $(ti.jl_type)
     end
     if ti.class === :Signed || ti.class === :Integer
         @eval Base.dec(x::$(name), pad::Int=1) = string(dec(load(x), pad), $(ti.letter))
@@ -70,7 +84,7 @@ for ti in TYPE_INFO
         @eval Base.hex(x::$(name), pad::Int=1, neg::Bool=false) = hex(load(x), pad, neg)
     end
 end
-
+include("promote_rules.jl")
 mutable struct K_Other
     o::K_Object
     function K_Other(o::K_Object)
