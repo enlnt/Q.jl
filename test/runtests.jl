@@ -93,12 +93,12 @@ end
   end
 end
 @testset "Low to high level - K(K_)" begin
-  @test Number(K(kb(1))) === true
-  @test Number(K(kg(1))) == 1
-  @test Number(K(kh(1))) == 1
-  @test Number(K(ki(1))) == 1
-  @test Number(K(kj(1))) == 1
-  @test Number(K(ke(1.5))) == 1.5
+  @test Bool(K(kb(1))) === true
+  @test UInt8(K(kg(1))) == 1
+  @test Int16(K(kh(1))) == 1
+  @test Int32(K(ki(1))) == 1
+  @test Int64(K(kj(1))) == 1
+  @test Float32(K(ke(1.5))) == 1.5
 
   @test eltype(Array(K(ktn(KB, 0)))) === Bool
   @test eltype(Array(K(ktn(KG, 0)))) === UInt8
@@ -111,6 +111,14 @@ end
   @test String(K(kp("abc"))) == "abc"
 end
 @testset "High level (K objects)" begin
+  @testset "Scalar supertypes" begin
+    @test K(false) isa Integer
+    @test K(0x23) isa Unsigned
+    @test K(Int16(0)) isa Signed
+    @test K(Int32(0)) isa Signed
+    @test K(Int64(0)) isa Signed
+    @test K(0.0) isa Real
+  end
   @testset "Vector constructors" begin
     @test (x = K[]; eltype(x) == K)
     @test (x = K[1]; eltype(x) == Int64 && Array(x) == [1])
@@ -123,7 +131,7 @@ end
       @test Array(x) == a
       for n in a
         x = K(n)
-        @test Number(x) == n
+        @test T(x) == n
       end
     end
     # Strings and symbols
@@ -138,7 +146,7 @@ end
       @test Array(x) == a
     end
     @testset "Scalar to string" begin
-      @test string(K(42)) == "42"
+      @test string(K(42)) == "42j"
       @test string(K(:a)) == "a"
     end
     @testset "K constructors" begin
