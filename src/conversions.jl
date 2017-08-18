@@ -1,7 +1,16 @@
 # Conversions between Julia and q types for the JuQ module.
 #########################################################################
 const K_None = K_Other(K_Object(ktj(101, 0)))
-Base.convert(::Type{K_}, x::K) = x.o.x
+
+Base.convert(::Type{String}, x::K_symbol) =
+    unsafe_string(unsafe_load(pointer(x)))
+Base.convert(::Type{Symbol}, x::K_char) = Symbol(Char(x))
+Base.convert(::Type{String}, x::K_char) = unsafe_string(pointer(x), 1)
+
+for T in (Int8, Int16, Int32, Int64, Int128, Float32, Float64)
+    @eval Base.convert(::Type{$T}, x::_Signed) = $T(load(x))
+end
+
 # Conversion fom the Vector of K's to K_
 function Base.convert(::Type{K_}, v::Vector{K_Vector})
     const n = length(v)
@@ -17,31 +26,21 @@ function Base.convert(::Type{K}, x::K_)
     if x == C_NULL
         return K_None
     end
-    o = K_Object(x)
     t = xt(x)
-    if (t < 0)
-        return K_Scalar(o)
-    elseif (t == KC)
-        return K_Chars(o)
-    elseif (0 <= t <= KS)
-        return K_Vector(o)
-    elseif (t == XT)
-        return K_Table(o)
+    if t < 0
+        return K_Scalar(x)
+    elseif t == KC
+        return K_Chars(K_Object(r1(x)))
+    elseif 0 <= t <= KS
+        return K_Vector(K_Object(r1(x)))
+    elseif t == XT
+        return K_Table(K_Object(r1(x)))
     end
-    return K_Other(o)
+    return K_Other(K_Object(r1(x)))
 end
 Base.convert(::Type{K}, x::K) = x
 Base.convert(::Type{K}, x) = K(K_new(x))
 
-# K to Julia type conversions
-Base.convert(::Type{S}, s::K_Scalar{t,CT,JT}) where {S<:Number,t,CT,JT<:S} =
-    JT(unsafe_load(Ptr{CT}(s.o.x+8)))
-_K_symbol = K_Scalar{KS,S_,Symbol}  # Should we make defs like this public?
-
-Base.convert(::Type{String}, s::_K_symbol) =
-    unsafe_string(unsafe_load(Ptr{S_}(s.o.x+8)))
-Base.convert(::Type{Symbol}, x::_K_symbol) = Symbol(String(x))
-Base.string(x::_K_symbol) = String(x)
 function Base.convert(::Type{Array}, x::K_Object)
     p = x.x
     t = xt(p)
@@ -64,4 +63,9 @@ function Base.convert(::Type{String}, x::K_Object)
    error("cannot convert")
 end
 
-Base.print{t,CT,JT}(io::IO, x::K_Scalar{t,CT,JT}) = print(io, JT(x))
+Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
+Base.show(io::IO, x::K_boolean) = print(io, x)
+Base.print(io::IO, x::K_symbol) = print(io, Symbol(x))
+
+# Required by show()
+Base.convert(::Type{K_symbol}, x::K_symbol) = x

@@ -1,6 +1,7 @@
 module JuQ
-export K, K_Scalar, K_Vector, K_Table, hopen, hclose, hget
+export K, K_Object, K_Vector, K_Table, hopen, hclose, hget
 include("k.jl")
+using Base.Dates.AbstractTime
 using JuQ.k
 
 #########################################################################
@@ -10,7 +11,7 @@ using JuQ.k
     K_Object(x::K_)
 A K object reference managed by Julia GC.
 """
-type K_Object
+mutable struct K_Object
     x::K_ # pointer to the actual K object
     function K_Object(x::K_)
         px = new(x)
@@ -18,30 +19,109 @@ type K_Object
         return px
     end
 end
-
-type K_Scalar{t,CT,JT}
-    o::K_Object
-    function K_Scalar{t,CT,JT}(o::K_Object) where {t,CT,JT}
-        t′ = -xt(o.x)
-        if(t != t′)
-            throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
+const SUPERTYPE = Dict(
+    :_Bool=>Integer,
+    :_Unsigned=>Unsigned,
+    :_Signed=>Signed,
+    :_Float=>AbstractFloat,
+    :_Text=>Any,
+    :_Temporal=>AbstractTime
+)
+K_CLASSES = Type[]
+# Create a parametrized type for each type class.
+for (class, super) in SUPERTYPE
+    @eval begin
+        export $(class)
+        mutable struct $(class){t,CT,JT} <: $(super)
+            o::K_Object
+            function $(class){t,CT,JT}(o::K_Object) where {t,CT,JT}
+                t′ = xt(o.x)
+                if t != -t′
+                    throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
+                end
+                new(o)
+            end
+            function $(class){t,CT,JT}(x) where {t,CT,JT}
+                o = K_Object(K_new(_cast(CT, convert(JT, x))))
+                new(o)
+            end
         end
-        return new{t,CT,JT}(o)
+        function Base.convert(::Type{$(class){t,CT,JT}}, x) where {t,CT,JT}
+            o = K_Object(K_new(_cast(CT, convert(JT, x))))
+            new(o)
+        end
+        push!(K_CLASSES, $(class))
+        Base.size(::$(class)) = ()
+        Base.size(x::$(class), d) =
+            convert(Int, d) < 1 ? throw(BoundsError()) : 1
+        Base.ndims(x::$(class)) = 0
+        Base.ndims(x::Type{$(class)}) = 0
+        Base.length(x::$(class)) = 1
+        Base.endof(x::$(class)) = 1
+        # payload
+        Base.eltype{t,CT,JT}(x::$(class){t,CT,JT}) = JT
+        Base.pointer{t,CT,JT}(x::$(class){t,CT,JT}) = Ptr{CT}(x.o.x+8)
+        load{t,CT,JT}(x::$(class){t,CT,JT}) = unsafe_load(pointer(x))
+        _get{t,CT,JT}(x::$(class){t,CT,JT}) = _cast(JT, load(x))
+        store!{t,CT,JT}(x::$(class){t,CT,JT}, y::CT) =
+            (unsafe_store!(pointer(x), y); x)
+        _set!{t,CT,JT}(x::$(class){t,CT,JT}, y) =
+            (store!(x, _cast(CT, convert(JT, y))); x)
+        function $(class)(p::K_)
+            t = -xt(p)
+            CT = C_TYPE[t]
+            JT = JULIA_TYPE[t]
+            o = K_Object(p)
+            $(class){t,CT,JT}(o)
+        end
     end
 end
-function K_Scalar(o::K_Object)
-    t = -xt(o.x)
-    CT = C_TYPE[t]
-    JT = JULIA_TYPE[t]
-    K_Scalar{t,CT,JT}(o)
+@eval const K_Scalar = Union{$(K_CLASSES...)}
+
+K_CLASS = Dict{Int8,Type}()
+# Aliases for concrete scalar types.
+for ti in TYPE_INFO
+    ktype = Symbol("K_", ti.name)
+    class = ti.class
+    @eval begin
+        export $(ktype)
+        global const $(ktype) =
+              $(class){$(ti.number),$(ti.c_type),$(ti.jl_type)}
+        function Base.convert(::Type{$(ktype)}, x::$(ti.jl_type))
+            o = K_Object(ka($(ti.number)))
+            r = $(ktype)(o)
+            store!(r, x)
+            r
+        end
+        K_CLASS[$(ti.number)] = $(class)
+        # Display type aliases by name in REPL.
+        Base.show(io::IO, ::Type{$(ktype)}) = print(io, $(string(ktype)))
+        # Conversion to Julia types
+        Base.convert(::Type{$(ti.jl_type)}, x::$(ktype)) = _get(x)
+        Base.promote_rule(x::Type{$(ti.jl_type)},
+                          y::Type{$(ktype)}) = x
+    end
+    if ti.class in [:_Signed, :_Integer]
+        @eval Base.dec(x::$(ktype), pad::Int=1) =
+            string(dec(load(x), pad), $(ti.letter))
+    elseif ti.class === :_Unsigned
+        @eval Base.hex(x::$(ktype), pad::Int=1, neg::Bool=false) =
+            hex(load(x), pad, neg)
+    end
 end
-type K_Other
+function K_Scalar(x::K_)
+    t = xt(x)
+    class = K_CLASS[-t]
+    return class(x)
+end
+include("promote_rules.jl")
+mutable struct K_Other
     o::K_Object
     function K_Other(o::K_Object)
         return new(o)
     end
 end
-type K_Vector{t,CT,JT} <: AbstractVector{JT}
+mutable struct K_Vector{t,CT,JT} <: AbstractVector{JT}
     o::K_Object
     function K_Vector{t,CT,JT}(o::K_Object) where {t,CT,JT}
         t′ = xt(o.x)
@@ -61,6 +141,7 @@ end
 _cast{T}(::Type{T}, x::T) = x
 _cast{JT,CT}(::Type{JT}, x::CT) = JT(x)
 _cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
+Symbol(x::K_symbol) = convert(Symbol, x)
 K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
 Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
@@ -76,18 +157,17 @@ function Base.getindex(v::K_Chars, i::Integer)
     end
 end
 include("table.jl")
-const K = Union{K_Scalar,K_Vector,K_Table,K_Other}
+
+Base.:(==)(x::K_Scalar, y::K_Scalar) = load(x) == load(y)
+Base.isless(x::K_Scalar, y::K_Scalar) = load(x) < load(y)
+const K = Union{K_Vector,K_Table,K_Other,K_Scalar}
 Base.show(io::IO, ::Type{K}) = write(io, "K")
 _cast(::Type{K}, x::K_) = K(x == C_NULL ? x : r1(x))
 _cast(::Type{K_}, x::K) = (x = x.o.x; x == C_NULL ? x : r1(x))
 
-const JULIA_TYPE = Dict(KK=>K, KB=>Bool, UU=>UInt128, KG=>G_,
-                        KH=>H_, KI=>I_, KJ=>J_,
-                        KE=>E_, KF=>F_,
-                        KC=>Char, KS=>Symbol,
-                        KP=>J_, KM=>I_, KD=>I_,
-                        KN=>J_, KU=>I_, KV=>I_, KT=>I_)
-
+const JULIA_TYPE = merge(
+    Dict(KK=>K),
+    Dict(ti.number=>ti.jl_type for ti in TYPE_INFO))
 
 include("conversions.jl")
 
@@ -115,9 +195,6 @@ function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT, i::Int)
     unsafe_store!(p, el, i)
 end
 
-# Payload of scalars
-pointer{t,CT,JT}(x::K_Scalar{t,CT,JT}) = Ptr{CT}(x.o.x+8)
-
 # K[...] constructors
 
 Base.getindex(::Type{K}) = K(ktn(0,0))
@@ -144,31 +221,7 @@ function Base.getindex(::Type{K}, v...)
     end
     K(x)
 end
-# communications
-hopen(h::String, p::Integer) = khp(h, p)
-hclose = kclose
-
-hget(h::Integer, m::String) = K(k_(h, m))
-function hget(h::Integer, m::String, x...)
-   r = k_(h, m, map(K_, x)...)
-   return K(r)
-end
-function hget(h::Tuple{String,Integer}, m)
-   h = hopen(h...)
-   try
-       return hget(h, m)
-   finally
-       kclose(h)
-   end
-end
-function hget(h::Tuple{String,Integer}, m, x...)
-   h = hopen(h...)
-   try
-       return hget(h, m, x...)
-   finally
-       kclose(h)
-   end
-end
+include("communications.jl")
 if GOT_Q
     include("q.jl")
 end

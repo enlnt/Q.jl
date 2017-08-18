@@ -2,7 +2,7 @@ module k  # k.h wrappers
 export k_, khpun, khpu, khp, okx, kclose
 export ymd, dj
 export r0, r1
-export ktj, ka, kb, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
+export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export js, jk
 export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
@@ -10,6 +10,8 @@ export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK
 export K_new
+export TYPE_INFO, TYPE_CLASSES
+
 include("startup.jl")
 
 #########################################################################
@@ -45,13 +47,47 @@ end
 const K_ = Ptr{k0}
 Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
-const C_TYPE = Dict(KK=>K_, KB=>G_, UU=>U_, KG=>G_,
-                    KH=>H_, KI=>I_, KJ=>J_,
-                    KE=>E_, KF=>F_,
-                    KC=>G_, KS=>S_,
-                    KP=>J_, KM=>I_, KD=>I_,
-                    KN=>J_, KU=>I_, KV=>I_, KT=>I_)
-const K_TYPE = Dict(Bool=>KB,
+struct ∫
+    number::C_
+    letter::Char
+    name::String
+    c_type::Type
+    jl_type::Type
+    class::Symbol
+end
+
+const TYPE_INFO = [
+    # num ltr name c_type jl_type super
+    ∫(1, 'b', "boolean", G_, Bool, :_Bool),
+
+    ∫(2, 'g', "guid", U_, UInt128, :_Unsigned),
+    ∫(4, 'x', "byte", G_, UInt8, :_Unsigned),
+
+    ∫(5, 'h', "short", H_, Int16, :_Signed),
+    ∫(6, 'i', "int", I_, Int32, :_Signed),
+    ∫(7, 'j', "long", J_, Int64, :_Signed),
+
+    ∫(8, 'e', "real", E_, Float32, :_Float),
+    ∫(9, 'f', "float", F_, Float64, :_Float),
+
+    ∫(10, 'c', "char", C_, Char, :_Text),
+    ∫(11, 's', "symbol", S_, Symbol, :_Text),
+
+    ∫(12, 'p', "timestamp", J_, Int64, :_Temporal),
+    ∫(13, 'm', "month", I_, Int32, :_Temporal),
+    ∫(14, 'd', "date", I_, Int32, :_Temporal),
+    ∫(15, 'z', "datetime", I_, Int32, :_Temporal),
+    ∫(16, 'n', "timespan", J_, Int64, :_Temporal),
+    ∫(17, 'u', "minute", I_, Int32, :_Temporal),
+    ∫(18, 'v', "second", I_, Int32, :_Temporal),
+    ∫(19, 't', "time", I_, Int32, :_Temporal),
+]
+
+const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
+const C_TYPE = merge(
+    Dict(KK=>K_),
+    Dict(t.number=>t.c_type for t in TYPE_INFO))
+const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
                     Char=>KC, Symbol=>KS, Cstring=>KS)
@@ -92,6 +128,8 @@ ktj(t::I_, x::I_) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
 ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
 kb(x::I_) = ccall((@k_sym :kb), K_, (I_,), x)
 kb(x::Integer) = ccall((@k_sym :kb), K_, (I_,), x)
+ku(x::U_) = (p = ka(-UU); unsafe_store!(Ptr{U_}(p+8), x); p)
+ku(x::Integer) = ku(U_(x))
 kg(x::I_) = ccall((@k_sym :kg), K_, (I_,), x)
 kg(x::Integer) = ccall((@k_sym :kg), K_, (I_,), x)
 ka(x::I_) = ccall((@k_sym :ka), K_, (I_,), x)
@@ -226,7 +264,7 @@ end
 K_new(x::K_) = r1(x)
 ## Conversion of simple types
 K_new(x::Bool) = kb(x)
-# TODO: guid
+K_new(x::UInt128) = ku(x)
 K_new(x::UInt8) = kg(x)
 K_new(x::Int16) = kh(x)
 K_new(x::Int32) = ki(x)
