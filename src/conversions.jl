@@ -66,3 +66,6 @@ end
 Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
 Base.show(io::IO, x::K_boolean) = print(io, x)
 Base.print(io::IO, x::K_symbol) = print(io, Symbol(x))
+
+# Required by show()
+Base.convert(::Type{K_symbol}, x::K_symbol) = x

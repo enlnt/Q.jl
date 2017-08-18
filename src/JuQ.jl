@@ -63,10 +63,10 @@ for (class, super) in SUPERTYPE
         Base.pointer{t,CT,JT}(x::$(class){t,CT,JT}) = Ptr{CT}(x.o.x+8)
         load{t,CT,JT}(x::$(class){t,CT,JT}) = unsafe_load(pointer(x))
         _get{t,CT,JT}(x::$(class){t,CT,JT}) = _cast(JT, load(x))
-        store!{t,CT,JT}(x::$(class){t,CT,JT}, y::JT) =
-            unsafe_store!(pointer(x), _cast(JT, y))
-        _set{t,CT,JT}(x::$(class){t,CT,JT}, y) =
-            _cast(CT, convert(JT, y))
+        store!{t,CT,JT}(x::$(class){t,CT,JT}, y::CT) =
+            (unsafe_store!(pointer(x), y); x)
+        _set!{t,CT,JT}(x::$(class){t,CT,JT}, y) =
+            (store!(x, _cast(CT, convert(JT, y))); x)
         function $(class)(p::K_)
             t = -xt(p)
             CT = C_TYPE[t]
