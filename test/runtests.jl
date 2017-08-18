@@ -170,5 +170,9 @@ end
       @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
       @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
     end
+    @testset "Arithmetics" begin
+      @test K(1.) + 2. === 2. + K(1.)  === 3.
+      @test K(1) + 2. === 2 + K(1.)  === 3.
+    end
   end
 end

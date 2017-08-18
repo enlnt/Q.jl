@@ -41,10 +41,14 @@ for (class, super) in SUPERTYPE
                 end
                 new(o)
             end
-            function $(class){t,CT,JT}(x::$(super)) where {t,CT,JT}
-                o = K_Object(K_new(_cast(CT, x)))
+            function $(class){t,CT,JT}(x) where {t,CT,JT}
+                o = K_Object(K_new(_cast(CT, convert(JT, x))))
                 new(o)
             end
+        end
+        function Base.convert(::Type{$(class){t,CT,JT}}, x) where {t,CT,JT}
+            o = K_Object(K_new(_cast(CT, convert(JT, x))))
+            new(o)
         end
         push!(K_CLASSES, $(class))
         Base.size(::$(class)) = ()
@@ -58,15 +62,22 @@ for (class, super) in SUPERTYPE
         Base.eltype{t,CT,JT}(x::$(class){t,CT,JT}) = JT
         Base.pointer{t,CT,JT}(x::$(class){t,CT,JT}) = Ptr{CT}(x.o.x+8)
         load{t,CT,JT}(x::$(class){t,CT,JT}) = unsafe_load(pointer(x))
-        store!{t,CT,JT}(x::$(class){t,CT,JT}, y::JT) = unsafe_store!(pointer(x), _cast(JT, y))
-        function $(class)(o::K_Object)
-            t = -xt(o.x)
+        _get{t,CT,JT}(x::$(class){t,CT,JT}) = _cast(JT, load(x))
+        store!{t,CT,JT}(x::$(class){t,CT,JT}, y::JT) =
+            unsafe_store!(pointer(x), _cast(JT, y))
+        _set{t,CT,JT}(x::$(class){t,CT,JT}, y) =
+            _cast(CT, convert(JT, y))
+        function $(class)(p::K_)
+            t = -xt(p)
             CT = C_TYPE[t]
             JT = JULIA_TYPE[t]
+            o = K_Object(p)
             $(class){t,CT,JT}(o)
         end
     end
 end
+@eval const K_Scalar = Union{$(K_CLASSES...)}
+
 K_CLASS = Dict{Int8,Type}()
 # Aliases for concrete scalar types.
 for ti in TYPE_INFO
@@ -83,15 +94,25 @@ for ti in TYPE_INFO
             r
         end
         K_CLASS[$(ti.number)] = $(class)
+        # Display type aliases by name in REPL.
         Base.show(io::IO, ::Type{$(ktype)}) = print(io, $(string(ktype)))
-        Base.convert(::Type{$(ti.jl_type)}, x::$(ktype)) = _cast($(ti.jl_type), load(x))
-        Base.promote_rule(::Type{$(ti.jl_type)}, ::Type{$(ktype)}) = $(ti.jl_type)
+        # Conversion to Julia types
+        Base.convert(::Type{$(ti.jl_type)}, x::$(ktype)) = _get(x)
+        Base.promote_rule(x::Type{$(ti.jl_type)},
+                          y::Type{$(ktype)}) = x
     end
     if ti.class in [:_Signed, :_Integer]
-        @eval Base.dec(x::$(ktype), pad::Int=1) = string(dec(load(x), pad), $(ti.letter))
+        @eval Base.dec(x::$(ktype), pad::Int=1) =
+            string(dec(load(x), pad), $(ti.letter))
     elseif ti.class === :_Unsigned
-        @eval Base.hex(x::$(ktype), pad::Int=1, neg::Bool=false) = hex(load(x), pad, neg)
+        @eval Base.hex(x::$(ktype), pad::Int=1, neg::Bool=false) =
+            hex(load(x), pad, neg)
     end
+end
+function K_Scalar(x::K_)
+    t = xt(x)
+    class = K_CLASS[-t]
+    return class(x)
 end
 include("promote_rules.jl")
 mutable struct K_Other
@@ -136,7 +157,7 @@ function Base.getindex(v::K_Chars, i::Integer)
     end
 end
 include("table.jl")
-@eval const K_Scalar = Union{$(K_CLASSES...)}
+
 Base.:(==)(x::K_Scalar, y::K_Scalar) = load(x) == load(y)
 Base.isless(x::K_Scalar, y::K_Scalar) = load(x) < load(y)
 const K = Union{K_Vector,K_Table,K_Other,K_Scalar}
