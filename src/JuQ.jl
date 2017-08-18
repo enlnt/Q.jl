@@ -145,16 +145,9 @@ Symbol(x::K_symbol) = convert(Symbol, x)
 K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
 Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
-Base.getindex{t,CT,JT}(v::K_Vector{t,CT,JT}, i::Integer) =
+function Base.getindex(v::K_Vector{t,CT,JT}, i::Integer) where {t,CT,JT}
+    @boundscheck checkbounds(v, i)
     _cast(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
-function Base.getindex(v::K_Chars, i::Integer)
-    # XXX: Assumes ascii encoding
-    n = xn(v.o.x)
-    if (1 <= i <= n)
-        return Char(unsafe_load(Ptr{C_}(v.o.x + 16), i))
-    else
-        throw(BoundsError(v, i))
-    end
 end
 include("table.jl")
 
@@ -189,10 +182,12 @@ function copy!{t,CT,JT}(x::K_Vector{t,CT,JT}, iter)
         unsafe_store!(p, el, i)
     end
 end
-function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT, i::Int)
+function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el, i::Int)
+    @boundscheck checkbounds(x, i)
     const p = pointer(x)
-    el = _cast(CT, el)
+    el = _cast(CT, convert(JT, el)::JT)
     unsafe_store!(p, el, i)
+    x
 end
 
 # K[...] constructors

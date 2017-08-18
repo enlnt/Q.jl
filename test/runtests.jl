@@ -195,6 +195,15 @@ end
     @test (x = K[1]; eltype(x) == Int64 && Array(x) == [1])
     @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
   end
+  @testset "Vector indexing" begin
+    let x = K[1, 2]
+      @test x[1] == 1
+      @test_throws BoundsError x[3]
+      @test_throws BoundsError x[0]
+      @test (x[1] = 10; x[1] == 10)
+      @test_throws BoundsError x[3] = 0
+    end
+  end
   @testset "Round trip" begin
     for T in NUMBER_TYPES
       a = [typemin(T), typemax(T), zero(T)]
