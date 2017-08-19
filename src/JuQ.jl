@@ -222,6 +222,13 @@ function Base.getindex(::Type{K}, v...)
     end
     K(x)
 end
+
+function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
+    a = _cast(C, T(y))
+    ja(Ref{K_}(x.o.x), Ref{C}(a))
+    x
+end
+
 include("communications.jl")
 if GOT_Q
     include("q.jl")

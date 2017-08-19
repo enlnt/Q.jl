@@ -273,5 +273,9 @@ end
       @test K(1.) + 2. === 2. + K(1.)  === 3.
       @test K(1) + 2. === 2 + K(1.)  === 3.
     end
+    @testset "Vector operations" begin
+      x = K[1]
+      @test push!(x, 2) == [1, 2]
+    end
   end
 end
