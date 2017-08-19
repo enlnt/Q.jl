@@ -111,12 +111,14 @@ xs(x::K_) = unsafe_string(unsafe_load(Ptr{S_}(x+8)))
 
 # vector accessors
 xn(x::K_) = unsafe_load(Ptr{J_}(x+8))
-xG(x::K_) = Ptr{G_}(x+16)
-xH(x::K_) = Ptr{H_}(x+16)
-xI(x::K_) = Ptr{I_}(x+16)
-xJ(x::K_) = Ptr{J_}(x+16)
-xE(x::K_) = Ptr{E_}(x+16)
-xF(x::K_) = Ptr{F_}(x+16)
+## XXX: These don't seem to be useful. Consider
+# returning lighweight memory views.
+# xG(x::K_) = Ptr{G_}(x+16)
+# xH(x::K_) = Ptr{H_}(x+16)
+# xI(x::K_) = Ptr{I_}(x+16)
+# xJ(x::K_) = Ptr{J_}(x+16)
+# xE(x::K_) = Ptr{E_}(x+16)
+# xF(x::K_) = Ptr{F_}(x+16)
 
 # table and dict accessors
 xk(x::K_) = unsafe_load(Ptr{K_}(x+8))
@@ -295,12 +297,11 @@ function K_new(a::Vector{Symbol})
     end
     return x
 end
-# Last resort - recursively step into iterabels
-function K_new(a::Any)
+function K_new(a::Union{Tuple,Vector{Any}})
     x = ktn(0, 0)
     r = Ref{K_}(x)
-    for i in a
-        jk(r, i isa K_ ? r1(i) : K_(i))
+    for el in a
+        jk(r, el isa K_ ? r1(el) : K_new(el))
     end
     r.x
 end

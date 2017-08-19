@@ -74,6 +74,7 @@ for (class, super) in SUPERTYPE
             o = K_Object(p)
             $(class){t,CT,JT}(o)
         end
+        Base.show(io::IO, x::$class) = print(io, "K(", repr(_get(x)), ")")
     end
 end
 @eval const K_Scalar = Union{$(K_CLASSES...)}
@@ -100,6 +101,9 @@ for ti in TYPE_INFO
         Base.convert(::Type{$(ti.jl_type)}, x::$(ktype)) = _get(x)
         Base.promote_rule(x::Type{$(ti.jl_type)},
                           y::Type{$(ktype)}) = x
+        # Disambiguate T -> K type conversions
+        Base.convert(::Type{$ktype}, x::$ktype) = x
+        # Display and printing
     end
     if ti.class in [:_Signed, :_Integer]
         @eval Base.dec(x::$(ktype), pad::Int=1) =
@@ -141,20 +145,15 @@ end
 _cast{T}(::Type{T}, x::T) = x
 _cast{JT,CT}(::Type{JT}, x::CT) = JT(x)
 _cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
+
 Symbol(x::K_symbol) = convert(Symbol, x)
-K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
+K_Vector(a::Vector) = K_Vector(K(a))
+
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
 Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
-Base.getindex{t,CT,JT}(v::K_Vector{t,CT,JT}, i::Integer) =
+function Base.getindex(v::K_Vector{t,CT,JT}, i::Integer) where {t,CT,JT}
+    @boundscheck checkbounds(v, i)
     _cast(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
-function Base.getindex(v::K_Chars, i::Integer)
-    # XXX: Assumes ascii encoding
-    n = xn(v.o.x)
-    if (1 <= i <= n)
-        return Char(unsafe_load(Ptr{C_}(v.o.x + 16), i))
-    else
-        throw(BoundsError(v, i))
-    end
 end
 include("table.jl")
 
@@ -189,10 +188,12 @@ function copy!{t,CT,JT}(x::K_Vector{t,CT,JT}, iter)
         unsafe_store!(p, el, i)
     end
 end
-function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT, i::Int)
+function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el, i::Int)
+    @boundscheck checkbounds(x, i)
     const p = pointer(x)
-    el = _cast(CT, el)
+    el = _cast(CT, convert(JT, el)::JT)
     unsafe_store!(p, el, i)
+    x
 end
 
 # K[...] constructors
