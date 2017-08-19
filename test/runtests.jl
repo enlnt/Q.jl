@@ -3,6 +3,26 @@ using JuQ.k
 using Base.Test
 using JuQ.K_Object, JuQ._get, JuQ._set!
 using Base.Dates.AbstractTime
+using JuQ.K_Object
+"""
+  auto_r0 - a helper to test low level functions
+
+  Usage:
+
+  ```julia
+  @test auto_r0(kj, 42) do x
+    # work with x
+  end
+  ```
+"""
+function auto_r0(f, g, a...)
+  x = g(a...)
+  try
+    return f(x)
+  finally
+    r0(x)
+  end
+end
 
 NUMBER_TYPES = [UInt8, Int16, Int32, Int64, Float32, Float64]
 
@@ -61,6 +81,9 @@ end
     @xtest (x = kf(1.5); xt(x) == -KF && xf(x) === F_(1.5))
     @xtest (x = kc(10); xt(x) == -KC && xg(x) == G_(10))
     @xtest (x = ks("a"); xt(x) == -KS && xs(x) == "a")
+    @test auto_r0(ktj, I_(101), I_(0)) do x
+      xt(x) == 101 && xj(x) == 0
+    end
   end
   @testset "Date conversions" begin
     @test ymd(2000, 1, 1) == 0

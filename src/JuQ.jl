@@ -141,8 +141,10 @@ end
 _cast{T}(::Type{T}, x::T) = x
 _cast{JT,CT}(::Type{JT}, x::CT) = JT(x)
 _cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
+
 Symbol(x::K_symbol) = convert(Symbol, x)
-K_Vector{T}(a::Vector{T}) = K_Vector(K(a))
+K_Vector(a::Vector) = K_Vector(K(a))
+
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
 Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
 function Base.getindex(v::K_Vector{t,CT,JT}, i::Integer) where {t,CT,JT}
