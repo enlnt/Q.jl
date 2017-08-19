@@ -249,7 +249,7 @@ end
       @test Array(x) == a
     end
     @testset "Scalar to string" begin
-      @test string(K(42)) == "42j"
+      @test string(K(42)) == "K(42)"
       @test string(K(:a)) == "a"
     end
     @testset "K constructors" begin
@@ -263,6 +263,11 @@ end
       @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
       @test (x = K('a'); JuQ.load(x) == UInt8('a'))
       @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
+      # Vectors
+      @test (x = K([1]); collect(x) == [1])
+      @test (x = K([:a, :b]); collect(x) == [:a, :b])
+      @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
+      @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
     end
     @testset "Arithmetics" begin
       @test K(1.) + 2. === 2. + K(1.)  === 3.

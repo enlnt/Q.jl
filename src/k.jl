@@ -297,8 +297,7 @@ function K_new(a::Vector{Symbol})
     end
     return x
 end
-# Last resort - recursively step into iterabels
-function K_new(a::Any)
+function K_new(a::Union{Tuple,Vector{Any}})
     x = ktn(0, 0)
     r = Ref{K_}(x)
     for el in a

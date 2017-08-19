@@ -74,6 +74,7 @@ for (class, super) in SUPERTYPE
             o = K_Object(p)
             $(class){t,CT,JT}(o)
         end
+        Base.show(io::IO, x::$class) = print(io, "K(", repr(_get(x)), ")")
     end
 end
 @eval const K_Scalar = Union{$(K_CLASSES...)}
@@ -100,6 +101,9 @@ for ti in TYPE_INFO
         Base.convert(::Type{$(ti.jl_type)}, x::$(ktype)) = _get(x)
         Base.promote_rule(x::Type{$(ti.jl_type)},
                           y::Type{$(ktype)}) = x
+        # Disambiguate T -> K type conversions
+        Base.convert(::Type{$ktype}, x::$ktype) = x
+        # Display and printing
     end
     if ti.class in [:_Signed, :_Integer]
         @eval Base.dec(x::$(ktype), pad::Int=1) =
