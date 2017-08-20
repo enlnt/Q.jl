@@ -180,13 +180,7 @@ function fill!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT)
     for i in 1:n
         unsafe_store!(p, el, i)
     end
-end
-function copy!{t,CT,JT}(x::K_Vector{t,CT,JT}, iter)
-    const p = pointer(x)
-    for (i, el::JT) in enumerate(iter)
-        el = _cast(CT, el)
-        unsafe_store!(p, el, i)
-    end
+    x
 end
 function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el, i::Int)
     @boundscheck checkbounds(x, i)

@@ -276,6 +276,8 @@ end
     @testset "Vector operations" begin
       x = K[1]
       @test push!(x, 2) == [1, 2]
+      @test copy!(x, [10, 20]) == [10, 20]
+      @test fill!(x, 0) == [0, 0]
     end
   end
 end
