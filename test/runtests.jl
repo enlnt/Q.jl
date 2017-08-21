@@ -4,6 +4,7 @@ using Base.Test
 using JuQ.K_Object, JuQ._get, JuQ._set!
 using Base.Dates.AbstractTime
 using JuQ.K_Object
+include("utils.jl")
 """
   auto_r0 - a helper to test low level functions
 
@@ -150,7 +151,8 @@ end
       xn(x) == 2
     end
   end
-end
+end  # "Low level"
+
 @testset "Low to high level - K(K_)" begin
   @test Bool(K(kb(1))) === true
   @test UInt8(K(kg(1))) == 1
@@ -168,7 +170,8 @@ end
   @test eltype(Array(K(ktn(KF, 0)))) === Float64
 
   @test String(K(kp("abc"))) == "abc"
-end
+end  # "Low to high level"
+
 @testset "High level (K objects)" begin
   @test_throws ArgumentError (x = K(1); K_char(x.o))
   @testset "Scalar supertypes" begin
@@ -248,36 +251,45 @@ end
     let a = [:abc, :def], x = K(a)
       @test Array(x) == a
     end
-    @testset "Scalar to string" begin
-      @test string(K(42)) == "K(42)"
-      @test string(K(:a)) == "a"
-    end
-    @testset "K constructors" begin
-      @test (x = K(true); unsafe_load(pointer(x)) === 0x01)
-      @test (x = K(0x42); unsafe_load(pointer(x)) === 0x42)
-      @test (x = K(Int16(11)); unsafe_load(pointer(x)) === Int16(11))
-      @test (x = K(Int32(11)); unsafe_load(pointer(x)) === Int32(11))
-      @test (x = K(11); unsafe_load(pointer(x)) === 11)
-      @test (x = K(Float32(11)); unsafe_load(pointer(x)) === Float32(11))
-      @test (x = K(11.); unsafe_load(pointer(x)) === 11.)
-      @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
-      @test (x = K('a'); JuQ.load(x) == UInt8('a'))
-      @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
-      # Vectors
-      @test (x = K([1]); collect(x) == [1])
-      @test (x = K([:a, :b]); collect(x) == [:a, :b])
-      @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
-      @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
-    end
-    @testset "Arithmetics" begin
-      @test K(1.) + 2. === 2. + K(1.)  === 3.
-      @test K(1) + 2. === 2 + K(1.)  === 3.
-    end
-    @testset "Vector operations" begin
-      x = K[1]
-      @test push!(x, 2) == [1, 2]
-      @test copy!(x, [10, 20]) == [10, 20]
-      @test fill!(x, 0) == [0, 0]
-    end
   end
-end
+  @testset "Scalar to string" begin
+    @test string(K(42)) == "K(42)"
+    @test string(K(:a)) == "a"
+  end
+  @testset "K constructors" begin
+    @test (x = K(true); unsafe_load(pointer(x)) === 0x01)
+    @test (x = K(0x42); unsafe_load(pointer(x)) === 0x42)
+    @test (x = K(Int16(11)); unsafe_load(pointer(x)) === Int16(11))
+    @test (x = K(Int32(11)); unsafe_load(pointer(x)) === Int32(11))
+    @test (x = K(11); unsafe_load(pointer(x)) === 11)
+    @test (x = K(Float32(11)); unsafe_load(pointer(x)) === Float32(11))
+    @test (x = K(11.); unsafe_load(pointer(x)) === 11.)
+    @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
+    @test (x = K('a'); JuQ.load(x) == UInt8('a'))
+    @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
+    # Vectors
+    @test (x = K([1]); collect(x) == [1])
+    @test (x = K([:a, :b]); collect(x) == [:a, :b])
+    @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
+    @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
+  end
+  @testset "Arithmetics" begin
+    @test K(1.) + 2. === 2. + K(1.)  === 3.
+    @test K(1) + 2. === 2 + K(1.)  === 3.
+  end
+  @testset "Vector operations" begin
+    x = K[1]
+    @test push!(x, 2) == [1, 2]
+    @test copy!(x, [10, 20]) == [10, 20]
+    @test fill!(x, 0) == [0, 0]
+  end
+  @testset "Communications" begin
+    server() do port
+      @test port isa Int32
+      @test hget(("", port), "1 2 3") == [1, 2, 3]
+      @test 42 == hopen(port) do h
+        hget(h, "42")
+      end
+    end # server()
+  end
+end  # "High level"
