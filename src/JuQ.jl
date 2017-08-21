@@ -1,8 +1,8 @@
 module JuQ
 export K, K_Object, K_Vector, K_Table, hopen, hclose, hget
-include("k.jl")
+include("_k.jl")
 using Base.Dates.AbstractTime
-using JuQ.k
+using JuQ._k
 
 #########################################################################
 # Wrapper around q's C K type, with hooks to q reference

@@ -1,5 +1,5 @@
 using JuQ
-using JuQ.k
+using JuQ._k
 using Base.Test
 using JuQ.K_Object, JuQ._get, JuQ._set!
 using Base.Dates.AbstractTime
