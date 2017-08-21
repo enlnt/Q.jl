@@ -223,8 +223,9 @@ function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
     x
 end
 
-include("communications.jl")
 if GOT_Q
     include("q.jl")
+else
+    include("communications.jl")
 end
 end # module JuQ

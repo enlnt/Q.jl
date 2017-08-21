@@ -1,5 +1,5 @@
 module _k  # k.h wrappers
-export k, khpun, khpu, khp, okx, kclose
+export k, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
@@ -163,13 +163,6 @@ ja(rx::Ref{K_}, y::Ref) = ccall((@k_sym :ja), K_, (Ref{K_}, Ptr{V_}), rx, y)
 js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
 
-# communications
-# extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
-khpun(h::String, p::Integer, u::String, n::Integer) =
-    ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
-khpu(h::String, p::Integer, u::String) =
-    ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
-khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 okx(x::K_) = ccall((@k_sym :okx), I_, (K_, ), x)
 kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
 
@@ -182,6 +175,15 @@ if GOT_Q
     export dot_, ee  # avoid conflict with Base.dot.
     dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
     ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
+else
+    # communications (not included in q server)
+    export khpun, khpu, khp
+    # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
+    khpun(h::String, p::Integer, u::String, n::Integer) =
+        ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
+    khpu(h::String, p::Integer, u::String) =
+        ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
+    khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 end
 
 const K_NULL = K_(C_NULL)
