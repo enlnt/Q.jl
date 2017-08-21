@@ -24,7 +24,7 @@ git:
 #    - gfortran
 before_script: # homebrew for mac
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then mkdir -p $HOME/q/m64; else mkdir -p $HOME/q/l64; fi 
+  - if [ $TRAVIS_OS_NAME = osx ]; then mkdir -p $HOME/q/m64; else mkdir -p $HOME/q/l64; fi
 ## uncomment the following lines to override the default test script
 #script:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
@@ -33,3 +33,5 @@ after_success:
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'Pkg.add("Documenter")'
+  - julia -e 'cd(Pkg.dir("JuQ")); include(joinpath("docs", "make.jl"))'
