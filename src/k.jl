@@ -3,7 +3,7 @@ export k_, khpun, khpu, khp, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
-export js, jk
+export ja, js, jk
 export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
@@ -172,6 +172,7 @@ xT(x::K_) = ccall((@k_sym :xT), K_, (K_, ), x)
 xD(x::K_, y::K_) = ccall((@k_sym :xD), K_, (K_, K_), x, y)
 
 # ja(K*,V*),js(K*,S),jk(K*,K),jv(K*k,K)
+ja(rx::Ref{K_}, y::Ref) = ccall((@k_sym :ja), K_, (Ref{K_}, Ptr{V_}), rx, y)
 js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
 

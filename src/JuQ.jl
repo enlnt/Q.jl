@@ -180,13 +180,7 @@ function fill!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT)
     for i in 1:n
         unsafe_store!(p, el, i)
     end
-end
-function copy!{t,CT,JT}(x::K_Vector{t,CT,JT}, iter)
-    const p = pointer(x)
-    for (i, el::JT) in enumerate(iter)
-        el = _cast(CT, el)
-        unsafe_store!(p, el, i)
-    end
+    x
 end
 function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el, i::Int)
     @boundscheck checkbounds(x, i)
@@ -222,6 +216,13 @@ function Base.getindex(::Type{K}, v...)
     end
     K(x)
 end
+
+function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
+    a = _cast(C, T(y))
+    ja(Ref{K_}(x.o.x), Ref{C}(a))
+    x
+end
+
 include("communications.jl")
 if GOT_Q
     include("q.jl")
