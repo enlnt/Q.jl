@@ -32,7 +32,7 @@ end
 
 """
 Starts a server and applies function f to port before
-sutting it down.
+shutting it down.
 """
 function server(f::Function)
     kdb = kdb_binary()

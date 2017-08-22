@@ -8,7 +8,7 @@ export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
-       XT, XD, KK
+       XT, XD, KK, EE
 export K_new
 export TYPE_INFO, TYPE_CLASSES
 
@@ -16,16 +16,6 @@ include("startup.jl")
 
 #########################################################################
 # k.h
-TYPE_LETTERS = "kb  ghijefcspmdznuvt"
-for (t, x) in enumerate(TYPE_LETTERS)
-    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(Int8(t-1))
-end
-# guid
-const UU = Int8(2)
-# table,dict
-const XT = Int8(98) #   x->k is XD
-const XD = Int8(99) #   kK(x)[0] is keys. kK(x)[1] is values.
-
 const C_ = Cchar
 const S_ = Cstring
 const G_ = Cuchar
@@ -36,7 +26,6 @@ const E_ = Cfloat
 const F_ = Cdouble
 const V_ = Void
 const U_ = UInt128
-
 struct k0
     m::C_
     a::C_
@@ -45,6 +34,19 @@ struct k0
     r::I_  # reference count
 end
 const K_ = Ptr{k0}
+
+TYPE_LETTERS = "kb  ghijefcspmdznuvt"
+for (t, x) in enumerate(TYPE_LETTERS)
+    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(I_(t-1))
+end
+# guid
+const UU = I_(2)
+# table,dict
+const XT = I_(98)   #   x->k is XD
+const XD = I_(99)   #   kK(x)[0] is keys. kK(x)[1] is values.
+
+const EE = I_(128)  #   error
+
 Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
 struct ∫
@@ -85,7 +87,7 @@ const TYPE_INFO = [
 
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
-    Dict(KK=>K_),
+    Dict(KK=>K_, EE=>S_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,

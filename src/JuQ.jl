@@ -1,8 +1,14 @@
 module JuQ
 export K, K_Object, K_Vector, K_Table, hopen, hclose, hget
+export KdbException
+
 include("_k.jl")
 using Base.Dates.AbstractTime
 using JuQ._k
+
+struct KdbException <: Exception
+    s::String
+end
 
 #########################################################################
 # Wrapper around q's C K type, with hooks to q reference

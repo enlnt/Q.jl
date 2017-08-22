@@ -32,11 +32,8 @@ hopen(f::Function, port::Integer) = hopen(f, "", port)
 
 const hclose = kclose
 
-hget(h::Integer, m::String) = K(k(h, m))
-function hget(h::Integer, m::String, x...)
-   r = k(h, m, map(K_, x)...)
-   return K(r)
-end
+hget(h::Integer, m::String) = _E(k(h, m))
+hget(h::Integer, m::String, x...) = _E(k(h, m, map(K_, x)...))
 
 function hget(h::Tuple{String,Integer}, m)
    h = hopen(h...)

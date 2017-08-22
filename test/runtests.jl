@@ -72,7 +72,6 @@ end
     end
   end
   @testset "Scalar constructors" begin
-    @xtest (x = ktj(101, 0); xa(x) == 0 && xt(x) == 101)
     @xtest (x = kb(1); xt(x) == -KB && xg(x) === G_(1))
     @xtest (x = kg(8); xt(x) == -KG && xg(x) === G_(8))
     @xtest (x = kh(100); xt(x) == -KH && xh(x) === H_(100))
@@ -289,6 +288,12 @@ end  # "Low to high level"
       @test hget(("", port), "1 2 3") == [1, 2, 3]
       @test 42 == hopen(port) do h
         hget(h, "42")
+      end
+      @test_throws KdbException hget(("", port), "(..")
+      @test "type" == try
+        hget(("", port), "1+`")
+      catch e
+        e.s
       end
     end # server()
   end
