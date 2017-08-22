@@ -1,8 +1,14 @@
 module JuQ
 export K, K_Object, K_Vector, K_Table, hopen, hclose, hget
-include("k.jl")
+export KdbException
+
+include("_k.jl")
 using Base.Dates.AbstractTime
-using JuQ.k
+using JuQ._k
+
+struct KdbException <: Exception
+    s::String
+end
 
 #########################################################################
 # Wrapper around q's C K type, with hooks to q reference
@@ -223,8 +229,9 @@ function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
     x
 end
 
-include("communications.jl")
 if GOT_Q
     include("q.jl")
+else
+    include("communications.jl")
 end
 end # module JuQ

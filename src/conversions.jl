@@ -66,3 +66,18 @@ end
 Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
 Base.show(io::IO, x::K_boolean) = print(io, x)
 Base.print(io::IO, x::K_symbol) = print(io, Symbol(x))
+
+"""
+A helper method to convert error returns from k(..) or ee(..)
+to a Julia exception.
+"""
+function _E(x)
+    if xt(x) == -EE
+        try
+            throw(KdbException(xs(x)))
+        finally
+            r0(x)
+        end
+    end
+    K(x)
+end

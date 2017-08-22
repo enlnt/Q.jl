@@ -1,5 +1,5 @@
-module k  # k.h wrappers
-export k_, khpun, khpu, khp, okx, kclose
+module _k  # k.h wrappers
+export k, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
@@ -8,7 +8,7 @@ export ktn, knk, kp, xT, xD
 export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
-       XT, XD, KK
+       XT, XD, KK, EE
 export K_new
 export TYPE_INFO, TYPE_CLASSES
 
@@ -16,16 +16,6 @@ include("startup.jl")
 
 #########################################################################
 # k.h
-TYPE_LETTERS = "kb  ghijefcspmdznuvt"
-for (t, x) in enumerate(TYPE_LETTERS)
-    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(Int8(t-1))
-end
-# guid
-const UU = Int8(2)
-# table,dict
-const XT = Int8(98) #   x->k is XD
-const XD = Int8(99) #   kK(x)[0] is keys. kK(x)[1] is values.
-
 const C_ = Cchar
 const S_ = Cstring
 const G_ = Cuchar
@@ -36,7 +26,6 @@ const E_ = Cfloat
 const F_ = Cdouble
 const V_ = Void
 const U_ = UInt128
-
 struct k0
     m::C_
     a::C_
@@ -45,6 +34,19 @@ struct k0
     r::I_  # reference count
 end
 const K_ = Ptr{k0}
+
+TYPE_LETTERS = "kb  ghijefcspmdznuvt"
+for (t, x) in enumerate(TYPE_LETTERS)
+    isspace(x) || @eval const $(Symbol("K", uppercase(x))) = $(I_(t-1))
+end
+# guid
+const UU = I_(2)
+# table,dict
+const XT = I_(98)   #   x->k is XD
+const XD = I_(99)   #   kK(x)[0] is keys. kK(x)[1] is values.
+
+const EE = I_(128)  #   error
+
 Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
 struct ∫
@@ -85,7 +87,7 @@ const TYPE_INFO = [
 
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
-    Dict(KK=>K_),
+    Dict(KK=>K_, EE=>S_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
@@ -126,34 +128,21 @@ xx(x::K_) = unsafe_load(Ptr{K_}(x+16), 1)
 xy(x::K_) = unsafe_load(Ptr{K_}(x+16), 2)
 
 # scalar constructors
-ktj(t::I_, x::I_) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
 ktj(t::Integer, x::Integer) = ccall((@k_sym :ktj), K_, (I_, J_), t, x)
-kb(x::I_) = ccall((@k_sym :kb), K_, (I_,), x)
 kb(x::Integer) = ccall((@k_sym :kb), K_, (I_,), x)
 ku(x::U_) = (p = ka(-UU); unsafe_store!(Ptr{U_}(p+8), x); p)
 ku(x::Integer) = ku(U_(x))
-kg(x::I_) = ccall((@k_sym :kg), K_, (I_,), x)
 kg(x::Integer) = ccall((@k_sym :kg), K_, (I_,), x)
-ka(x::I_) = ccall((@k_sym :ka), K_, (I_,), x)
 ka(x::Integer) = ccall((@k_sym :ka), K_, (I_,), x)
-kh(x::I_) = ccall((@k_sym :kh), K_, (I_,), x)
 kh(x::Integer) = ccall((@k_sym :kh), K_, (I_,), x)
-ki(x::I_) = ccall((@k_sym :ki), K_, (I_,), x)
 ki(x::Integer) = ccall((@k_sym :ki), K_, (I_,), x)
-kj(x::J_) = ccall((@k_sym :kj), K_, (J_,), x)
 kj(x::Integer) = ccall((@k_sym :kj), K_, (J_,), x)
-ke(x::F_) = ccall((@k_sym :ke), K_, (F_,), x)
 ke(x::Real) = ccall((@k_sym :ke), K_, (F_,), x)
-kf(x::F_) = ccall((@k_sym :kf), K_, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_, (F_,), x)
-kc(x::I_) = ccall((@k_sym :kc), K_, (I_,), x)
 kc(x::Integer) = ccall((@k_sym :kc), K_, (I_,), x)
-sn(x::S_, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
 sn(x::String, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
-ss(x::S_) = ccall((@k_sym :ss), S_, (S_,), x)
 ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
 ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
-ks(x::S_) = ccall((@k_sym :ks), K_, (S_,), x)
 ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
@@ -176,13 +165,6 @@ ja(rx::Ref{K_}, y::Ref) = ccall((@k_sym :ja), K_, (Ref{K_}, Ptr{V_}), rx, y)
 js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
 
-# communications
-# extern I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I),okx(K),
-khpun(h::String, p::Integer, u::String, n::Integer) =
-    ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
-khpu(h::String, p::Integer, u::String) =
-    ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
-khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 okx(x::K_) = ccall((@k_sym :okx), I_, (K_, ), x)
 kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
 
@@ -195,35 +177,44 @@ if GOT_Q
     export dot_, ee  # avoid conflict with Base.dot.
     dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
     ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
+else
+    # communications (not included in q server)
+    export khpun, khpu, khp
+    # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
+    khpun(h::String, p::Integer, u::String, n::Integer) =
+        ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
+    khpu(h::String, p::Integer, u::String) =
+        ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
+    khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 end
 
 const K_NULL = K_(C_NULL)
 # K k(I,const S,...)
 # TODO: Use Julia metaprogramming to avoid repetition
-k_(h::Integer, m::String) =
+k(h::Integer, m::String) =
     ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_NULL)
-k_(h::Integer, m::String, x1::K_) =
+k(h::Integer, m::String, x1::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_) =
+k(h::Integer, m::String, x1::K_, x2::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_),
             h, m, x1, x2, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_),
             h, m, x1, x2, x3, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) =
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_),
             h, m, x1, x2, x3, x4, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) =
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_),
             h, m, x1, x2, x3, x4, x5, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) =
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_),
             h, m, x1, x2, x3, x4, x5, x6, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
     x7::K_) =
         ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, K_NULL)
-k_(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
     x7::K_, x8::K_) =
         ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
