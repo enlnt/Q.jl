@@ -1,11 +1,20 @@
 ## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
-os:
-  - linux
-  - osx
-julia:
-  - 0.6
-  - nightly
+
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      julia: 0.6
+    - os: linux
+      sudo: required
+      julia: nightly
+    - os: linux
+      language: generic
+      env: MARCH=i686
+    - os: osx
+      julia: 0.6
+
 notifications:
   email: false
 git:
@@ -33,19 +42,19 @@ addons:
      - libssl-dev:i386
      - gfortran
      - gfortran-multilib
-before_script: # homebrew for mac
-  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then curl -e https://kx.com "${KDBURL}/3.5/macosx.zip" -o $HOME/kx.zip && unzip -d $HOME $HOME/kx.zip; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then curl -e https://kx.com "${KDBURL}/3.5/linuxx86.zip" -o $HOME/kx.zip && unzip -d $HOME $HOME/kx.zip; fi
-  - rm $HOME/q/q.q
-  - echo '-1"kdb+ "," "sv string .z.o,.z.K,.z.k;exit 0' | $QHOME/?32/q
+install:
+  - source ./.travis/install.sh
+before_script:
+  - echo '-1"kdb+ "," "sv string .z.o,.z.K,.z.k;exit 0' | $HOME/q/?32/q
+  - julia -e 'versioninfo()'
 ## uncomment the following lines to override the default test script
-#script:
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
+script:
+  - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
 after_success:
   # push coverage results to Coveralls
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  # build the documentation
   - julia -e 'Pkg.add("Documenter")'
   - julia -e 'cd(Pkg.dir("JuQ")); include(joinpath("docs", "make.jl"))'
