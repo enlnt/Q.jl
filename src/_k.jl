@@ -242,7 +242,7 @@ function fill!(x::K_, el)
     const T = typeof(p).parameters[1]
     const f = (T === K_ ? r1 : identity)
     for i in 1:n
-        unsafe_store!(p, f(el::T), i)
+        unsafe_store!(p, T(f(el))::T, i)
     end
 end
 function copy!(x::K_, iter)

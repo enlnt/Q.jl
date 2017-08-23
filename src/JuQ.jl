@@ -156,7 +156,7 @@ Symbol(x::K_symbol) = convert(Symbol, x)
 K_Vector(a::Vector) = K_Vector(K(a))
 
 Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
-Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (xn(v.o.x),)
+Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (convert(Int, xn(v.o.x)),)
 function Base.getindex(v::K_Vector{t,CT,JT}, i::Integer) where {t,CT,JT}
     @boundscheck checkbounds(v, i)
     _cast(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
