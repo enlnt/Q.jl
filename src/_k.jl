@@ -147,7 +147,7 @@ ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
 kp(x::String) = ccall((@k_sym :kp), K_, (S_,), x)
-ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_, (I_, J_), t, n)
+ktn(t::Integer, n::Integer) = ccall((@k_sym :ktn), K_, (I_, J_), t, n)
 #knk(n) = begin @assert n == 0; ccall((@k_sym :knk), K_, (I_,), 0) end
 function knk(n::Integer, x::K_...)
     r = ktn(0, n)
