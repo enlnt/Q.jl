@@ -60,7 +60,8 @@ end
       x = kj(0)
       n = [xr(x)]
       push!(n, xr(r1(x)))
-      push!(n, xr(r0(x)))
+      r0(x)
+      push!(n, xr(x))
       n == [0, 1, 0]
     end
     @xtest begin
@@ -217,7 +218,7 @@ end  # "Low to high level"
     @test K_Vector([1, 2]) == K([1, 2]) == [1, 2]
     @test K_Vector([:a, :b]) == K([:a, :b]) == [:a, :b]
     @test (x = K[]; eltype(x) == K)
-    @test (x = K[1]; eltype(x) == Int64 && Array(x) == [1])
+    @test (x = K[1]; eltype(x) == Int && Array(x) == [1])
     @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
   end
   @testset "Vector indexing" begin
