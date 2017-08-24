@@ -147,7 +147,7 @@ ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
 kp(x::String) = ccall((@k_sym :kp), K_, (S_,), x)
-ktn(t::Integer, n::J_) = ccall((@k_sym :ktn), K_, (I_, J_), t, n)
+ktn(t::Integer, n::Integer) = ccall((@k_sym :ktn), K_, (I_, J_), t, n)
 #knk(n) = begin @assert n == 0; ccall((@k_sym :knk), K_, (I_,), 0) end
 function knk(n::Integer, x::K_...)
     r = ktn(0, n)
@@ -242,7 +242,7 @@ function fill!(x::K_, el)
     const T = typeof(p).parameters[1]
     const f = (T === K_ ? r1 : identity)
     for i in 1:n
-        unsafe_store!(p, f(el::T), i)
+        unsafe_store!(p, T(f(el))::T, i)
     end
 end
 function copy!(x::K_, iter)
