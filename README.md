@@ -1,6 +1,7 @@
 # JuQ
 [![Build Status](https://travis-ci.org/abalkin/JuQ.jl.svg?branch=master)](https://travis-ci.org/abalkin/JuQ.jl)
 [![codecov](https://codecov.io/gh/abalkin/JuQ.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/abalkin/JuQ.jl)
+[![Coverage Status](https://coveralls.io/repos/github/abalkin/JuQ.jl/badge.svg?branch=master)](https://coveralls.io/github/abalkin/JuQ.jl?branch=master)
 
 ## Server side
 
