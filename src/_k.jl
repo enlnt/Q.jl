@@ -1,5 +1,5 @@
 module _k  # k.h wrappers
-export k, okx, kclose
+export k, b9, d9, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
@@ -164,6 +164,9 @@ ja(rx::Ref{K_}, y::Ref) = ccall((@k_sym :ja), K_, (Ref{K_}, Ptr{V_}), rx, y)
 js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
 
+# K b9(I,K) and K d9(K)
+b9(pe::Integer, x::K_) = ccall((@k_sym :b9), K_, (I_, K_), pe, x)
+d9(x::K_) = ccall((@k_sym :d9), K_, (K_, ), x)
 okx(x::K_) = ccall((@k_sym :okx), I_, (K_, ), x)
 kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
 
