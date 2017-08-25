@@ -13,9 +13,9 @@ end
 
 # Conversion fom the Vector of K's to K_
 function Base.convert(::Type{K_}, v::Vector{K_Vector})
-    const n = length(v)
-    const x = ktn(KK, n)
-    const p = pointer(x)
+    n = length(v)
+    x = ktn(KK, n)
+    p = pointer(x)
     for (i, vi) in enumerate(v)
         unsafe_store!(p, r1(vi.o.x), i)
     end

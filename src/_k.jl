@@ -239,18 +239,18 @@ length(x) = xn(x)
 import Base.pointer, Base.fill!, Base.copy!
 pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+15+i))
 function fill!(x::K_, el)
-    const n = xn(x)
-    const p = pointer(x)
-    const T = typeof(p).parameters[1]
-    const f = (T === K_ ? r1 : identity)
+    n = xn(x)
+    p = pointer(x)
+    T = typeof(p).parameters[1]
+    f = (T === K_ ? r1 : identity)
     for i in 1:n
         unsafe_store!(p, T(f(el))::T, i)
     end
 end
 function copy!(x::K_, iter)
-    const p = pointer(x)
-    const T = typeof(p).parameters[1]
-    const f = (T === K_ ? r1 : identity)
+    p = pointer(x)
+    T = typeof(p).parameters[1]
+    f = (T === K_ ? r1 : identity)
     for (i, el::T) in enumerate(iter)
         unsafe_store!(p, f(el), i)
     end
