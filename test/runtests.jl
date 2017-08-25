@@ -1,5 +1,5 @@
 using JuQ
-using JuQ._k
+using JuQ._k, JuQ._k.GOT_Q
 using Base.Test
 using JuQ.K_Object, JuQ._get, JuQ._set!
 using Base.Dates.AbstractTime
@@ -284,7 +284,7 @@ end  # "Low to high level"
     @test fill!(x, 0) == [0, 0]
   end
   @testset "Communications" begin
-    server() do port
+    GOT_Q || server() do port
       @test port isa Int32
       @test hget(("", port), "1 2 3") == [1, 2, 3]
       @test 42 == hopen(port) do h

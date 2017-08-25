@@ -28,7 +28,7 @@ Z K1(J_init){
   argk = ktn(KS, xn);
   argc = xn;
   argv = kS(argk);
-  DO(xn,argv[i]=kC(xK[i]));
+  DO(xn,argv[i]=(S)kC(xK[i]));
   /* Parse an argc/argv pair to extract general julia options, passing
      back out any arguments that should be passed on to the script. */
   jl_parse_opts_p(&argc, &argv);
@@ -45,7 +45,7 @@ K1(jl){
   h=dlopen((S)xC,RTLD_NOW|RTLD_GLOBAL);
   er=(S)dlerror();P(!h,krr(er));
   x = ktn(KS, 3);
-  
+
   DLF(jl_parse_opts);
   DLF(jl_set_ARGS);
   DLF(jl_init);

@@ -15,6 +15,7 @@ else
     curl -A "${CURL_USER_AGENT}" -s -L --retry 7 ${JULIA_URL} \
      | tar -C ${JULIA_HOME} -x -z --strip-components=1 -f -
     export PATH="${JULIA_HOME}/bin:${PATH}"
+    export CFLAGS=-march=pentium4
   fi
   QZIP=linuxx86.zip
 fi

@@ -14,6 +14,8 @@ matrix:
       env: MARCH=i686
     - os: osx
       julia: 0.6
+  allow_failures:
+    - os: osx
 
 notifications:
   email: false
@@ -50,6 +52,7 @@ before_script:
 ## uncomment the following lines to override the default test script
 script:
   - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
+  - if [ -n "$MARCH" ]; then $HOME/q/l32/q julia.q -e@ 'include("test/runtests.jl")' -q; fi
 after_success:
   # push coverage results to Coveralls
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
