@@ -92,7 +92,11 @@ end
   end
   @testset "Date conversions" begin
     @test ymd(2000, 1, 1) == 0
+    @test ymd(1970, 1, 1) == -10957
+    @test ymd(2017, 1, 1) == 6210
     @test dj(0) == 20000101
+    @test dj(-10957) == 19700101
+    @test dj(6210) == 20170101
   end
   @testset "Scalar roundtrip" begin
     @test roundtrip_scalar(xg, kg, I_(42))
@@ -289,6 +293,18 @@ end  # "Low to high level"
     @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
     @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
   end
+  @testset "Conversions" begin
+    @test (x = K_boolean(1); Bool(x) == true)
+    @test (u = U_(2)^128-1; x = K_guid(u); U_(x) == u)
+    @test (x = K_byte(0xAB); UInt8(x) == 0xAB)
+    @test (x = K_short(42); H_(x) == 42)
+    @test (x = K_int(42); I_(x) == 42)
+    @test (x = K_long(42); J_(x) == 42)
+    @test (x = K_real(42); E_(x) == 42)
+    @test (x = K_float(42); F_(x) == 42)
+    @test (x = K_char('a'); Char(x) == 'a')
+    @test (x = K_symbol(:a); Symbol(x) == :a)
+  end
   @testset "Arithmetics" begin
     @test K(1.) + 2. === 2. + K(1.)  === 3.
     @test K(1) + 2. === 2 + K(1.)  === 3.
@@ -342,10 +358,20 @@ end  # "Low to high level"
                   kj(1), kj(2), kj(3), kj(4), kj(5), kj(6), kj(7), kj(42)) do x
             @test xj(x) == 42
           end
-          @test 42 == hget(h, "{[a;b;c;d;e;f;g;h]h}", 1, 2, 3, 4, 5, 6, 7, 42)
+          @test 0 == hget(h, "0")
+          @test 1 == hget(h, "{[a]a}", 1)
+          @test 2 == hget(h, "{[a;b]b}", 1, 2)
+          @test 3 == hget(h, "{[a;b;c]c}", 1, 2, 3)
+          @test 4 == hget(h, "{[a;b;c;d]d}", 1, 2, 3, 4)
+          @test 5 == hget(h, "{[a;b;c;d;e]e}", 1, 2, 3, 4, 5)
+          @test 6 == hget(h, "{[a;b;c;d;e;f]f}", 1, 2, 3, 4, 5, 6)
+          @test 7 == hget(h, "{[a;b;c;d;e;f;g]g}", 1, 2, 3, 4, 5, 6, 7)
+          @test 8 == hget(h, "{[a;b;c;d;e;f;g;h]h}", 1, 2, 3, 4, 5, 6, 7, 8)
         end
       end # server()
       server(user="star:shine") do port
+        @test 0 < (h = khpu("", port, "star:shine"); hclose(h); h)
+        @test 0 < (h = khpun("", port, "star:shine", 10); hclose(h); h)
         @test 42 == hopen(port=port, user="star:shine") do h
           hget(h, "42")
         end
