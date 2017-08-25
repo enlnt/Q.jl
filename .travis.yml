@@ -12,8 +12,9 @@ matrix:
     - os: linux
       language: generic
       env: MARCH=i686
-    - os: osx
-      julia: 0.6
+# As of 2017-08-25 osx builds take forever.  Disabling.
+#    - os: osx
+#      julia: 0.6
   allow_failures:
     - os: osx
 
