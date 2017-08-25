@@ -86,6 +86,10 @@ end
       xt(x) == 101 && xj(x) == 0
     end
   end
+  @testset "Interning" begin
+    @test (x = sn("abcd", 3); unsafe_string(x) == "abc")
+    @test (x = sn("abcd", 2); x === ss("ab"))
+  end
   @testset "Date conversions" begin
     @test ymd(2000, 1, 1) == 0
     @test dj(0) == 20000101

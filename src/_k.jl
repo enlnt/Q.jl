@@ -98,7 +98,6 @@ r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
 r1(x::K_) = ccall((@k_sym :r1), K_, (K_,), x)
 
 # head accessors
-xa(x::K_) = unsafe_load(x).a
 xt(x::K_) = unsafe_load(x).t
 xr(x::K_) = unsafe_load(x).r
 
@@ -140,10 +139,10 @@ kj(x::Integer) = ccall((@k_sym :kj), K_, (J_,), x)
 ke(x::Real) = ccall((@k_sym :ke), K_, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_, (F_,), x)
 kc(x::Integer) = ccall((@k_sym :kc), K_, (I_,), x)
-sn(x::String, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
-ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
-ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
-ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
+const _AnyString = Union{String, Symbol, Cstring}
+sn(x::_AnyString, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
+ss(x::_AnyString) = ccall((@k_sym :ss), S_, (S_,), x)
+ks(x::_AnyString) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
 kp(x::String) = ccall((@k_sym :kp), K_, (S_,), x)
