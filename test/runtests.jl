@@ -293,6 +293,18 @@ end  # "Low to high level"
     @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
     @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
   end
+  @testset "Conversions" begin
+    @test (x = K_boolean(1); Bool(x) == true)
+    @test (u = U_(2)^128-1; x = K_guid(u); U_(x) == u)
+    @test (x = K_byte(0xAB); UInt8(x) == 0xAB)
+    @test (x = K_short(42); H_(x) == 42)
+    @test (x = K_int(42); I_(x) == 42)
+    @test (x = K_long(42); J_(x) == 42)
+    @test (x = K_real(42); E_(x) == 42)
+    @test (x = K_float(42); F_(x) == 42)
+    @test (x = K_char('a'); Char(x) == 'a')
+    @test (x = K_symbol(:a); Symbol(x) == :a)
+  end
   @testset "Arithmetics" begin
     @test K(1.) + 2. === 2. + K(1.)  === 3.
     @test K(1) + 2. === 2 + K(1.)  === 3.

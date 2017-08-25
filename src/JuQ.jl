@@ -48,7 +48,10 @@ for (class, super) in SUPERTYPE
                 new(o)
             end
             function $(class){t,CT,JT}(x) where {t,CT,JT}
-                o = K_Object(K_new(_cast(CT, convert(JT, x))))
+                p = ka(t)
+                v = _cast(CT, convert(JT, x))::CT
+                unsafe_store!(Ptr{CT}(p+8), v)
+                o = K_Object(p)
                 new(o)
             end
         end
