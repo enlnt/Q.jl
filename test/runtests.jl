@@ -92,7 +92,11 @@ end
   end
   @testset "Date conversions" begin
     @test ymd(2000, 1, 1) == 0
+    @test ymd(1970, 1, 1) == -10957
+    @test ymd(2017, 1, 1) == 6210
     @test dj(0) == 20000101
+    @test dj(-10957) == 19700101
+    @test dj(6210) == 20170101
   end
   @testset "Scalar roundtrip" begin
     @test roundtrip_scalar(xg, kg, I_(42))
@@ -342,10 +346,20 @@ end  # "Low to high level"
                   kj(1), kj(2), kj(3), kj(4), kj(5), kj(6), kj(7), kj(42)) do x
             @test xj(x) == 42
           end
-          @test 42 == hget(h, "{[a;b;c;d;e;f;g;h]h}", 1, 2, 3, 4, 5, 6, 7, 42)
+          @test 0 == hget(h, "0")
+          @test 1 == hget(h, "{[a]a}", 1)
+          @test 2 == hget(h, "{[a;b]b}", 1, 2)
+          @test 3 == hget(h, "{[a;b;c]c}", 1, 2, 3)
+          @test 4 == hget(h, "{[a;b;c;d]d}", 1, 2, 3, 4)
+          @test 5 == hget(h, "{[a;b;c;d;e]e}", 1, 2, 3, 4, 5)
+          @test 6 == hget(h, "{[a;b;c;d;e;f]f}", 1, 2, 3, 4, 5, 6)
+          @test 7 == hget(h, "{[a;b;c;d;e;f;g]g}", 1, 2, 3, 4, 5, 6, 7)
+          @test 8 == hget(h, "{[a;b;c;d;e;f;g;h]h}", 1, 2, 3, 4, 5, 6, 7, 8)
         end
       end # server()
       server(user="star:shine") do port
+        @test 0 < (h = khpu("", port, "star:shine"); hclose(h); h)
+        @test 0 < (h = khpun("", port, "star:shine", 10); hclose(h); h)
         @test 42 == hopen(port=port, user="star:shine") do h
           hget(h, "42")
         end
