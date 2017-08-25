@@ -34,7 +34,7 @@ end
 Starts a server and applies function f to port before
 shutting it down.
 """
-function server(f::Function)
+function server(f::Function; user="")
     kdb = kdb_binary()
     if !isfile(kdb)
         println("kdb+ is not installed")
@@ -44,7 +44,15 @@ function server(f::Function)
         open(joinpath(pwd(), "q.q"), "w") do file
             write(file, STARTUP_CODE)
         end
-        stream, process = open(`$kdb`)
+        if user != ""
+            open(joinpath(pwd(), "login"), "w") do file
+                write(file, user)
+            end
+            cmd = `$kdb -U login`
+        else
+            cmd = `$kdb`
+        end
+        stream, process = open(cmd)
         port = parse(Int32, readline(stream))
         try
             return f(port)

@@ -300,18 +300,60 @@ end  # "Low to high level"
     @test fill!(x, 0) == [0, 0]
   end
   @testset "Communications" begin
-    GOT_Q || server() do port
-      @test port isa Int32
-      @test hget(("", port), "1 2 3") == [1, 2, 3]
-      @test 42 == hopen(port) do h
-        hget(h, "42")
+    GOT_Q || begin
+      server() do port
+        @test port isa Int32
+        @test hget(("", port), "1 2 3") == [1, 2, 3]
+        @test 42 == hopen(port) do h
+          hget(h, "42")
+        end
+        @test_throws KdbException hget(("", port), "(..")
+        @test "type" == try
+          hget(("", port), "1+`")
+        catch e
+          e.s
+        end
+        hopen(port) do h
+          auto_r0(k, h, "42") do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{y}", kj(1), kj(42)) do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{z}", kj(1), kj(2), kj(42)) do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{[a;b;c;d]d}", kj(1), kj(2), kj(3), kj(42)) do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{[a;b;c;d;e]e}",
+                  kj(1), kj(2), kj(3), kj(4), kj(42)) do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{[a;b;c;d;e;f]f}",
+                  kj(1), kj(2), kj(3), kj(4), kj(5), kj(42)) do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{[a;b;c;d;e;f;g]g}",
+                  kj(1), kj(2), kj(3), kj(4), kj(5), kj(6), kj(42)) do x
+            @test xj(x) == 42
+          end
+          auto_r0(k, h, "{[a;b;c;d;e;f;g;h]h}",
+                  kj(1), kj(2), kj(3), kj(4), kj(5), kj(6), kj(7), kj(42)) do x
+            @test xj(x) == 42
+          end
+          @test 42 == hget(h, "{[a;b;c;d;e;f;g;h]h}", 1, 2, 3, 4, 5, 6, 7, 42)
+        end
+      end # server()
+      server(user="star:shine") do port
+        @test 42 == hopen(port=port, user="star:shine") do h
+          hget(h, "42")
+        end
+        @test 42 == hopen(port=port, user="star:shine", timeout=1) do h
+          hget(h, "42")
+        end
+
       end
-      @test_throws KdbException hget(("", port), "(..")
-      @test "type" == try
-        hget(("", port), "1+`")
-      catch e
-        e.s
-      end
-    end # server()
+    end # GOT_Q
   end
 end  # "High level"

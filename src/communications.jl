@@ -19,6 +19,15 @@ function hopen(;host="localhost", port=-1, user="", timeout=-1)
     end
 end
 
+function hopen(f::Function; host="localhost", port=-1, user="", timeout=-1)
+    h = hopen(;host=host, port=port, user=user, timeout=timeout)
+    try
+        return f(h)
+    finally
+        kclose(h)
+    end
+end
+
 function hopen(f::Function, host::String, port::Integer)
     h = hopen(host, port)
     try
@@ -33,7 +42,7 @@ hopen(f::Function, port::Integer) = hopen(f, "", port)
 const hclose = kclose
 
 hget(h::Integer, m::String) = _E(k(h, m))
-hget(h::Integer, m::String, x...) = _E(k(h, m, map(K_, x)...))
+hget(h::Integer, m::String, x...) = _E(k(h, m, map(K_new, x)...))
 
 function hget(h::Tuple{String,Integer}, m)
    h = hopen(h...)
