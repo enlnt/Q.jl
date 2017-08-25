@@ -65,13 +65,13 @@ for (class, super) in SUPERTYPE
         Base.length(x::$(class)) = 1
         Base.endof(x::$(class)) = 1
         # payload
-        Base.eltype{t,CT,JT}(x::$(class){t,CT,JT}) = JT
-        Base.pointer{t,CT,JT}(x::$(class){t,CT,JT}) = Ptr{CT}(x.o.x+8)
-        load{t,CT,JT}(x::$(class){t,CT,JT}) = unsafe_load(pointer(x))
-        _get{t,CT,JT}(x::$(class){t,CT,JT}) = _cast(JT, load(x))
-        store!{t,CT,JT}(x::$(class){t,CT,JT}, y::CT) =
+        Base.eltype(x::$(class){t,CT,JT}) where {t,CT,JT} = JT
+        Base.pointer(x::$(class){t,CT,JT}) where {t,CT,JT} = Ptr{CT}(x.o.x+8)
+        load(x::$(class){t,CT,JT}) where {t,CT,JT} = unsafe_load(pointer(x))
+        _get(x::$(class){t,CT,JT}) where {t,CT,JT} = _cast(JT, load(x))
+        store!(x::$(class){t,CT,JT}, y::CT) where {t,CT,JT} =
             (unsafe_store!(pointer(x), y); x)
-        _set!{t,CT,JT}(x::$(class){t,CT,JT}, y) =
+        _set!(x::$(class){t,CT,JT}, y) where {t,CT,JT} =
             (store!(x, _cast(CT, convert(JT, y))); x)
         function $(class)(p::K_)
             t = -xt(p)
@@ -148,15 +148,15 @@ function K_Vector(o::K_Object)
     JT = JULIA_TYPE[t]
     K_Vector{t,CT,JT}(o)
 end
-_cast{T}(::Type{T}, x::T) = x
-_cast{JT,CT}(::Type{JT}, x::CT) = JT(x)
+_cast(::Type{T}, x::T) where T = x
+_cast(::Type{JT}, x::CT) where {JT,CT} = JT(x)
 _cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
 
 Symbol(x::K_symbol) = convert(Symbol, x)
 K_Vector(a::Vector) = K_Vector(K(a))
 
-Base.eltype{t,CT,JT}(v::K_Vector{t,CT,JT}) = JT
-Base.size{t,CT,JT}(v::K_Vector{t,CT,JT}) = (convert(Int, xn(v.o.x)),)
+Base.eltype(v::K_Vector{t,CT,JT}) where {t,CT,JT} = JT
+Base.size(v::K_Vector{t,CT,JT}) where {t,CT,JT} = (convert(Int, xn(v.o.x)),)
 function Base.getindex(v::K_Vector{t,CT,JT}, i::Integer) where {t,CT,JT}
     @boundscheck checkbounds(v, i)
     _cast(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
@@ -178,19 +178,20 @@ include("conversions.jl")
 
 # Setting the vector elements
 import Base.pointer, Base.fill!, Base.copy!, Base.setindex!
-pointer{t,CT,JT}(x::K_Vector{t,CT,JT}, i::Integer=1) = Ptr{CT}(x.o.x+15+i)
-function fill!{t,CT,JT}(x::K_Vector{t,CT,JT}, el::JT)
-    const n = xn(x.o.x)
-    const p = pointer(x)
+pointer(x::K_Vector{t,CT,JT}, i::Integer=1) where {t,CT,JT} =
+    Ptr{CT}(x.o.x+15+i)
+function fill!(x::K_Vector{t,CT,JT}, el::JT) where {t,CT,JT}
+    n = xn(x.o.x)
+    p = pointer(x)
     el = _cast(CT, el)
     for i in 1:n
         unsafe_store!(p, el, i)
     end
     x
 end
-function setindex!{t,CT,JT}(x::K_Vector{t,CT,JT}, el, i::Int)
+function setindex!(x::K_Vector{t,CT,JT}, el, i::Int) where {t,CT,JT}
     @boundscheck checkbounds(x, i)
-    const p = pointer(x)
+    p = pointer(x)
     el = _cast(CT, convert(JT, el)::JT)
     unsafe_store!(p, el, i)
     x
@@ -200,24 +201,24 @@ end
 
 Base.getindex(::Type{K}) = K(ktn(0,0))
 function Base.getindex(::Type{K}, v)
-    const t = K_TYPE[typeof(v)]
-    const x = ktn(t, 1)
-    const T = eltype(x)
+    t = K_TYPE[typeof(v)]
+    x = ktn(t, 1)
+    T = eltype(x)
     v = _cast(T, v)
     copy!(x, [v])
     K(x)
 end
 function Base.getindex(::Type{K}, v...)
-    const n = length(v)
+    n = length(v)
     v = promote(v...)
     u = unique(map(typeof, v))
-    if length(u) == 1 && (const t = get(K_TYPE, u[1], KK)) > KK
-        const x = ktn(t, n)
-        const T = eltype(x)
+    if length(u) == 1 && (t = get(K_TYPE, u[1], KK)) > KK
+        x = ktn(t, n)
+        T = eltype(x)
         v = map(e->_cast(T, e), collect(v))
         copy!(x, v)
     else
-        const x = ktn(0, n)
+        x = ktn(0, n)
         copy!(x, map(K_, v))
     end
     K(x)

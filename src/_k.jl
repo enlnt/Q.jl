@@ -1,5 +1,5 @@
 module _k  # k.h wrappers
-export k, okx, kclose
+export k, b9, d9, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
@@ -98,7 +98,6 @@ r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
 r1(x::K_) = ccall((@k_sym :r1), K_, (K_,), x)
 
 # head accessors
-xa(x::K_) = unsafe_load(x).a
 xt(x::K_) = unsafe_load(x).t
 xr(x::K_) = unsafe_load(x).r
 
@@ -140,10 +139,10 @@ kj(x::Integer) = ccall((@k_sym :kj), K_, (J_,), x)
 ke(x::Real) = ccall((@k_sym :ke), K_, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_, (F_,), x)
 kc(x::Integer) = ccall((@k_sym :kc), K_, (I_,), x)
-sn(x::String, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
-ss(x::String) = ccall((@k_sym :ss), S_, (S_,), x)
-ss(x::Symbol) = ccall((@k_sym :ss), S_, (S_,), x)
-ks(x::String) = ccall((@k_sym :ks), K_, (S_,), x)
+const _AnyString = Union{String, Symbol, Cstring}
+sn(x::_AnyString, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
+ss(x::_AnyString) = ccall((@k_sym :ss), S_, (S_,), x)
+ks(x::_AnyString) = ccall((@k_sym :ks), K_, (S_,), x)
 
 # vector constructors
 kp(x::String) = ccall((@k_sym :kp), K_, (S_,), x)
@@ -165,6 +164,9 @@ ja(rx::Ref{K_}, y::Ref) = ccall((@k_sym :ja), K_, (Ref{K_}, Ptr{V_}), rx, y)
 js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
 
+# K b9(I,K) and K d9(K)
+b9(pe::Integer, x::K_) = ccall((@k_sym :b9), K_, (I_, K_), pe, x)
+d9(x::K_) = ccall((@k_sym :d9), K_, (K_, ), x)
 okx(x::K_) = ccall((@k_sym :okx), I_, (K_, ), x)
 kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
 
@@ -237,18 +239,18 @@ length(x) = xn(x)
 import Base.pointer, Base.fill!, Base.copy!
 pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+15+i))
 function fill!(x::K_, el)
-    const n = xn(x)
-    const p = pointer(x)
-    const T = typeof(p).parameters[1]
-    const f = (T === K_ ? r1 : identity)
+    n = xn(x)
+    p = pointer(x)
+    T = typeof(p).parameters[1]
+    f = (T === K_ ? r1 : identity)
     for i in 1:n
         unsafe_store!(p, T(f(el))::T, i)
     end
 end
 function copy!(x::K_, iter)
-    const p = pointer(x)
-    const T = typeof(p).parameters[1]
-    const f = (T === K_ ? r1 : identity)
+    p = pointer(x)
+    T = typeof(p).parameters[1]
+    f = (T === K_ ? r1 : identity)
     for (i, el::T) in enumerate(iter)
         unsafe_store!(p, f(el), i)
     end

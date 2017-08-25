@@ -49,7 +49,7 @@ macro xtest(e::Expr)
   end
 end
 
-@testset "Low level (k)" begin
+@testset "Low level (_k)" begin
   @testset "Type names" begin
     @test string(K_) == "K_"
     # @test string(K) == "K"
@@ -85,6 +85,10 @@ end
     @test auto_r0(ktj, I_(101), I_(0)) do x
       xt(x) == 101 && xj(x) == 0
     end
+  end
+  @testset "Interning" begin
+    @test (x = sn("abcd", 3); unsafe_string(x) == "abc")
+    @test (x = sn("abcd", 2); x === ss("ab"))
   end
   @testset "Date conversions" begin
     @test ymd(2000, 1, 1) == 0
@@ -128,7 +132,7 @@ end
       x = xT(d)
       xk(x) === d
     end
-end
+  end
   @testset "Vector ops" begin
     let o = K_Object(ktn(KJ, 3)), x = o.x
       @test eltype(x) === J_
@@ -149,6 +153,18 @@ end
       x = jk(Ref{K_}(x), ktn(0, 0))
       x = jk(Ref{K_}(x), ktn(0, 0))
       xn(x) == 2
+    end
+  end
+  @testset "Serializarion/deserialization" begin
+    @test auto_r0(kj, 42) do x
+      s = b9(0, x)
+      y = d9(s)
+      try
+        return okx(s) == 1 && xj(y)== xj(x)
+      finally
+        r0(s)
+        r0(y)
+      end
     end
   end
 end  # "Low level"
