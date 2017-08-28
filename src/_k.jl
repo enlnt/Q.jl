@@ -10,7 +10,7 @@ export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
-export TYPE_INFO, TYPE_CLASSES
+export TYPE_INFO, TYPE_CLASSES, typeinfo
 
 include("startup.jl")
 
@@ -84,7 +84,7 @@ const TYPE_INFO = [
     ∫(18, 'v', "second", I_, Int32, :_Temporal),
     ∫(19, 't', "time", I_, Int32, :_Temporal),
 ]
-
+typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
     Dict(KK=>K_, EE=>S_),
@@ -268,7 +268,7 @@ K_new(x::Int64) = kj(x)
 K_new(x::Float32) = ke(x)
 K_new(x::Float64) = kf(x)
 K_new(x::Symbol) = ks(String(x))
-K_new(x::Char) = kc(Int8(x))
+K_new(x::Char) = kc(I_(x))
 K_new(x::String) = kp(x)
 ## Vector conversions
 function K_new(a::Vector{T}) where {T<:Number}
