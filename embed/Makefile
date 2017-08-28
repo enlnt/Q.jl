@@ -12,8 +12,10 @@ J.so: J.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS)
 
 install: J.so
-	cp J.k julia.q $(QHOME)
+	cp J.k $(QHOME)
 	cp J.so $(QHOME)/$(QARCH)
+	echo "#! $(QHOME)/$(QARCH)/q" | cat - julia.q > $(QHOME)/julia.q
+	chmod +x $(QHOME)/julia.q
 
 all: J.so
 

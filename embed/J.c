@@ -32,9 +32,9 @@ Z K1(J_init){
   /* Parse an argc/argv pair to extract general julia options, passing
      back out any arguments that should be passed on to the script. */
   jl_parse_opts_p(&argc, &argv);
+  jl_init_p();
   /* Set julia-level ARGS array */
   jl_set_ARGS_p(argc, argv);
-  jl_init_p();
   r0(argk);
   R ktj(101,0);}
 Z K1(J_atexit_hook){jl_atexit_hook_p(xi);R ktj(101,0);}
