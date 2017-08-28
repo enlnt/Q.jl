@@ -222,7 +222,7 @@ function Base.getindex(::Type{K}, v...)
         copy!(x, v)
     else
         x = ktn(0, n)
-        copy!(x, map(K_, v))
+        copy!(x, map(K_new, v))
     end
     K(x)
 end

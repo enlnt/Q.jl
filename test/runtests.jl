@@ -240,6 +240,7 @@ end  # "Low to high level"
     @test (x = K[]; eltype(x) == K)
     @test (x = K[1]; eltype(x) == Int && Array(x) == [1])
     @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
+    @test (x = K[1, ""]; eltype(x) == K && x[1] == 1)
   end
   @testset "Vector indexing" begin
     let x = K[1, 2]
