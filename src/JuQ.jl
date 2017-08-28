@@ -40,24 +40,19 @@ for (class, super) in SUPERTYPE
         export $(class)
         mutable struct $(class){t,CT,JT} <: $(super)
             o::K_Object
-            function $(class){t,CT,JT}(o::K_Object) where {t,CT,JT}
-                t′ = xt(o.x)
+            function $(class){t,CT,JT}(x::K_) where {t,CT,JT}
+                o = K_Object(x)
+                t′ = xt(x)
                 if t != -t′
                     throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
                 end
                 new(o)
             end
-            function $(class){t,CT,JT}(x) where {t,CT,JT}
-                p = ka(t)
-                v = _cast(CT, convert(JT, x))::CT
-                unsafe_store!(Ptr{CT}(p+8), v)
-                o = K_Object(p)
-                new(o)
-            end
         end
         function Base.convert(::Type{$(class){t,CT,JT}}, x) where {t,CT,JT}
-            o = K_Object(K_new(_cast(CT, convert(JT, x))))
-            new(o)
+            p = ka(-t)
+            unsafe_store!(Ptr{CT}(p+8), _cast(CT, JT(x))::CT)
+            $(class){t,CT,JT}(p)
         end
         push!(K_CLASSES, $(class))
         Base.size(::$(class)) = ()
@@ -76,13 +71,6 @@ for (class, super) in SUPERTYPE
             (unsafe_store!(pointer(x), y); x)
         _set!(x::$(class){t,CT,JT}, y) where {t,CT,JT} =
             (store!(x, _cast(CT, convert(JT, y))); x)
-        function $(class)(p::K_)
-            t = -xt(p)
-            CT = C_TYPE[t]
-            JT = JULIA_TYPE[t]
-            o = K_Object(p)
-            $(class){t,CT,JT}(o)
-        end
         Base.show(io::IO, x::$class) = print(io, "K(", repr(_get(x)), ")")
     end
 end
@@ -97,12 +85,6 @@ for ti in TYPE_INFO
         export $(ktype)
         global const $(ktype) =
               $(class){$(ti.number),$(ti.c_type),$(ti.jl_type)}
-        function Base.convert(::Type{$(ktype)}, x::$(ti.jl_type))
-            o = K_Object(ka($(ti.number)))
-            r = $(ktype)(o)
-            store!(r, x)
-            r
-        end
         K_CLASS[$(ti.number)] = $(class)
         # Display type aliases by name in REPL.
         Base.show(io::IO, ::Type{$(ktype)}) = print(io, $(string(ktype)))
@@ -123,9 +105,10 @@ for ti in TYPE_INFO
     end
 end
 function K_Scalar(x::K_)
-    t = xt(x)
-    class = K_CLASS[-t]
-    return class(x)
+    t = -xt(x)
+    ti = typeinfo(t)
+    class = K_CLASS[t]
+    return class{t,ti.c_type,ti.jl_type}(x)
 end
 include("promote_rules.jl")
 mutable struct K_Other

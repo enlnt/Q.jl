@@ -193,7 +193,7 @@ end  # "Low level"
 end  # "Low to high level"
 
 @testset "High level (K objects)" begin
-  @test_throws ArgumentError (x = K(1); K_char(x.o))
+  @test_throws ArgumentError K_char(kj(1))
   @testset "Scalar supertypes" begin
     @test K_boolean <: Integer
     @test K_guid <: Unsigned
