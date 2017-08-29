@@ -11,7 +11,7 @@ matrix:
       julia: nightly
     - os: linux
       language: generic
-      env: MARCH=i686
+      env: JUQ_32BIT=yes
 # As of 2017-08-25 osx builds take forever.  Disabling.
 #    - os: osx
 #      julia: 0.6
@@ -53,7 +53,7 @@ before_script:
 ## uncomment the following lines to override the default test script
 script:
   - julia -e 'Pkg.clone(pwd()); Pkg.build("JuQ"); Pkg.test("JuQ"; coverage=true)'
-  - if [ -n "$MARCH" ]; then $HOME/q/julia.q test/runtests.jl -q; fi
+  - if [ -n "$JUQ_32BIT" ]; then $HOME/q/julia.q --code-coverage=user --inline=no test/runtests.jl -q; fi
 after_success:
   # push coverage results to Coveralls
   - julia -e 'cd(Pkg.dir("JuQ")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
