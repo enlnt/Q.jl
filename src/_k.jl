@@ -259,6 +259,7 @@ end
 ## New reference
 K_new(x::K_) = r1(x)
 ## Conversion of simple types
+K_new(::Void) = ktj(101, 0)
 K_new(x::Bool) = kb(x)
 K_new(x::UInt128) = ku(x)
 K_new(x::UInt8) = kg(x)
