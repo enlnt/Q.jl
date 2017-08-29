@@ -5,7 +5,7 @@ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
   brew install gcc
   QZIP=macosx.zip
 else
-  if [[ -n "$MARCH" ]]; then
+  if [[ -n "$JUQ_32BIT" ]]; then
     JULIA_SITE="julialang-s3.julialang.org"
     JULIA_PATH="bin/linux/x86/0.6/julia-0.6.0-linux-i686.tar.gz"
     JULIA_URL="https://${JULIA_SITE}/${JULIA_PATH}"
