@@ -27,6 +27,11 @@ function Base.convert(::Type{K}, x::K_)
         return K_None
     end
     t = xt(x)
+    if t == -EE
+       	msg = xs(x)
+        r0(x) 
+        throw(KdbException(msg))
+    end
     if t < 0
         return K_Scalar(x)
     elseif t == KC

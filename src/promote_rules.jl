@@ -1,5 +1,8 @@
 # TODO: These rules are incomplete - need to figure out how
 # to mimic Julia's builtin promotion rules. 
+Base.promote_rule(::Type{K_real}, ::Type{Int64}) = Float64
+Base.promote_rule(::Type{K_real}, ::Type{Int32}) = Float32
+
 Base.promote_rule(::Type{K_float}, ::Type{Int64}) = Float64
 Base.promote_rule(::Type{K_float}, ::Type{Int32}) = Float64
 
