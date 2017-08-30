@@ -1,3 +1,11 @@
+"""
+Kx Systems provides C API that can be used both on the server side (calling
+functions defined in the q binary) or on the server side by linking with a
+`c.o` object file.  With a few exceptions, the same functions are available
+on the server and the client side and they are declared in a C header `k.h`.
+
+This module is a thin wrapper for the kdb+ C API.
+"""
 module _k  # k.h wrappers
 export k, b9, d9, okx, kclose
 export ymd, dj
