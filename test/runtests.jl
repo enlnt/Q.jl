@@ -3,6 +3,7 @@ using JuQ._k, JuQ._k.GOT_Q
 using Base.Test
 using JuQ.K_Object, JuQ._get, JuQ._set!
 using Base.Dates.AbstractTime
+using DataFrames
 using JuQ.K_Object
 include("utils.jl")
 """
@@ -318,6 +319,17 @@ end  # "Low to high level"
   end
 end  # "High level"
 
+@testset "Tables" begin
+  let x = K_Table(a=[1, 2])
+    @test x == K_Table(Any[[1,2]], [:a])
+    @test ncol(x) == 1
+    @test nrow(x) == 2
+    @test DataFrames.columns(x) == [:a]
+    @test DataFrames.index(x) == DataFrames.Index(Dict(:a=>1), Symbol[:a])
+    @test x[1] == [1, 2]
+    @test x[2,1] == 2
+  end
+end
 if GOT_Q
   include("server-tests.jl")
 else

@@ -29,7 +29,7 @@ function Base.convert(::Type{K}, x::K_)
     t = xt(x)
     if t == -EE
        	msg = xs(x)
-        r0(x) 
+        r0(x)
         throw(KdbException(msg))
     end
     if t < 0
@@ -39,7 +39,7 @@ function Base.convert(::Type{K}, x::K_)
     elseif 0 <= t <= KS
         return K_Vector(K_Object(r1(x)))
     elseif t == XT
-        return K_Table(K_Object(r1(x)))
+        return K_Table(r1(x))
     end
     return K_Other(K_Object(r1(x)))
 end
