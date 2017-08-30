@@ -2,8 +2,9 @@ using DataFrames
 
 struct K_Table  <: AbstractDataFrame
     o::K_Object
-    function K_Table(o::K_Object)
-        t = xt(o.x)
+    function K_Table(x::K_)
+        o = K_Object(x)
+        t = xt(x)
         if(t != XT)
             throw(ArgumentError("type mismatch: t=$t ≠ $XT"))
         end
@@ -23,7 +24,7 @@ struct K_Table  <: AbstractDataFrame
         rx, ry = map(Ref{K_}, [x, y])
         for (k, v) in kwargs
             x = js(rx, ss(k))
-            y = jk(ry, K_(v))
+            y = jk(ry, K_new(v))
         end
         o = K_Object(xT(xD(x, y)))
         new(o)
