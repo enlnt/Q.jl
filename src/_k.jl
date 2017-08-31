@@ -20,6 +20,7 @@ export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
 export TYPE_INFO, TYPE_CLASSES, typeinfo
+export asarray
 
 include("startup.jl")
 
@@ -94,6 +95,9 @@ const TYPE_INFO = [
     ∫(19, 't', "time", I_, Int32, :_Temporal),
 ]
 typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
+_offset(t::Integer) = (-2 ≠ t < 0 ? 8 : 16)
+_offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
+_offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
     Dict(KK=>K_, EE=>S_),
@@ -147,7 +151,7 @@ ka(x::Integer) = ccall((@k_sym :ka), K_, (I_,), x)
 "Create a boolean"
 kb(x::Integer) = ccall((@k_sym :kb), K_, (I_,), x)
 "Create a guid"
-ku(x::U_) = (p = ka(-UU); unsafe_store!(Ptr{U_}(p+8), x); p)
+ku(x::U_) = (p = ka(-UU); unsafe_store!(Ptr{U_}(p+16), x); p)
 ku(x::Integer) = ku(U_(x))
 "Create a byte"
 kg(x::Integer) = ccall((@k_sym :kg), K_, (I_,), x)
@@ -274,7 +278,7 @@ length(x) = xn(x)
 
 # Filling the elements
 import Base.pointer, Base.fill!, Base.copy!
-pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+15+i))
+pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+_offset1(x)+i))
 function fill!(x::K_, el)
     n = xn(x)
     p = pointer(x)
@@ -337,4 +341,29 @@ function K_new(a::Union{Tuple,Vector{Any}})
     end
     r.x
 end
+
+# returns type, offset and size
+function _info(x::K_)
+    h = unsafe_load(x)
+    t_ = h.t
+    o = _offset(t_)
+    if t_ < 0   # scalar
+        t_ = -t_
+        sz = ()
+    else
+        sz = (xn(x),)
+    end
+    C_TYPE[t_], o, sz
+end
+
+function asarray(x::K_, own::Bool=true)
+    T, o, s = _info(x)
+    a = unsafe_wrap(Array, Ptr{T}(x + o), s)
+    if own
+        finalizer(a, b->r0(K_(pointer(b)-o)))
+    end
+    a
+end
+
+
 end # module k

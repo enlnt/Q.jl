@@ -201,6 +201,25 @@ end
   end
 end  # "Low level"
 
+@testset "asarray" begin
+  @test begin
+    a = asarray(kj(42))
+    a[] == 42
+  end
+  @test begin
+    x = ktn(KJ, 5)
+    a = asarray(x)
+    a[:] = 1:5
+    collect(x) == a
+  end
+  @test begin
+    n = 0x0102030405060708090a0b0c0d0e0f10
+    x = ku(n)
+    a = asarray(x)
+    a[] == n
+  end
+end
+
 @testset "Low to high level - K(K_)" begin
   @test Bool(K(kb(1))) === true
   @test UInt8(K(kg(1))) == 1
