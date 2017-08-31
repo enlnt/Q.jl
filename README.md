@@ -1,6 +1,6 @@
 <a name="logo"/>
 <div align="center">
-<a ref="https://abalkin.github.io/JuQ.jl/latest">
+<a href="https://abalkin.github.io/JuQ.jl/latest">
 <img src="docs/src/juq-logo.png" alt="JuQ Logo" width="128.5" height="119"></img>
 </a>
 </div>
