@@ -21,6 +21,7 @@ else
 fi
 
 if [[ -n ${KDBURL} && ! -d $HOME/d ]]; then
+  mkdir -p $HOME/d
   curl -e https://kx.com "${KDBURL}/3.5/${QZIP}" \
        -o $HOME/d/kx.zip && unzip -d $HOME $HOME/d/kx.zip
   rm $HOME/q/q.q
