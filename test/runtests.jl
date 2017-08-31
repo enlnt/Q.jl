@@ -218,6 +218,12 @@ end  # "Low level"
     a = asarray(x)
     a[] == n
   end
+  @test begin
+    d = xD(ktn(KJ, 0), ktn(KS, 0))
+    a = asarray(d)
+    x, y = a
+    asarray(x, false) == asarray(y, false) == []
+  end
 end
 
 @testset "Low to high level - K(K_)" begin

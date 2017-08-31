@@ -95,13 +95,53 @@ const TYPE_INFO = [
     ∫(19, 't', "time", I_, Int32, :_Temporal),
 ]
 typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
-_offset(t::Integer) = (-2 ≠ t < 0 ? 8 : 16)
+_offset(t::Integer) = (
+    -2 ≠ t < 0 || t == XT || t > 100 ? 8 : 16)
 _offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
 _offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
-    Dict(KK=>K_, EE=>S_),
+    Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_,
+         100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
+         106=>K_, 107=>K_, 108=>K_, 109=>K_, 100=>K_, 111=>V_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
+function ctype(t)
+    if t < 0
+        return C_TYPE[-t]
+    elseif t <= KT || t >= XD
+        return C_TYPE[t]
+    elseif t < 77  # enums
+        return I_
+    else
+        return J_  # nested
+    end
+end
+# returns type, offset and size
+function cinfo(x::K_)
+    h = unsafe_load(x)
+    t = h.t
+    if t < 0   # scalar
+        return C_TYPE[-t], (t == -UU ? 16 : 8), ()
+    elseif t <= KT
+        return C_TYPE[t], 16, (xn(x), )
+    elseif t == XT
+        return K_, 8, ()
+    elseif t == XD
+        return K_, 16, (2, )
+    elseif t < 77
+        return I_, 16, (xn(x), )
+    elseif t < XT
+        return J_, 16, (xn(x), )
+    elseif t == 100  # λ
+        return K_, 16, (xn(x), )
+    elseif t == 104
+        return I_, 8, ()
+    elseif t < 111
+        return K_, 16, (xn(x), )
+    else
+        return Ptr{V_}, 8, ()
+    end
+end
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
@@ -342,22 +382,8 @@ function K_new(a::Union{Tuple,Vector{Any}})
     r.x
 end
 
-# returns type, offset and size
-function _info(x::K_)
-    h = unsafe_load(x)
-    t_ = h.t
-    o = _offset(t_)
-    if t_ < 0   # scalar
-        t_ = -t_
-        sz = ()
-    else
-        sz = (xn(x),)
-    end
-    C_TYPE[t_], o, sz
-end
-
 function asarray(x::K_, own::Bool=true)
-    T, o, s = _info(x)
+    T, o, s = cinfo(x)
     a = unsafe_wrap(Array, Ptr{T}(x + o), s)
     if own
         finalizer(a, b->r0(K_(pointer(b)-o)))
