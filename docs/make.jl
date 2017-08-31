@@ -4,7 +4,6 @@ using JuQ
 
 makedocs(
     modules   = [JuQ, JuQ._k],
-    format    = :html,
     sitename  = "JuQ - Julia for kdb+",
     linkcheck = true,
     pages = [
