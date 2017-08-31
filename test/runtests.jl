@@ -116,6 +116,33 @@ end
     @test empty_vector(KE, E_)
     @test empty_vector(KF, F_)
   end
+  @testset "Vector accessors S" begin
+    auto_r0(ktn, KS, 5) do x
+      @test x|>n == 5
+      @test x|>t == KS
+      @test (a = kS(x); a[:] = s = ss("a"); a[2:4] == [s, s, s])
+    end
+  end
+  @testset "Vector accessors K" begin
+    auto_r0(ktn, KK, 5) do x
+      @test x|>n == 5
+      @test x|>t == KK
+      @test begin
+        a = kK(x)
+        a[:] = k = ktj(101, 0)
+        map(r1, a[2:end])
+        a[2:4] == [k, k, k]
+      end
+    end
+  end
+  @testset "Vector accessors 2" for T in "GHIJEF"
+    t_, f_ = map(eval, [Symbol("K", T), Symbol("k", T)])
+    auto_r0(ktn, t_, 5) do x
+      @test x|>n == 5
+      @test x|>t == t_
+      @test (a = f_(x); a[:] = 1:5; a[2:4] == [2, 3, 4])
+    end
+  end
   @testset "Mixed types list" begin
     @xtest begin
       x = knk(3, kb(I_(0)), ku(U_(10)), ku(0))

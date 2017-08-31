@@ -13,7 +13,8 @@ export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export ja, js, jk
 export ktn, knk, kp, xT, xD
-export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
+export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
+export kG, kH, kI, kJ, kE, kF, kC, kS, kK
 export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK, EE
@@ -108,8 +109,8 @@ r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
 r1(x::K_) = ccall((@k_sym :r1), K_, (K_,), x)
 
 # head accessors
-xt(x::K_) = unsafe_load(x).t
-xr(x::K_) = unsafe_load(x).r
+const xt = t(x::K_) = unsafe_load(x).t
+const xr = r(x::K_) = unsafe_load(x).r
 
 # scalar accessors
 xg(x::K_) = unsafe_load(Ptr{G_}(x+8))
@@ -121,15 +122,17 @@ xf(x::K_) = unsafe_load(Ptr{F_}(x+8))
 xs(x::K_) = unsafe_string(unsafe_load(Ptr{S_}(x+8)))
 
 # vector accessors
-xn(x::K_) = unsafe_load(Ptr{J_}(x+8))
-## XXX: These don't seem to be useful. Consider
-# returning lighweight memory views.
-# xG(x::K_) = Ptr{G_}(x+16)
-# xH(x::K_) = Ptr{H_}(x+16)
-# xI(x::K_) = Ptr{I_}(x+16)
-# xJ(x::K_) = Ptr{J_}(x+16)
-# xE(x::K_) = Ptr{E_}(x+16)
-# xF(x::K_) = Ptr{F_}(x+16)
+const xn = n(x::K_) = unsafe_load(Ptr{J_}(x+8))
+
+kG(x::K_) = unsafe_wrap(Array, Ptr{G_}(x+16), (x|>n,))
+kH(x::K_) = unsafe_wrap(Array, Ptr{H_}(x+16), (x|>n,))
+kI(x::K_) = unsafe_wrap(Array, Ptr{I_}(x+16), (x|>n,))
+kJ(x::K_) = unsafe_wrap(Array, Ptr{J_}(x+16), (x|>n,))
+kE(x::K_) = unsafe_wrap(Array, Ptr{E_}(x+16), (x|>n,))
+kF(x::K_) = unsafe_wrap(Array, Ptr{F_}(x+16), (x|>n,))
+kC(x::K_) = unsafe_wrap(Array, Ptr{C_}(x+16), (x|>n,))
+kS(x::K_) = unsafe_wrap(Array, Ptr{S_}(x+16), (x|>n,))
+kK(x::K_) = unsafe_wrap(Array, Ptr{K_}(x+16), (x|>n,))
 
 # table and dict accessors
 xk(x::K_) = unsafe_load(Ptr{K_}(x+8))
