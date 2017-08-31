@@ -13,16 +13,15 @@ end
 #########################################################################
 # Wrapper around q's C K type, with hooks to q reference
 # counting and conversion routines to/from C and Julia types.
-"""
-    K_Object(x::K_)
-A K object reference managed by Julia GC.
-"""
+
+"A K object reference managed by Julia GC."
 mutable struct K_Object
     x::K_ # pointer to the actual K object
     function K_Object(x::K_)
-        px = new(x)
-        finalizer(px, (o->(x = o.x;x == C_NULL || r0(x))))
-        return px
+        @assert x != 0
+        o = new(x)
+        finalizer(o, o->r0(o.x))
+        return o
     end
 end
 const SUPERTYPE = Dict(
