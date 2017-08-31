@@ -37,7 +37,7 @@ K_CLASSES = Type[]
 for (class, super) in SUPERTYPE
     @eval begin
         export $(class)
-        mutable struct $(class){t,CT,JT} <: $(super)
+        struct $(class){t,CT,JT} <: $(super)
             o::K_Object
             function $(class){t,CT,JT}(x::K_) where {t,CT,JT}
                 o = K_Object(x)
@@ -110,13 +110,13 @@ function K_Scalar(x::K_)
     return class{t,ti.c_type,ti.jl_type}(x)
 end
 include("promote_rules.jl")
-mutable struct K_Other
+struct K_Other
     o::K_Object
     function K_Other(o::K_Object)
         return new(o)
     end
 end
-mutable struct K_Vector{t,CT,JT} <: AbstractVector{JT}
+struct K_Vector{t,CT,JT} <: AbstractVector{JT}
     o::K_Object
     function K_Vector{t,CT,JT}(o::K_Object) where {t,CT,JT}
         t′ = xt(o.x)
