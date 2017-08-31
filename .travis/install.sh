@@ -20,7 +20,7 @@ else
   QZIP=linuxx86.zip
 fi
 
-if [[ -n ${KDBURL} && ! -d $HOME/d ]]; then
+if [[ -n ${KDBURL} && ! -f $HOME/d/kx.zip ]]; then
   mkdir -p $HOME/d
   curl -e https://kx.com "${KDBURL}/3.5/${QZIP}" \
        -o $HOME/d/kx.zip && unzip -d $HOME $HOME/d/kx.zip
