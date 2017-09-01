@@ -224,6 +224,19 @@ end  # "Low level"
     x, y = a
     asarray(x, false) == asarray(y, false) == []
   end
+  @test begin
+    d = xD(ktn(KS, 2), knk(2, ktn(KJ, 3), ktn(KF, 3)))
+    a = asarray(d)
+    k, v = a
+    asarray(k, false)[:] = map(ss, ["a", "b"])
+    c1 = asarray(v, false)[1]
+    c2 = asarray(v, false)[2]
+    asarray(c1, false)[:] = 1:3
+    asarray(c2, false)[:] = 3.14
+    table = xT(r1(d))
+    b = asarray(table)
+    b[] == d
+  end
 end
 
 @testset "Low to high level - K(K_)" begin
