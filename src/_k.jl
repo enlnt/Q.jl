@@ -101,9 +101,9 @@ _offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
 _offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
-    Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_,
+    Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_, (-EE)=>S_,  # XXX: do we need both ±EE?
          100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
-         106=>K_, 107=>K_, 108=>K_, 109=>K_, 100=>K_, 111=>V_),
+         106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
 function ctype(t)
     if t < 0
@@ -134,12 +134,14 @@ function cinfo(x::K_)
         return J_, 16, (xn(x), )
     elseif t == 100  # λ
         return K_, 16, (xn(x), )
-    elseif t == 104
+    elseif t < 104
         return I_, 8, ()
-    elseif t < 111
+    elseif t < 106  # projection, composition
         return K_, 16, (xn(x), )
+    elseif t < 112  # f', f/, f\, ...
+        return K_, 8, ()
     else
-        return Ptr{V_}, 8, ()
+        return Ptr{V_}, 16, ()
     end
 end
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
