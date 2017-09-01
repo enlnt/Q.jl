@@ -13,17 +13,20 @@ export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
 export ja, js, jk
 export ktn, knk, kp, xT, xD
-export xa, xt, xr, xg, xh, xi, xj, xe, xf, xs, xn, xk, xx, xy
-export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
+export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
+export kG, kH, kI, kJ, kE, kF, kC, kS, kK
+export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
 export TYPE_INFO, TYPE_CLASSES, typeinfo
+export asarray
 
 include("startup.jl")
 
 #########################################################################
 # k.h
+const B_ = Bool  # not in k.h
 const C_ = Cchar
 const S_ = Cstring
 const G_ = Cuchar
@@ -68,7 +71,7 @@ end
 
 const TYPE_INFO = [
     # num ltr name c_type jl_type super
-    ∫(1, 'b', "boolean", G_, Bool, :_Bool),
+    ∫(1, 'b', "boolean", B_, Bool, :_Bool),
 
     ∫(2, 'g', "guid", U_, UInt128, :_Unsigned),
     ∫(4, 'x', "byte", G_, UInt8, :_Unsigned),
@@ -93,10 +96,55 @@ const TYPE_INFO = [
     ∫(19, 't', "time", I_, Int32, :_Temporal),
 ]
 typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
+_offset(t::Integer) = (
+    -2 ≠ t < 0 || t == XT || t > 100 ? 8 : 16)
+_offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
+_offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
-    Dict(KK=>K_, EE=>S_),
+    Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_, (-EE)=>S_,  # XXX: do we need both ±EE?
+         100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
+         106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
+function ctype(t)
+    if t < 0
+        return C_TYPE[-t]
+    elseif t <= KT || t >= XD
+        return C_TYPE[t]
+    elseif t < 77  # enums
+        return I_
+    else
+        return J_  # nested
+    end
+end
+# returns type, offset and size
+function cinfo(x::K_)
+    h = unsafe_load(x)
+    t = h.t
+    if t < 0   # scalar
+        return C_TYPE[-t], (t == -UU ? 16 : 8), ()
+    elseif t <= KT
+        return C_TYPE[t], 16, (xn(x), )
+    elseif t == XT
+        return K_, 8, ()
+    elseif t == XD
+        return K_, 16, (2, )
+    elseif t < 77
+        return I_, 16, (xn(x), )
+    elseif t < XT
+        return J_, 16, (xn(x), )
+    elseif t == 100  # λ
+        return K_, 16, (xn(x), )
+    elseif t < 104
+        return I_, 8, ()
+    elseif t < 106  # projection, composition
+        return K_, 16, (xn(x), )
+    elseif t < 112  # f', f/, f\, ...
+        return K_, 8, ()
+    else
+        return Ptr{V_}, 16, ()
+    end
+end
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
@@ -108,8 +156,8 @@ r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
 r1(x::K_) = ccall((@k_sym :r1), K_, (K_,), x)
 
 # head accessors
-xt(x::K_) = unsafe_load(x).t
-xr(x::K_) = unsafe_load(x).r
+const xt = t(x::K_) = unsafe_load(x).t
+const xr = r(x::K_) = unsafe_load(x).r
 
 # scalar accessors
 xg(x::K_) = unsafe_load(Ptr{G_}(x+8))
@@ -121,15 +169,17 @@ xf(x::K_) = unsafe_load(Ptr{F_}(x+8))
 xs(x::K_) = unsafe_string(unsafe_load(Ptr{S_}(x+8)))
 
 # vector accessors
-xn(x::K_) = unsafe_load(Ptr{J_}(x+8))
-## XXX: These don't seem to be useful. Consider
-# returning lighweight memory views.
-# xG(x::K_) = Ptr{G_}(x+16)
-# xH(x::K_) = Ptr{H_}(x+16)
-# xI(x::K_) = Ptr{I_}(x+16)
-# xJ(x::K_) = Ptr{J_}(x+16)
-# xE(x::K_) = Ptr{E_}(x+16)
-# xF(x::K_) = Ptr{F_}(x+16)
+const xn = n(x::K_) = unsafe_load(Ptr{J_}(x+8))
+
+kG(x::K_) = unsafe_wrap(Array, Ptr{G_}(x+16), (x|>n,))
+kH(x::K_) = unsafe_wrap(Array, Ptr{H_}(x+16), (x|>n,))
+kI(x::K_) = unsafe_wrap(Array, Ptr{I_}(x+16), (x|>n,))
+kJ(x::K_) = unsafe_wrap(Array, Ptr{J_}(x+16), (x|>n,))
+kE(x::K_) = unsafe_wrap(Array, Ptr{E_}(x+16), (x|>n,))
+kF(x::K_) = unsafe_wrap(Array, Ptr{F_}(x+16), (x|>n,))
+kC(x::K_) = unsafe_wrap(Array, Ptr{C_}(x+16), (x|>n,))
+kS(x::K_) = unsafe_wrap(Array, Ptr{S_}(x+16), (x|>n,))
+kK(x::K_) = unsafe_wrap(Array, Ptr{K_}(x+16), (x|>n,))
 
 # table and dict accessors
 xk(x::K_) = unsafe_load(Ptr{K_}(x+8))
@@ -144,7 +194,7 @@ ka(x::Integer) = ccall((@k_sym :ka), K_, (I_,), x)
 "Create a boolean"
 kb(x::Integer) = ccall((@k_sym :kb), K_, (I_,), x)
 "Create a guid"
-ku(x::U_) = (p = ka(-UU); unsafe_store!(Ptr{U_}(p+8), x); p)
+ku(x::U_) = (p = ka(-UU); unsafe_store!(Ptr{U_}(p+16), x); p)
 ku(x::Integer) = ku(U_(x))
 "Create a byte"
 kg(x::Integer) = ccall((@k_sym :kg), K_, (I_,), x)
@@ -217,23 +267,21 @@ else
     # communications (not included in q server)
     export khpun, khpu, khp
     # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
-    khpun(h::String, p::Integer, u::String, n::Integer) =
-        ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
-    khpu(h::String, p::Integer, u::String) =
-        ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
+    khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpu),
+        I_, (S_, I_, S_, I_), h, p, u, n)
+    khpu(h::String, p::Integer, u::String) = ccall((@k_sym :khpu),
+        I_, (S_, I_, S_), h, p, u)
     khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 end
 
 const K_NULL = K_(C_NULL)
 # K k(I,const S,...)
 # TODO: Use Julia metaprogramming to avoid repetition
-k(h::Integer, m::String) =
-    ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_NULL)
-k(h::Integer, m::String, x1::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_),
-            h, m, x1, x2, K_NULL)
+k(h::Integer, m::String) = ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_NULL)
+k(h::Integer, m::String, x1::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
+k(h::Integer, m::String, x1::K_, x2::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_, K_), h, m, x1, x2, K_NULL)
 k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_),
             h, m, x1, x2, x3, K_NULL)
@@ -257,7 +305,7 @@ k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
 # Iterator protocol
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
 struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
-eltype(x::K_) = C_TYPE[abs(xt(x))]
+eltype(x::K_) = ctype(xt(x))
 function start(x::K_)
     T = eltype(x)
     ptr = Ptr{T}(x+16)
@@ -271,7 +319,7 @@ length(x) = xn(x)
 
 # Filling the elements
 import Base.pointer, Base.fill!, Base.copy!
-pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+15+i))
+pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+_offset1(x)+i))
 function fill!(x::K_, el)
     n = xn(x)
     p = pointer(x)
@@ -334,4 +382,15 @@ function K_new(a::Union{Tuple,Vector{Any}})
     end
     r.x
 end
+
+function asarray(x::K_, own::Bool=true)
+    T, o, s = cinfo(x)
+    a = unsafe_wrap(Array, Ptr{T}(x + o), s)
+    if own
+        finalizer(a, b->r0(K_(pointer(b)-o)))
+    end
+    a
+end
+
+
 end # module k

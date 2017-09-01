@@ -108,13 +108,40 @@ end
     @test roundtrip_scalar(xs, ks, "abc")
   end
   @testset "Vector types" begin
-    @test empty_vector(KB, G_)
+    @test empty_vector(KB, B_)
     @test empty_vector(KG, G_)
     @test empty_vector(KH, H_)
     @test empty_vector(KI, I_)
     @test empty_vector(KJ, J_)
     @test empty_vector(KE, E_)
     @test empty_vector(KF, F_)
+  end
+  @testset "Vector accessors S" begin
+    auto_r0(ktn, KS, 5) do x
+      @test x|>n == 5
+      @test x|>t == KS
+      @test (a = kS(x); a[:] = s = ss("a"); a[2:4] == [s, s, s])
+    end
+  end
+  @testset "Vector accessors K" begin
+    auto_r0(ktn, KK, 5) do x
+      @test x|>n == 5
+      @test x|>t == KK
+      @test begin
+        a = kK(x)
+        a[:] = k = ktj(101, 0)
+        map(r1, a[2:end])
+        a[2:4] == [k, k, k]
+      end
+    end
+  end
+  @testset "Vector accessors 2" for T in "GHIJEFC"
+    t_, f_ = map(eval, [Symbol("K", T), Symbol("k", T)])
+    auto_r0(ktn, t_, 5) do x
+      @test x|>n == 5
+      @test x|>t == t_
+      @test (a = f_(x); a[:] = 1:5; a[2:4] == [2, 3, 4])
+    end
   end
   @testset "Mixed types list" begin
     @xtest begin
@@ -173,6 +200,45 @@ end
     end
   end
 end  # "Low level"
+
+@testset "asarray" begin
+  @test begin
+    a = asarray(kj(42))
+    a[] == 42
+  end
+  @test begin
+    x = ktn(KJ, 5)
+    a = asarray(x)
+    a[:] = 1:5
+    collect(x) == a
+  end
+  @test begin
+    n = 0x0102030405060708090a0b0c0d0e0f10
+    x = ku(n)
+    a = asarray(x)
+    a[] == n
+  end
+  @test begin
+    d = xD(ktn(KJ, 0), ktn(KS, 0))
+    a = asarray(d)
+    x, y = a
+    asarray(x, false) == asarray(y, false) == []
+  end
+  @test begin
+    d = xD(ktn(KS, 2), knk(2, ktn(KJ, 3), ktn(KF, 3)))
+    a = asarray(d)
+    k, v = a
+    asarray(k, false)[:] = map(ss, ["a", "b"])
+    c1 = asarray(v, false)[1]
+    c2 = asarray(v, false)[2]
+    asarray(c1, false)[:] = 1:3
+    asarray(c2, false)[:] = 3.14
+    table = xT(r1(d))
+    b = asarray(table)
+    b[] == d
+  end
+  @test (a = asarray(K_new(nothing)); a[] == 0)
+end
 
 @testset "Low to high level - K(K_)" begin
   @test Bool(K(kb(1))) === true
@@ -279,7 +345,7 @@ end  # "Low to high level"
     @test string(K(:a)) == "a"
   end
   @testset "K constructors" begin
-    @test (x = K(true); unsafe_load(pointer(x)) === 0x01)
+    @test (x = K(true); unsafe_load(pointer(x)) === true)
     @test (x = K(0x42); unsafe_load(pointer(x)) === 0x42)
     @test (x = K(Int16(11)); unsafe_load(pointer(x)) === Int16(11))
     @test (x = K(Int32(11)); unsafe_load(pointer(x)) === Int32(11))
