@@ -96,8 +96,6 @@ const TYPE_INFO = [
     ∫(19, 't', "time", I_, Int32, :_Temporal),
 ]
 typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
-_offset(t::Integer) = (
-    -2 ≠ t < 0 || t == XT || t > 100 ? 8 : 16)
 _offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
 _offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
@@ -254,8 +252,8 @@ kclose(h::Integer) = ccall((@k_sym :kclose), V_, (I_, ), h)
 
 # Dates
 "Encode a year/month/day as q date"
-ymd(y::Integer, m::Integer, d::Integer) =
-    ccall((@k_sym :ymd), I_, (I_, I_, I_), y, m, d)
+ymd(y::Integer, m::Integer, d::Integer) = ccall((@k_sym :ymd),
+    I_, (I_, I_, I_), y, m, d)
 "Convert q date to yyyymmdd integer"
 dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
