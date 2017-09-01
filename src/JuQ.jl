@@ -195,14 +195,13 @@ function Base.getindex(::Type{K}, v)
 end
 function Base.getindex(::Type{K}, v...)
     n = length(v)
-    v = promote(v...)
-    u = unique(map(typeof, v))
-    if length(u) == 1 && (t = get(K_TYPE, u[1], KK)) > KK
+    t = get(K_TYPE, Base.promote_typeof(v...), KK)
+    if t > KK  # k vector
         x = ktn(t, n)
         T = eltype(x)
         v = map(e->_cast(T, e), collect(v))
         copy!(x, v)
-    else
+    else       # k list
         x = ktn(0, n)
         copy!(x, map(K_new, v))
     end
