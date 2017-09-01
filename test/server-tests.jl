@@ -1,6 +1,21 @@
 qa(cmd) = asarray(k(0, cmd))
 qa(cmd, x...) = asarray(k(0, cmd), map(K_new, x)...)
-
+@testset "server-side low level" begin
+  @test begin  # dot_
+    f = k(0, "til")
+    af = asarray(f)  # ensure r0
+    x = knk(1, kj(3))
+    ax = asarray(x)  # ensure r0
+    asarray(dot_(f, x)) == [0, 1, 2]
+  end
+  @test begin  # ee
+    f = k(0, "til")
+    af = asarray(f)    # ensure r0
+    x = knk(1, kc(99)) # ,"c"
+    ax = asarray(x)    # ensure r0
+    unsafe_string(asarray(ee(dot_(f, x)))[]) == "type"
+  end
+end
 @testset "server-side asarray" begin
   @test begin
       f = k(0, "{}")
