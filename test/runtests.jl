@@ -1,7 +1,7 @@
 using JuQ
 using JuQ._k, JuQ._k.GOT_Q
 using Base.Test
-using JuQ.K_Object, JuQ._get, JuQ._set!
+using JuQ.K_Object
 using Base.Dates.AbstractTime
 using DataFrames
 using JuQ.K_Object
@@ -285,11 +285,11 @@ end  # "Low to high level"
   end
   @testset "Scalar get/set!" begin
     let x = K(1)
-      @test _set!(x, 2) == 2
-      @test _get(x) === 2
+      @test (x.a[] = 2) == 2
+      @test x.a[] === 2
     end
     let x = K(:a)
-      @test (_set!(x, :b); _get(x) === :b)
+      @test (x.a[] = ss(:b); x.a[] === ss(:b))
     end
   end
   @testset "Array methods on scalars" begin
@@ -353,7 +353,7 @@ end  # "Low to high level"
     @test (x = K(Float32(11)); unsafe_load(pointer(x)) === Float32(11))
     @test (x = K(11.); unsafe_load(pointer(x)) === 11.)
     @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
-    @test (x = K('a'); JuQ.load(x) == UInt8('a'))
+    @test (x = K('a'); x.a[] == UInt8('a'))
     @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
     # Vectors
     @test (x = K([1]); collect(x) == [1])
