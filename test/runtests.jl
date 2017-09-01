@@ -135,7 +135,7 @@ end
       end
     end
   end
-  @testset "Vector accessors 2" for T in "GHIJEF"
+  @testset "Vector accessors 2" for T in "GHIJEFC"
     t_, f_ = map(eval, [Symbol("K", T), Symbol("k", T)])
     auto_r0(ktn, t_, 5) do x
       @test x|>n == 5
@@ -237,6 +237,7 @@ end  # "Low level"
     b = asarray(table)
     b[] == d
   end
+  @test (a = asarray(K_new(nothing)); a[] == 0)
 end
 
 @testset "Low to high level - K(K_)" begin

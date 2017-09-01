@@ -267,23 +267,21 @@ else
     # communications (not included in q server)
     export khpun, khpu, khp
     # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
-    khpun(h::String, p::Integer, u::String, n::Integer) =
-        ccall((@k_sym :khpu), I_, (S_, I_, S_, I_), h, p, u, n)
-    khpu(h::String, p::Integer, u::String) =
-        ccall((@k_sym :khpu), I_, (S_, I_, S_), h, p, u)
+    khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpu),
+        I_, (S_, I_, S_, I_), h, p, u, n)
+    khpu(h::String, p::Integer, u::String) = ccall((@k_sym :khpu),
+        I_, (S_, I_, S_), h, p, u)
     khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 end
 
 const K_NULL = K_(C_NULL)
 # K k(I,const S,...)
 # TODO: Use Julia metaprogramming to avoid repetition
-k(h::Integer, m::String) =
-    ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_NULL)
-k(h::Integer, m::String, x1::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_),
-            h, m, x1, x2, K_NULL)
+k(h::Integer, m::String) = ccall((@k_sym :k), K_, (I_, S_, K_), h, m, K_NULL)
+k(h::Integer, m::String, x1::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
+k(h::Integer, m::String, x1::K_, x2::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_, K_), h, m, x1, x2, K_NULL)
 k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
     ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_),
             h, m, x1, x2, x3, K_NULL)
@@ -307,7 +305,7 @@ k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
 # Iterator protocol
 import Base.start, Base.next, Base.done, Base.length, Base.eltype
 struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
-eltype(x::K_) = C_TYPE[abs(xt(x))]
+eltype(x::K_) = ctype(xt(x))
 function start(x::K_)
     T = eltype(x)
     ptr = Ptr{T}(x+16)
