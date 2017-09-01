@@ -108,7 +108,7 @@ end
     @test roundtrip_scalar(xs, ks, "abc")
   end
   @testset "Vector types" begin
-    @test empty_vector(KB, G_)
+    @test empty_vector(KB, B_)
     @test empty_vector(KG, G_)
     @test empty_vector(KH, H_)
     @test empty_vector(KI, I_)
@@ -344,7 +344,7 @@ end  # "Low to high level"
     @test string(K(:a)) == "a"
   end
   @testset "K constructors" begin
-    @test (x = K(true); unsafe_load(pointer(x)) === 0x01)
+    @test (x = K(true); unsafe_load(pointer(x)) === true)
     @test (x = K(0x42); unsafe_load(pointer(x)) === 0x42)
     @test (x = K(Int16(11)); unsafe_load(pointer(x)) === Int16(11))
     @test (x = K(Int32(11)); unsafe_load(pointer(x)) === Int32(11))

@@ -15,7 +15,7 @@ export ja, js, jk
 export ktn, knk, kp, xT, xD
 export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
 export kG, kH, kI, kJ, kE, kF, kC, kS, kK
-export C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
+export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
@@ -26,6 +26,7 @@ include("startup.jl")
 
 #########################################################################
 # k.h
+const B_ = Bool  # not in k.h
 const C_ = Cchar
 const S_ = Cstring
 const G_ = Cuchar
@@ -70,7 +71,7 @@ end
 
 const TYPE_INFO = [
     # num ltr name c_type jl_type super
-    ∫(1, 'b', "boolean", G_, Bool, :_Bool),
+    ∫(1, 'b', "boolean", B_, Bool, :_Bool),
 
     ∫(2, 'g', "guid", U_, UInt128, :_Unsigned),
     ∫(4, 'x', "byte", G_, UInt8, :_Unsigned),
