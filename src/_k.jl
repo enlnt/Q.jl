@@ -95,25 +95,12 @@ const TYPE_INFO = [
     TI(18, 'v', "second", I_, Int32, :_Temporal),
     TI(19, 't', "time", I_, Int32, :_Temporal),
 ]
-_offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
-_offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
     Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_, (-EE)=>S_,  # XXX: do we need both ±EE?
          100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
          106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
-function ctype(t)
-    if t < 0
-        return C_TYPE[-t]
-    elseif t <= KT || t >= XD
-        return C_TYPE[t]
-    elseif t < 77  # enums
-        return I_
-    else
-        return J_  # nested
-    end
-end
 # returns type, offset and size
 function cinfo(x::K_)
     h = unsafe_load(x)
