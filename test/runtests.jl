@@ -277,6 +277,14 @@ end  # "Low to high level"
     @test K(Int64(0)) isa Signed
     @test K(0.0) isa Real
   end
+  @testset "Reference counting with K" begin
+    @test begin
+      x = K(1)
+      auto_r0(K_new, x) do p
+        xr(p) == 1
+      end
+    end
+  end
   @testset "Typed scalar constructors" begin
     @test (x = K_short(0); eltype(x) === Int16)
     @test (x = K_int(0); eltype(x) === Int32)
