@@ -1,5 +1,5 @@
 qa(cmd) = asarray(k(0, cmd))
-qa(cmd, x...) = asarray(k(0, cmd), map(K_new, x)...)
+qa(cmd, x...) = asarray(k(0, cmd, map(K_new, x)...))
 @testset "server-side low level" begin
   @test begin  # dot_
     f = k(0, "til")
