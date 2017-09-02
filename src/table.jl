@@ -12,10 +12,9 @@ struct K_Table  <: AbstractDataFrame
     end
     function K_Table(columns::Vector, colnames::Vector{Symbol})
         ncols = length(columns)
-        x = K(colnames)
-        kcols = map(x->r1(K(x).o.x), columns)
-        y = knk(ncols, kcols...)
-        o = K_Object(xT(xD(r1(x.o.x), y)))
+        x = K_new(colnames)
+        y = K_new(columns)
+        o = K_Object(xT(xD(x, y)))
         new(o)
     end
     function K_Table(; kwargs...)

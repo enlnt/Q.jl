@@ -19,7 +19,7 @@ export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
-export TYPE_INFO, TYPE_CLASSES, typeinfo
+export TYPE_INFO, TYPE_CLASSES, TI
 export asarray
 
 include("startup.jl")
@@ -60,7 +60,7 @@ const EE = I_(128)  #   error
 
 Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
-struct ∫
+struct TI
     number::C_
     letter::Char
     name::String
@@ -71,31 +71,30 @@ end
 
 const TYPE_INFO = [
     # num ltr name c_type jl_type super
-    ∫(1, 'b', "boolean", B_, Bool, :_Bool),
+    TI(1, 'b', "boolean", B_, Bool, :_Bool),
 
-    ∫(2, 'g', "guid", U_, UInt128, :_Unsigned),
-    ∫(4, 'x', "byte", G_, UInt8, :_Unsigned),
+    TI(2, 'g', "guid", U_, UInt128, :_Unsigned),
+    TI(4, 'x', "byte", G_, UInt8, :_Unsigned),
 
-    ∫(5, 'h', "short", H_, Int16, :_Signed),
-    ∫(6, 'i', "int", I_, Int32, :_Signed),
-    ∫(7, 'j', "long", J_, Int64, :_Signed),
+    TI(5, 'h', "short", H_, Int16, :_Signed),
+    TI(6, 'i', "int", I_, Int32, :_Signed),
+    TI(7, 'j', "long", J_, Int64, :_Signed),
 
-    ∫(8, 'e', "real", E_, Float32, :_Float),
-    ∫(9, 'f', "float", F_, Float64, :_Float),
+    TI(8, 'e', "real", E_, Float32, :_Float),
+    TI(9, 'f', "float", F_, Float64, :_Float),
 
-    ∫(10, 'c', "char", C_, Char, :_Text),
-    ∫(11, 's', "symbol", S_, Symbol, :_Text),
+    TI(10, 'c', "char", C_, Char, :_Text),
+    TI(11, 's', "symbol", S_, Symbol, :_Text),
 
-    ∫(12, 'p', "timestamp", J_, Int64, :_Temporal),
-    ∫(13, 'm', "month", I_, Int32, :_Temporal),
-    ∫(14, 'd', "date", I_, Int32, :_Temporal),
-    ∫(15, 'z', "datetime", I_, Int32, :_Temporal),
-    ∫(16, 'n', "timespan", J_, Int64, :_Temporal),
-    ∫(17, 'u', "minute", I_, Int32, :_Temporal),
-    ∫(18, 'v', "second", I_, Int32, :_Temporal),
-    ∫(19, 't', "time", I_, Int32, :_Temporal),
+    TI(12, 'p', "timestamp", J_, Int64, :_Temporal),
+    TI(13, 'm', "month", I_, Int32, :_Temporal),
+    TI(14, 'd', "date", I_, Int32, :_Temporal),
+    TI(15, 'z', "datetime", I_, Int32, :_Temporal),
+    TI(16, 'n', "timespan", J_, Int64, :_Temporal),
+    TI(17, 'u', "minute", I_, Int32, :_Temporal),
+    TI(18, 'v', "second", I_, Int32, :_Temporal),
+    TI(19, 't', "time", I_, Int32, :_Temporal),
 ]
-typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
 _offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
 _offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)

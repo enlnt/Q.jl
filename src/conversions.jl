@@ -34,10 +34,8 @@ function Base.convert(::Type{K}, x::K_)
     end
     if t < 0
         return K_Scalar(x)
-    elseif t == KC
-        return K_Chars(K_Object(r1(x)))
     elseif 0 <= t <= KS
-        return K_Vector(K_Object(r1(x)))
+        return K_Vector(x)
     elseif t == XT
         return K_Table(r1(x))
     end

@@ -99,8 +99,7 @@ end
 function K_Scalar(x::K_)
     t = -xt(x)
     ti = typeinfo(t)
-    class = K_CLASS[t]
-    return class{t,ti.c_type,ti.jl_type}(x)
+    K_CLASS[t]{t,ti.c_type,ti.jl_type}(x)
 end
 include("promote_rules.jl")
 struct K_Other
@@ -109,102 +108,99 @@ struct K_Other
         return new(o)
     end
 end
-struct K_Vector{t,CT,JT} <: AbstractVector{JT}
-    o::K_Object
-    function K_Vector{t,CT,JT}(o::K_Object) where {t,CT,JT}
-        t′ = xt(o.x)
+struct K_Vector{t,C,T} <: AbstractVector{T}
+    a::Vector{C}
+    function K_Vector{t,C,T}(x::K_) where {t,C,T}
+        t′ = xt(x)
         if t != t′
             throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
         end
-        return new{t,CT,JT}(o)
+        return new(asarray(x))
     end
 end
 K_Chars = K_Vector{KC,C_,Char}
-function K_Vector(o::K_Object)
-    t = xt(o.x)
-    CT = C_TYPE[t]
-    JT = JULIA_TYPE[t]
-    K_Vector{t,CT,JT}(o)
+function K_Vector(x::K_)
+    t = xt(x)
+    ti = typeinfo(t)
+    K_Vector{t,ti.c_type,ti.jl_type}(x)
 end
-_cast(::Type{T}, x::T) where T = x
-_cast(::Type{JT}, x::CT) where {JT,CT} = JT(x)
-_cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
 
 Symbol(x::K_symbol) = convert(Symbol, x)
 K_Vector(a::Vector) = K_Vector(K(a))
 
-Base.eltype(v::K_Vector{t,CT,JT}) where {t,CT,JT} = JT
-Base.size(v::K_Vector{t,CT,JT}) where {t,CT,JT} = (convert(Int, xn(v.o.x)),)
-function Base.getindex(v::K_Vector{t,CT,JT}, i::Integer) where {t,CT,JT}
-    @boundscheck checkbounds(v, i)
-    _cast(JT, unsafe_load(Ptr{CT}(v.o.x + 16), i)::CT)
+Base.eltype(v::K_Vector{t,C,T}) where {t,C,T} = T
+Base.size(v::K_Vector{t,C,T}) where {t,C,T} = size(v.a)
+Base.getindex(v::K_Vector{t,C,T}, i::Integer) where {t,C,T} = _cast(T, v.a[i])
+# Setting the vector elements
+Base.setindex!(v::K_Vector{t,C,T}, el, i::Integer) where {t,C,T} = begin
+    v.a[i] = _cast(C, T(el))
+    v
 end
+
+# TODO: Consider using this definition and fieldoffset(). See julia.h.
+struct jl_array_t
+    data   :: Ptr{Void} #   sizeof(Ptr)
+    length :: Cssize_t  # + sizeof(Ptr)
+    flags  :: UInt16    # + 4 bytes
+    elsize :: UInt16    # + 4 bytes
+    nrows  :: Cssize_t  # = at 2*sizeof(Ptr) + 8
+end
+
+# Extending vectors (☡)
+function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
+    n′ = length(x) + 1
+    a = _cast(C, T(y))
+    p = K_(pointer(x)-16)
+    p′ = ja(Ref{K_}(p), Ref(a))
+    # replant the data pointer
+    ptr_xa = pointer_from_objref(x.a)
+    unsafe_store!(Ptr{Ptr{Void}}(ptr_xa), p′+16)
+    # update the size
+    unsafe_store!(Ptr{Cssize_t}(ptr_xa+sizeof(Ptr)), n′)
+    unsafe_store!(Ptr{Cssize_t}(ptr_xa+2*sizeof(Ptr) + 8), n′)
+    x
+end
+
 include("table.jl")
 
 Base.:(==)(x::K_Scalar, y::K_Scalar) = x.a == y.a
 Base.isless(x::K_Scalar, y::K_Scalar) = x.a[] < y.a[]
-const K = Union{K_Vector,K_Table,K_Other,K_Scalar}
-Base.show(io::IO, ::Type{K}) = write(io, "K")
-_cast(::Type{K}, x::K_) = K(x == C_NULL ? x : r1(x))
-_cast(::Type{K_}, x::K) = (x = x.o.x; x == C_NULL ? x : r1(x))
 
-const JULIA_TYPE = merge(
-    Dict(KK=>K),
-    Dict(ti.number=>ti.jl_type for ti in TYPE_INFO))
+kpointer(x::K_Scalar) = K_(pointer(x.a)-8)
+kpointer(x::Union{K_Vector,K_guid}) = K_(pointer(x.a)-16)
+kpointer(x::K_Other) = x.o.x
+
+const K = Union{K_Vector,K_Table,K_Other,K_Scalar}
+const TI0 = TI(0, 'k', "any", K_, K, :NA)
+typeinfo(t::Integer) = t == 0 ? TI0 : TYPE_INFO[t - (t>2)]
+# Conversions between C and Julia types
+_cast(::Type{T}, x::T) where T = x
+_cast(::Type{T}, x::C) where {T,C} = T(x)
+_cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
+_cast(::Type{K}, x::K_) = K(r1(x))
+_cast(::Type{K_}, x::K) = r1(kpointer(x))
+
+# TODO: replace K_Vector with K below once asarray() transition is complete.
+Base.pointer(x::K_Vector, i::Integer=1) = pointer(x.a, i)
+Base.show(io::IO, ::Type{K}) = write(io, "K")
 
 include("conversions.jl")
 
-# Setting the vector elements
-import Base.pointer, Base.fill!, Base.copy!, Base.setindex!
-pointer(x::K_Vector{t,CT,JT}, i::Integer=1) where {t,CT,JT} =
-    Ptr{CT}(x.o.x+15+i)
-function fill!(x::K_Vector{t,CT,JT}, el::JT) where {t,CT,JT}
-    n = xn(x.o.x)
-    p = pointer(x)
-    el = _cast(CT, el)
-    for i in 1:n
-        unsafe_store!(p, el, i)
-    end
-    x
-end
-function setindex!(x::K_Vector{t,CT,JT}, el, i::Int) where {t,CT,JT}
-    @boundscheck checkbounds(x, i)
-    p = pointer(x)
-    el = _cast(CT, convert(JT, el)::JT)
-    unsafe_store!(p, el, i)
-    x
-end
-
 # K[...] constructors
-
 Base.getindex(::Type{K}) = K(ktn(0,0))
 function Base.getindex(::Type{K}, v)
     t = K_TYPE[typeof(v)]
-    x = ktn(t, 1)
-    T = eltype(x)
-    v = _cast(T, v)
-    copy!(x, [v])
-    K(x)
+    r = K(ktn(t, 1))
+    r.a[1] = _cast(eltype(r), v)
+    r
 end
 function Base.getindex(::Type{K}, v...)
     n = length(v)
     t = get(K_TYPE, Base.promote_typeof(v...), KK)
-    if t > KK  # k vector
-        x = ktn(t, n)
-        T = eltype(x)
-        v = map(e->_cast(T, e), collect(v))
-        copy!(x, v)
-    else       # k list
-        x = ktn(0, n)
-        copy!(x, map(K_new, v))
-    end
-    K(x)
-end
-
-function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
-    a = _cast(C, T(y))
-    ja(Ref{K_}(x.o.x), Ref{C}(a))
-    x
+    r = K(ktn(t, n))
+    C, T = map(eltype, (r.a, r))
+    copy!(r.a, map(e->_cast(C, T(e)), v))
+    r
 end
 
 if GOT_Q
