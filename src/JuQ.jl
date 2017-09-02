@@ -110,10 +110,8 @@ function K_Scalar(x::K_)
 end
 include("promote_rules.jl")
 struct K_Other
-    o::K_Object
-    function K_Other(o::K_Object)
-        return new(o)
-    end
+    a::Array{T,0} where T
+    K_Other(x::K_) = new(asarray(x))
 end
 struct K_Vector{t,C,T} <: AbstractVector{T}
     a::Vector{C}
@@ -174,9 +172,8 @@ include("table.jl")
 Base.:(==)(x::K_Scalar, y::K_Scalar) = x.a == y.a
 Base.isless(x::K_Scalar, y::K_Scalar) = x.a[] < y.a[]
 
-kpointer(x::K_Scalar) = K_(pointer(x.a)-8)
+kpointer(x::Union{K_Scalar,K_Other}) = K_(pointer(x.a)-8)
 kpointer(x::Union{K_Vector,K_guid}) = K_(pointer(x.a)-16)
-kpointer(x::K_Other) = x.o.x
 
 const K = Union{K_Vector,K_Table,K_Other,K_Scalar}
 const TI0 = TI(0, 'k', "any", K_, K, :NA)

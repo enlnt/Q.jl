@@ -1,6 +1,6 @@
 # Conversions between Julia and q types for the JuQ module.
 #########################################################################
-const K_None = K_Other(K_Object(ktj(101, 0)))
+const K_None = K_Other(ktj(101, 0))
 
 Base.convert(::Type{String}, x::K_symbol) =
     unsafe_string(unsafe_load(pointer(x)))
@@ -37,9 +37,9 @@ function Base.convert(::Type{K}, x::K_)
     elseif 0 <= t <= KS
         return K_Vector(x)
     elseif t == XT
-        return K_Table(r1(x))
+        return K_Table(x)
     end
-    return K_Other(K_Object(r1(x)))
+    return K_Other(x)
 end
 Base.convert(::Type{K}, x::K) = x
 Base.convert(::Type{K}, x) = K(K_new(x))
