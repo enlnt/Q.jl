@@ -133,27 +133,39 @@ Base.setindex!(v::K_Vector{t,C,T}, el, i::Integer) where {t,C,T} = begin
     v
 end
 
-# TODO: Consider using this definition and fieldoffset(). See julia.h.
+# See julia.h.
 struct jl_array_t
-    data   :: Ptr{Void} #   sizeof(Ptr)
-    length :: Cssize_t  # + sizeof(Ptr)
-    flags  :: UInt16    # + 4 bytes
-    elsize :: UInt16    # + 4 bytes
-    nrows  :: Cssize_t  # = at 2*sizeof(Ptr) + 8
+    data   :: Ptr{Void} # (1)  sizeof(Ptr)
+    length :: Csize_t   # (2) + sizeof(Ptr)
+    flags  :: UInt16    # (3) + 2 bytes
+    elsize :: UInt16    # (4) + 2 bytes
+    offset :: UInt32    # (5) + 4 bytes
+    nrows  :: Csize_t   # (6) = at 2*sizeof(Ptr) + 8
+    maxsize:: Csize_t   # (7)
 end
 
+const offset_length = fieldoffset(jl_array_t, 2)
+const offset_nrows = fieldoffset(jl_array_t, 6)
 # Extending vectors (☡)
 function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
     n′ = length(x) + 1
     a = _cast(C, T(y))
     p = K_(pointer(x)-16)
     p′ = ja(Ref{K_}(p), Ref(a))
+    ptr_xa = Ptr{jl_array_t}(pointer_from_objref(x.a))
+    # Pre-checks
+    d = unsafe_load(ptr_xa)
+    @assert d.data == pointer(x)
+    @assert d.length == d.nrows == n′ - 1
     # replant the data pointer
-    ptr_xa = pointer_from_objref(x.a)
     unsafe_store!(Ptr{Ptr{Void}}(ptr_xa), p′+16)
     # update the size
-    unsafe_store!(Ptr{Cssize_t}(ptr_xa+sizeof(Ptr)), n′)
-    unsafe_store!(Ptr{Cssize_t}(ptr_xa+2*sizeof(Ptr) + 8), n′)
+    unsafe_store!(Ptr{Csize_t}(ptr_xa + offset_length), n′)
+    unsafe_store!(Ptr{Csize_t}(ptr_xa + offset_nrows), n′)
+    # Post-checks
+    d = unsafe_load(ptr_xa)
+    @assert d.data == pointer(x)
+    @assert d.length == d.nrows == n′
     x
 end
 
