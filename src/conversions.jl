@@ -64,3 +64,6 @@ function _E(x)
     end
     K(x)
 end
+
+# Numeric promotions
+Base.convert(::Type{Float64}, x::K_real) = Float64(x.a[])
