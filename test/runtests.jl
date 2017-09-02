@@ -34,11 +34,10 @@ function roundtrip_scalar(jk, kj, x)
 end
 
 function empty_vector(t, typ)
-  x = ktn(t, 0)
+  x = asarray(ktn(t, 0))
   res = (eltype(x) === typ
     && length(x) == 0
     && collect(x) == typ[])
-  r0(x)
   return res
 end
 # Adds r0(x) to the end and runs @test
@@ -156,7 +155,7 @@ end
     end
     @xtest begin
       a = ktn(KS, 1)
-      fill!(a, ss("a"))
+      fill!(asarray(a, false), ss("a"))
       b = knk(1, ktn(KJ, 0))
       d = xD(a, b)
       x = xT(d)
@@ -176,7 +175,7 @@ end
       x = ktn(KS, 0)
       x = js(Ref{K_}(x), ss("a"))
       x= js(Ref{K_}(x), ss("b"))
-      map(unsafe_string, x) == ["a", "b"]
+      map(unsafe_string, asarray(x, false)) == ["a", "b"]
     end
     @xtest begin
       x = ktn(KK, 0)
@@ -208,7 +207,7 @@ end  # "Low level"
     x = ktn(KJ, 5)
     a = asarray(x)
     a[:] = 1:5
-    collect(x) == a
+    kJ(x) == a
   end
   @test begin
     n = 0x0102030405060708090a0b0c0d0e0f10
@@ -382,7 +381,7 @@ end  # "Low to high level"
   @testset "Arithmetics" begin
     @test K(1.) + 2. === 2. + K(1.)  === 3.
     @test K(1) + 2. === 2 + K(1.)  === 3.
-    @test K(Float32(1)) + Int64(2) === 3. 
+    @test K(Float32(1)) + Int64(2) === 3.
   end
   @testset "Vector operations" begin
     x = K[1]

@@ -299,20 +299,6 @@ k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
     x7::K_, x8::K_) =
         ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
-# Iterator protocol
-import Base.start, Base.next, Base.done, Base.length, Base.eltype
-struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
-eltype(x::K_) = ctype(xt(x))
-function start(x::K_)
-    T = eltype(x)
-    ptr = Ptr{T}(x+16)
-    stride = sizeof(T)
-    stop = ptr + xn(x)*stride
-    return _State{T}(ptr, stop, stride)
-end
-next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
-done(x, s) = s.ptr == s.stop
-length(x) = xn(x)
 
 ## New reference
 K_new(x::K_) = r1(x)
