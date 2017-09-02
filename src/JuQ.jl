@@ -15,28 +15,14 @@ reported by kdb.
 struct KdbException <: Exception
     s::String
 end
-
-#########################################################################
-# Wrapper around q's C K type, with hooks to q reference
-# counting and conversion routines to/from C and Julia types.
-
-"A K object reference managed by Julia GC."
-mutable struct K_Object
-    x::K_ # pointer to the actual K object
-    function K_Object(x::K_)
-        @assert x != 0
-        o = new(x)
-        finalizer(o, o->r0(o.x))
-        return o
-    end
-end
+# Supertypes for atomic q types.
 const SUPERTYPE = Dict(
-    :_Bool=>Integer,
-    :_Unsigned=>Unsigned,
-    :_Signed=>Signed,
-    :_Float=>AbstractFloat,
-    :_Text=>Any,
-    :_Temporal=>AbstractTime
+    :_Bool     => Integer,
+    :_Unsigned => Unsigned,
+    :_Signed   => Signed,
+    :_Float    => AbstractFloat,
+    :_Text     => Any,
+    :_Temporal => AbstractTime
 )
 K_CLASSES = Type[]
 # Create a parametrized type for each type class.
@@ -124,7 +110,7 @@ struct K_Vector{t,C,T} <: AbstractVector{T}
         return new(a)
     end
 end
-K_Chars = K_Vector{KC,C_,Char}
+const K_Chars = K_Vector{KC,C_,Char}
 function K_Vector(x::K_)
     t = xt(x)
     ti = typeinfo(t)

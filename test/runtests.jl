@@ -1,10 +1,8 @@
 using JuQ
 using JuQ._k, JuQ._k.GOT_Q
 using Base.Test
-using JuQ.K_Object
 using Base.Dates.AbstractTime
 using DataFrames
-using JuQ.K_Object
 include("utils.jl")
 """
   auto_r0 - a helper to test low level functions
@@ -166,7 +164,7 @@ end
     end
   end
   @testset "Vector ops" begin
-    let o = K_Object(ktn(KJ, 3)), x = o.x
+    let x = K(ktn(KJ, 3))
       @test eltype(x) === J_
       @test length(x) == 3
       @test (fill!(x, 42); collect(x)) == [42, 42, 42]

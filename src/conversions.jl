@@ -11,7 +11,7 @@ for T in (Int8, Int16, Int32, Int64, Int128, Float32, Float64)
     @eval Base.convert(::Type{$T}, x::_Signed) = $T(x.a[])
 end
 
-# Conversion fom the Vector of K's to K_
+# Conversion from the Vector of K's to K_
 function Base.convert(::Type{K_}, v::Vector{K_Vector})
     n = length(v)
     x = ktn(KK, n)
@@ -43,28 +43,6 @@ function Base.convert(::Type{K}, x::K_)
 end
 Base.convert(::Type{K}, x::K) = x
 Base.convert(::Type{K}, x) = K(K_new(x))
-
-function Base.convert(::Type{Array}, x::K_Object)
-    p = x.x
-    t = xt(p)
-    n = xn(p)
-    T = C_TYPE[t]
-    a = zeros(T, n)
-    unsafe_copy!(pointer(a), Ptr{T}(p+16), n)
-    return a
-end
-
-function Base.convert(::Type{String}, x::K_Object)
-   p = x.x
-   t = xt(p)
-   if (t == KC)
-       return unsafe_string(Ptr{C_}(p+16), xn(p))
-   end
-   if (t == -KS)
-       return unsafe_string(unsafe_load(Ptr{Ptr{C_}}(p+8)))
-   end
-   error("cannot convert")
-end
 
 Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
 Base.show(io::IO, x::K_boolean) = print(io, x)
