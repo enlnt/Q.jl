@@ -314,27 +314,6 @@ next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
 done(x, s) = s.ptr == s.stop
 length(x) = xn(x)
 
-# Filling the elements
-import Base.pointer, Base.fill!, Base.copy!
-pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+_offset1(x)+i))
-function fill!(x::K_, el)
-    n = xn(x)
-    p = pointer(x)
-    T = typeof(p).parameters[1]
-    f = (T === K_ ? r1 : identity)
-    for i in 1:n
-        unsafe_store!(p, T(f(el))::T, i)
-    end
-end
-function copy!(x::K_, iter)
-    p = pointer(x)
-    T = typeof(p).parameters[1]
-    f = (T === K_ ? r1 : identity)
-    for (i, el::T) in enumerate(iter)
-        unsafe_store!(p, f(el), i)
-    end
-end
-
 ## New reference
 K_new(x::K_) = r1(x)
 ## Conversion of simple types
