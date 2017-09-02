@@ -6,6 +6,12 @@ include("_k.jl")
 using Base.Dates.AbstractTime
 using JuQ._k
 
+"""
+    KdbException(s)
+
+A call to kdb resulted in an error. Argument `s` is a descriptive error string
+reported by kdb.
+"""
 struct KdbException <: Exception
     s::String
 end
