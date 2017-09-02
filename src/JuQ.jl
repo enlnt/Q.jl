@@ -40,11 +40,12 @@ for (class, super) in SUPERTYPE
         struct $(class){t,CT,JT} <: $(super)
             a::Array{CT,0}
             function $(class){t,CT,JT}(x::K_) where {t,CT,JT}
+                a = asarray(x)
                 t′ = xt(x)
                 if t != -t′
                     throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
                 end
-                new(asarray(x))
+                new(a)
             end
         end
         function Base.convert(::Type{$(class){t,CT,JT}}, x) where {t,CT,JT}
@@ -111,11 +112,12 @@ end
 struct K_Vector{t,C,T} <: AbstractVector{T}
     a::Vector{C}
     function K_Vector{t,C,T}(x::K_) where {t,C,T}
+        a = asarray(x)
         t′ = xt(x)
         if t != t′
             throw(ArgumentError("type mismatch: t=$t, t′=$t′"))
         end
-        return new(asarray(x))
+        return new(a)
     end
 end
 K_Chars = K_Vector{KC,C_,Char}
