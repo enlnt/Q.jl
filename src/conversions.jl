@@ -1,6 +1,6 @@
 # Conversions between Julia and q types for the JuQ module.
 #########################################################################
-const K_None = K_Other(K_Object(ktj(101, 0)))
+const K_None = K_Other(ktj(101, 0))
 
 Base.convert(::Type{String}, x::K_symbol) =
     unsafe_string(unsafe_load(pointer(x)))
@@ -8,10 +8,10 @@ Base.convert(::Type{Symbol}, x::K_char) = Symbol(Char(x))
 Base.convert(::Type{String}, x::K_char) = unsafe_string(pointer(x), 1)
 
 for T in (Int8, Int16, Int32, Int64, Int128, Float32, Float64)
-    @eval Base.convert(::Type{$T}, x::_Signed) = $T(load(x))
+    @eval Base.convert(::Type{$T}, x::_Signed) = $T(x.a[])
 end
 
-# Conversion fom the Vector of K's to K_
+# Conversion from the Vector of K's to K_
 function Base.convert(::Type{K_}, v::Vector{K_Vector})
     n = length(v)
     x = ktn(KK, n)
@@ -34,39 +34,17 @@ function Base.convert(::Type{K}, x::K_)
     end
     if t < 0
         return K_Scalar(x)
-    elseif t == KC
-        return K_Chars(K_Object(r1(x)))
     elseif 0 <= t <= KS
-        return K_Vector(K_Object(r1(x)))
+        return K_Vector(x)
     elseif t == XT
-        return K_Table(r1(x))
+        return K_Table(x)
+    elseif t in (100, 104, 105, 112)
+        return K_Lambda(x)
     end
-    return K_Other(K_Object(r1(x)))
+    return K_Other(x)
 end
 Base.convert(::Type{K}, x::K) = x
 Base.convert(::Type{K}, x) = K(K_new(x))
-
-function Base.convert(::Type{Array}, x::K_Object)
-    p = x.x
-    t = xt(p)
-    n = xn(p)
-    T = C_TYPE[t]
-    a = zeros(T, n)
-    unsafe_copy!(pointer(a), Ptr{T}(p+16), n)
-    return a
-end
-
-function Base.convert(::Type{String}, x::K_Object)
-   p = x.x
-   t = xt(p)
-   if (t == KC)
-       return unsafe_string(Ptr{C_}(p+16), xn(p))
-   end
-   if (t == -KS)
-       return unsafe_string(unsafe_load(Ptr{Ptr{C_}}(p+8)))
-   end
-   error("cannot convert")
-end
 
 Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
 Base.show(io::IO, x::K_boolean) = print(io, x)
@@ -86,3 +64,6 @@ function _E(x)
     end
     K(x)
 end
+
+# Numeric promotions
+Base.convert(::Type{Float64}, x::K_real) = Float64(x.a[])

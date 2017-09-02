@@ -1,10 +1,8 @@
 using JuQ
 using JuQ._k, JuQ._k.GOT_Q
 using Base.Test
-using JuQ.K_Object, JuQ._get, JuQ._set!
 using Base.Dates.AbstractTime
 using DataFrames
-using JuQ.K_Object
 include("utils.jl")
 """
   auto_r0 - a helper to test low level functions
@@ -36,11 +34,10 @@ function roundtrip_scalar(jk, kj, x)
 end
 
 function empty_vector(t, typ)
-  x = ktn(t, 0)
+  x = asarray(ktn(t, 0))
   res = (eltype(x) === typ
     && length(x) == 0
     && collect(x) == typ[])
-  r0(x)
   return res
 end
 # Adds r0(x) to the end and runs @test
@@ -158,7 +155,7 @@ end
     end
     @xtest begin
       a = ktn(KS, 1)
-      fill!(a, ss("a"))
+      fill!(asarray(a, false), ss("a"))
       b = knk(1, ktn(KJ, 0))
       d = xD(a, b)
       x = xT(d)
@@ -166,11 +163,11 @@ end
     end
   end
   @testset "Vector ops" begin
-    let o = K_Object(ktn(KJ, 3)), x = o.x
+    let x = K(ktn(KJ, 3))
       @test eltype(x) === J_
       @test length(x) == 3
-      @test (fill!(x, 42); collect(x)) == [42, 42, 42]
-      @test (copy!(x, [1, 2, 3]); collect(x)) == [1, 2, 3]
+      @test fill!(x, 42) == [42, 42, 42]
+      @test copy!(x, [1, 2, 3]) == [1, 2, 3]
     end
   end
   @testset "Vector extend" begin
@@ -178,7 +175,7 @@ end
       x = ktn(KS, 0)
       x = js(Ref{K_}(x), ss("a"))
       x= js(Ref{K_}(x), ss("b"))
-      map(unsafe_string, x) == ["a", "b"]
+      map(unsafe_string, asarray(x, false)) == ["a", "b"]
     end
     @xtest begin
       x = ktn(KK, 0)
@@ -210,7 +207,7 @@ end  # "Low level"
     x = ktn(KJ, 5)
     a = asarray(x)
     a[:] = 1:5
-    collect(x) == a
+    kJ(x) == a
   end
   @test begin
     n = 0x0102030405060708090a0b0c0d0e0f10
@@ -279,17 +276,25 @@ end  # "Low to high level"
     @test K(Int64(0)) isa Signed
     @test K(0.0) isa Real
   end
+  @testset "Reference counting with K" begin
+    @test begin
+      x = K(1)
+      auto_r0(K_new, x) do p
+        xr(p) == 1
+      end
+    end
+  end
   @testset "Typed scalar constructors" begin
     @test (x = K_short(0); eltype(x) === Int16)
     @test (x = K_int(0); eltype(x) === Int32)
   end
   @testset "Scalar get/set!" begin
     let x = K(1)
-      @test _set!(x, 2) == 2
-      @test _get(x) === 2
+      @test (x.a[] = 2) == 2
+      @test x.a[] === 2
     end
     let x = K(:a)
-      @test (_set!(x, :b); _get(x) === :b)
+      @test (x.a[] = ss(:b); x.a[] === ss(:b))
     end
   end
   @testset "Array methods on scalars" begin
@@ -353,7 +358,7 @@ end  # "Low to high level"
     @test (x = K(Float32(11)); unsafe_load(pointer(x)) === Float32(11))
     @test (x = K(11.); unsafe_load(pointer(x)) === 11.)
     @test (x = K(:a); unsafe_string(unsafe_load(pointer(x))) == "a")
-    @test (x = K('a'); JuQ.load(x) == UInt8('a'))
+    @test (x = K('a'); x.a[] == UInt8('a'))
     @test (x = K("abc"); unsafe_string(pointer(x), 3) == "abc")
     # Vectors
     @test (x = K([1]); collect(x) == [1])
@@ -376,6 +381,7 @@ end  # "Low to high level"
   @testset "Arithmetics" begin
     @test K(1.) + 2. === 2. + K(1.)  === 3.
     @test K(1) + 2. === 2 + K(1.)  === 3.
+    @test K(Float32(1)) + Int64(2) === 3.
   end
   @testset "Vector operations" begin
     x = K[1]
