@@ -15,6 +15,17 @@ qa(cmd, x...) = asarray(k(0, cmd, map(K_new, x)...))
     ax = asarray(x)    # ensure r0
     unsafe_string(asarray(ee(dot_(f, x)))[]) == "type"
   end
+  @testset "msg to handle 0" begin
+    # using k(0, ..)
+    @test qa("{x}", 1)[] == 1
+    @test qa("{y}", 1, 2)[] == 2
+    @test qa("{z}", 1, 2, 3)[] == 3
+    @test qa("{[a;b;c;d]d}", 1, 2, 3, 4)[] == 4
+    @test qa("{[a;b;c;d;e]e}", 1, 2, 3, 4, 5)[] == 5
+    @test qa("{[a;b;c;d;e;f]f}", 1, 2, 3, 4, 5, 6)[] == 6
+    @test qa("{[a;b;c;d;e;f;g]g}", 1, 2, 3, 4, 5, 6, 7)[] == 7
+    @test qa("{[a;b;c;d;e;f;g;h]h}", 1, 2, 3, 4, 5, 6, 7, 8)[] == 8
+  end
 end
 @testset "server-side asarray" begin
   @test begin
@@ -57,5 +68,16 @@ end
     @test (x = e("Int64(1)"); eltype(x) == Int64 && x == 1)
     @test (x = e("1.5"); eltype(x) == Float64 && x == 1.5)
     @test (x = e("Float32(1)"); eltype(x) == Float32 && x == 1)
+  end
+  @testset "q function calls" begin
+    # using q``
+    @test q`{x}`(1) == 1
+    @test q`{y}`(1, 2) == 2
+    @test q`{z}`(1, 2, 3) == 3
+    @test q`{[a;b;c;d]d}`(1, 2, 3, 4) == 4
+    @test q`{[a;b;c;d;e]e}`(1, 2, 3, 4, 5) == 5
+    @test q`{[a;b;c;d;e;f]f}`(1, 2, 3, 4, 5, 6) == 6
+    @test q`{[a;b;c;d;e;f;g]g}`(1, 2, 3, 4, 5, 6, 7) == 7
+    @test q`{[a;b;c;d;e;f;g;h]h}`(1, 2, 3, 4, 5, 6, 7, 8) == 8
   end
 end
