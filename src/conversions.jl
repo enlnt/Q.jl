@@ -38,6 +38,8 @@ function Base.convert(::Type{K}, x::K_)
         return K_Vector(x)
     elseif t == XT
         return K_Table(x)
+    elseif t in (100, 104, 105, 112)
+        return K_Lambda(x)
     end
     return K_Other(x)
 end

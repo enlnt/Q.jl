@@ -95,6 +95,10 @@ function K_Scalar(x::K_)
     K_CLASS[t]{t,ti.c_type,ti.jl_type}(x)
 end
 include("promote_rules.jl")
+struct K_Lambda
+    a::Vector{K_}
+    K_Lambda(x::K_) = new(asarray(x))
+end
 struct K_Other
     a::Array{T,0} where T
     K_Other(x::K_) = new(asarray(x))
@@ -159,9 +163,9 @@ Base.:(==)(x::K_Scalar, y::K_Scalar) = x.a == y.a
 Base.isless(x::K_Scalar, y::K_Scalar) = x.a[] < y.a[]
 
 kpointer(x::Union{K_Scalar,K_Other}) = K_(pointer(x.a)-8)
-kpointer(x::Union{K_Vector,K_guid}) = K_(pointer(x.a)-16)
+kpointer(x::Union{K_Vector,K_Lambda,K_guid}) = K_(pointer(x.a)-16)
 
-const K = Union{K_Vector,K_Table,K_Other,K_Scalar}
+const K = Union{K_Scalar,K_Vector,K_Table,K_Lambda,K_Other}
 # TODO: Consider moving all K_new methods here.
 _k.K_new(x::K) = r1(kpointer(x))
 const TI0 = TI(0, 'k', "any", K_, K, :NA)
