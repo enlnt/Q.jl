@@ -166,8 +166,8 @@ end
     let x = K(ktn(KJ, 3))
       @test eltype(x) === J_
       @test length(x) == 3
-      @test (fill!(x, 42); collect(x)) == [42, 42, 42]
-      @test (copy!(x, [1, 2, 3]); collect(x)) == [1, 2, 3]
+      @test fill!(x, 42) == [42, 42, 42]
+      @test copy!(x, [1, 2, 3]) == [1, 2, 3]
     end
   end
   @testset "Vector extend" begin
