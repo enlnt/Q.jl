@@ -10,13 +10,13 @@ module _k  # k.h wrappers
 export k, b9, d9, okx, kclose
 export ymd, dj
 export r0, r1
-export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
+export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc, kd, kz, kt
 export ja, js, jk
 export ktn, knk, kp, xT, xD
 export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
 export kG, kH, kI, kJ, kE, kF, kC, kS, kK
 export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
-export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
+export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KZ, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
 export TYPE_INFO, TYPE_CLASSES, TI
@@ -89,7 +89,7 @@ const TYPE_INFO = [
     TI(12, 'p', "timestamp", J_, Int64, :_Temporal),
     TI(13, 'm', "month", I_, Int32, :_Temporal),
     TI(14, 'd', "date", I_, Int32, :_Temporal),
-    TI(15, 'z', "datetime", I_, Int32, :_Temporal),
+    TI(15, 'z', "datetime", F_, Float64, :_Temporal),
     TI(16, 'n', "timespan", J_, Int64, :_Temporal),
     TI(17, 'u', "minute", I_, Int32, :_Temporal),
     TI(18, 'v', "second", I_, Int32, :_Temporal),
@@ -201,6 +201,12 @@ sn(x::_AnyString, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
 ss(x::_AnyString) = ccall((@k_sym :ss), S_, (S_,), x)
 "Create a symbol"
 ks(x::_AnyString) = ccall((@k_sym :ks), K_, (S_,), x)
+"Create a date"
+kd(x::Integer) = ccall((@k_sym :kd), K_, (I_,), x)
+"Create a datetime (deprecated)"
+kz(x::AbstractFloat) = ccall((@k_sym :kz), K_, (F_,), x)
+"Create a time"
+kt(x::Integer) = ccall((@k_sym :kt), K_, (I_,), x)
 
 # vector constructors
 "Create a char array from string"

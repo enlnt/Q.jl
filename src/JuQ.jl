@@ -40,9 +40,14 @@ for (class, super) in SUPERTYPE
                 new(a)
             end
         end
-        function Base.convert(::Type{$(class){t,CT,JT}}, x) where {t,CT,JT}
-            r = $(class){t,CT,JT}(ka(-t))
-            r.a[] = _cast(CT, JT(x))::CT
+        function Base.convert(::Type{$(class){t,C,T}}, x::C) where {t,C,T}
+            r = $(class){t,C,T}(ka(-t))
+            r.a[] = x
+            r
+        end
+        function Base.convert(::Type{$(class){t,C,T}}, x) where {t,C,T}
+            r = $(class){t,C,T}(ka(-t))
+            r.a[] = _cast(C, T(x))::C
             r
         end
         push!(K_CLASSES, $(class))
@@ -54,7 +59,9 @@ for (class, super) in SUPERTYPE
         Base.length(x::$(class)) = 1
         Base.endof(x::$(class)) = 1
         # payload
-        Base.eltype(x::$(class){t,CT,JT}) where {t,CT,JT} = JT
+        Base.eltype(::Type{$(class){t,C,T}}) where {t,C,T} = T
+        Base.eltype(x::$(class)) = eltype(typeof(x))
+        Base.getindex(x::$class) = eltype(x)(x)
         Base.pointer(x::$(class){t,CT,JT}) where {t,CT,JT} = pointer(x.a)
         Base.show(io::IO, x::$(class){t,CT,JT}) where {t,CT,JT} = print(io,
             "K(", repr(JT(x.a[])), ")")
@@ -171,7 +178,12 @@ end
 
 include("table.jl")
 
-Base.:(==)(x::K_Scalar, y::K_Scalar) = x.a == y.a
+for T in (K_symbol, K_char)
+    @eval Base.:(==)(x::$T, y) = x[] == y
+    @eval Base.:(==)(x, y::$T) = x == y[]
+    @eval Base.:(==)(x::$T, y::$T) = x[] == y[]
+end
+Base.:(==)(x::T, y::T) where {T<:K_Scalar} = x.a[] == y.a[]
 Base.isless(x::K_Scalar, y::K_Scalar) = x.a[] < y.a[]
 
 kpointer(x::Union{K_Scalar,K_Other}) = K_(pointer(x.a)-8)
