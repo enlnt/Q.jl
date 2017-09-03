@@ -28,6 +28,7 @@
       @test_throws ArgumentError K_x(ktj(101, 0))
     end
   end
+  @test K_char(1.) == Char(1.)
   @testset "atom supertypes" begin
     @test K_boolean <: Integer
     @test K_guid <: Unsigned
@@ -75,7 +76,7 @@
       @test size(x) === ()
       @test size(x, 1) === 1
       @test_throws BoundsError size(x, -1)
-      @test ndims(x) === 0
+      @test ndims(x) === ndims(typeof(x)) === 0
       @test length(x) === endof(x) == 1
     end
   end

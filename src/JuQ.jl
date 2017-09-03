@@ -86,7 +86,7 @@ for ti in TYPE_INFO
         Base.convert(::Type{$T}, x::$(ktype)) = _cast($T, x.a[])
         Base.promote_rule(x::Type{$T}, y::Type{$(ktype)}) = x
         # Disambiguate T -> K type conversions
-        Base.convert(::Type{$ktype}, x::$ktype) = x
+        #Base.convert(::Type{$ktype}, x::$ktype) = x
     end
     if ti.class in [:_Signed, :_Integer]
         @eval Base.dec(x::$(ktype), pad::Int=1) =
