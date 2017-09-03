@@ -67,7 +67,7 @@ for (class, super) in SUPERTYPE
             "K(", repr(JT(x.a[])), ")")
     end
 end
-@eval const K_Scalar = Union{$(K_CLASSES...)}
+@eval const K_Atom = Union{$(K_CLASSES...)}
 
 K_CLASS = Dict{Int8,Type}()
 # Aliases for concrete scalar types.
@@ -96,7 +96,7 @@ for ti in TYPE_INFO
             hex(x.a[], pad, neg)
     end
 end
-function K_Scalar(x::K_)
+function K_Atom(x::K_)
     t = -xt(x)
     ti = typeinfo(t)
     K_CLASS[t]{t,ti.c_type,ti.jl_type}(x)
@@ -183,13 +183,13 @@ for T in (K_symbol, K_char)
     @eval Base.:(==)(x, y::$T) = x == y[]
     @eval Base.:(==)(x::$T, y::$T) = x[] == y[]
 end
-Base.:(==)(x::T, y::T) where {T<:K_Scalar} = x.a[] == y.a[]
-Base.isless(x::K_Scalar, y::K_Scalar) = x.a[] < y.a[]
+Base.:(==)(x::T, y::T) where {T<:K_Atom} = x.a[] == y.a[]
+Base.isless(x::K_Atom, y::K_Atom) = x.a[] < y.a[]
 
-kpointer(x::Union{K_Scalar,K_Other}) = K_(pointer(x.a)-8)
+kpointer(x::Union{K_Atom,K_Other}) = K_(pointer(x.a)-8)
 kpointer(x::Union{K_Vector,K_Lambda,K_guid}) = K_(pointer(x.a)-16)
 
-const K = Union{K_Scalar,K_Vector,K_Table,K_Lambda,K_Other}
+const K = Union{K_Atom,K_Vector,K_Table,K_Lambda,K_Other}
 # TODO: Consider moving all K_new methods here.
 _k.K_new(x::K) = r1(kpointer(x))
 const TI0 = TI(0, 'k', "any", K_, K, :NA)
