@@ -11,7 +11,7 @@ macro q_cmd(s) _E(k(0, Q_PARSE, kp(s))) end
 function Base.show(io::IO, x::K)
     s = k(0, "{` sv .Q.S[40 80;0;x]}", K_new(x))
     try
-        write(io, strip(unsafe_string(pointer(s), xn(s))))
+        write(io, strip(transcode(String, kG(s))))
     finally
         r0(s)
     end
