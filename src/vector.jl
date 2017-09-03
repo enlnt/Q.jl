@@ -40,25 +40,30 @@ end
 
 const offset_length = fieldoffset(jl_array_t, 2)
 const offset_nrows = fieldoffset(jl_array_t, 6)
+
+function resetvector(a::Vector, size::Integer, data::Ptr)
+    p = Ptr{jl_array_t}(pointer_from_objref(a))
+    # Pre-checks
+    d = unsafe_load(p)
+    @assert d.data == pointer(a)
+    @assert d.length == d.nrows == length(a)
+    # replant the data pointer
+    unsafe_store!(Ptr{Ptr{Void}}(p), data)
+    # update the size
+    unsafe_store!(Ptr{Csize_t}(p + offset_length), size)
+    unsafe_store!(Ptr{Csize_t}(p + offset_nrows), size)
+    # Post-checks
+    d = unsafe_load(p)
+    @assert d.data == pointer(a)
+    @assert d.length == d.nrows == length(a) == size
+end
+
 # Extending vectors (☡)
 function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
     n′ = length(x) + 1
     a = _cast(C, T(y))
     p = K_(pointer(x)-16)
     p′ = ja(Ref{K_}(p), Ref(a))
-    ptr_xa = Ptr{jl_array_t}(pointer_from_objref(x.a))
-    # Pre-checks
-    d = unsafe_load(ptr_xa)
-    @assert d.data == pointer(x)
-    @assert d.length == d.nrows == n′ - 1
-    # replant the data pointer
-    unsafe_store!(Ptr{Ptr{Void}}(ptr_xa), p′+16)
-    # update the size
-    unsafe_store!(Ptr{Csize_t}(ptr_xa + offset_length), n′)
-    unsafe_store!(Ptr{Csize_t}(ptr_xa + offset_nrows), n′)
-    # Post-checks
-    d = unsafe_load(ptr_xa)
-    @assert d.data == pointer(x)
-    @assert d.length == d.nrows == n′
+    resetvector(x.a, n′, p′+16)
     x
 end
