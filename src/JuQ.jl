@@ -47,6 +47,9 @@ const K = Union{K_Atom,K_Vector,K_Table,K_Lambda,K_Other}
 _k.K_new(x::K) = r1(kpointer(x))
 const TI0 = TI(0, 'k', "any", K_, K, :NA)
 typeinfo(t::Integer) = t == 0 ? TI0 : TYPE_INFO[t - (t>2)]
+
+include("list.jl")
+
 # Conversions between C and Julia types
 _cast(::Type{T}, x::T) where T = x
 _cast(::Type{T}, x::C) where {T,C} = T(x)

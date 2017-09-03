@@ -23,6 +23,7 @@ for (class, super) in SUPERTYPE
                 new(a)
             end
         end
+        Base.convert(::Type{$class{t,C,T}}, x::$class{t,C,T}) where {t,C,T} = x
         function Base.convert(::Type{$class{t,C,T}}, x::C) where {t,C,T}
             r = $class{t,C,T}(ka(-t))
             r.a[] = x
