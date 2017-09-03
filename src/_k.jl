@@ -272,25 +272,25 @@ k(h::Integer, m::String, x1::K_) = ccall((@k_sym :k),
     K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
 k(h::Integer, m::String, x1::K_, x2::K_) = ccall((@k_sym :k),
     K_, (I_, S_, K_, K_, K_), h, m, x1, x2, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_),
-            h, m, x1, x2, x3, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_),
-            h, m, x1, x2, x3, x4, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_),
-            h, m, x1, x2, x3, x4, x5, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_),
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_, K_, K_), h, m, x1, x2, x3, K_NULL)
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_, K_, K_, K_), h, m, x1, x2, x3, x4, K_NULL)
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) = ccall((@k_sym :k),
+        K_, (I_, S_, K_, K_, K_, K_, K_, K_), h, m, x1, x2, x3, x4, x5, K_NULL)
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) = ccall((@k_sym :k),
+        K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_),
             h, m, x1, x2, x3, x4, x5, x6, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
-    x7::K_) =
-        ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_),
-                h, m, x1, x2, x3, x4, x5, x6, x7, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
-    x7::K_, x8::K_) =
-        ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_, x7::K_) = ccall((@k_sym :k),
+        K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_),
+            h, m, x1, x2, x3, x4, x5, x6, x7, K_NULL)
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
+        x7::K_, x8::K_) = ccall((@k_sym :k),
+            K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
 
 ## New reference
