@@ -8,7 +8,9 @@ Base.convert(::Type{Symbol}, x::K_char) = Symbol(Char(x))
 Base.convert(::Type{String}, x::K_char) = unsafe_string(pointer(x), 1)
 
 for T in (Int8, Int16, Int32, Int64, Int128, Float32, Float64)
-    @eval Base.convert(::Type{$T}, x::_Signed) = $T(x.a[])
+    for S in (_Bool, _Signed, _Unsigned, _Float)
+        @eval Base.convert(::Type{$T}, x::$S) = $T(x.a[])
+    end
 end
 
 # Conversion from the Vector of K's to K_
