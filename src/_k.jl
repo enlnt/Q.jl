@@ -10,16 +10,16 @@ module _k  # k.h wrappers
 export k, b9, d9, okx, kclose
 export ymd, dj
 export r0, r1
-export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc
+export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc, kd, kz, kt
 export ja, js, jk
 export ktn, knk, kp, xT, xD
 export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
 export kG, kH, kI, kJ, kE, kF, kC, kS, kK
 export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
-export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KN, KU, KV, KT,
+export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KZ, KN, KU, KV, KT,
        XT, XD, KK, EE
 export K_new
-export TYPE_INFO, TYPE_CLASSES, typeinfo
+export TYPE_INFO, TYPE_CLASSES, TI
 export asarray
 
 include("startup.jl")
@@ -60,7 +60,7 @@ const EE = I_(128)  #   error
 
 Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
-struct ∫
+struct TI
     number::C_
     letter::Char
     name::String
@@ -71,50 +71,36 @@ end
 
 const TYPE_INFO = [
     # num ltr name c_type jl_type super
-    ∫(1, 'b', "boolean", B_, Bool, :_Bool),
+    TI(1, 'b', "boolean", B_, Bool, :_Bool),
 
-    ∫(2, 'g', "guid", U_, UInt128, :_Unsigned),
-    ∫(4, 'x', "byte", G_, UInt8, :_Unsigned),
+    TI(2, 'g', "guid", U_, UInt128, :_Unsigned),
+    TI(4, 'x', "byte", G_, UInt8, :_Unsigned),
 
-    ∫(5, 'h', "short", H_, Int16, :_Signed),
-    ∫(6, 'i', "int", I_, Int32, :_Signed),
-    ∫(7, 'j', "long", J_, Int64, :_Signed),
+    TI(5, 'h', "short", H_, Int16, :_Signed),
+    TI(6, 'i', "int", I_, Int32, :_Signed),
+    TI(7, 'j', "long", J_, Int64, :_Signed),
 
-    ∫(8, 'e', "real", E_, Float32, :_Float),
-    ∫(9, 'f', "float", F_, Float64, :_Float),
+    TI(8, 'e', "real", E_, Float32, :_Float),
+    TI(9, 'f', "float", F_, Float64, :_Float),
 
-    ∫(10, 'c', "char", C_, Char, :_Text),
-    ∫(11, 's', "symbol", S_, Symbol, :_Text),
+    TI(10, 'c', "char", C_, Char, :_Text),
+    TI(11, 's', "symbol", S_, Symbol, :_Text),
 
-    ∫(12, 'p', "timestamp", J_, Int64, :_Temporal),
-    ∫(13, 'm', "month", I_, Int32, :_Temporal),
-    ∫(14, 'd', "date", I_, Int32, :_Temporal),
-    ∫(15, 'z', "datetime", I_, Int32, :_Temporal),
-    ∫(16, 'n', "timespan", J_, Int64, :_Temporal),
-    ∫(17, 'u', "minute", I_, Int32, :_Temporal),
-    ∫(18, 'v', "second", I_, Int32, :_Temporal),
-    ∫(19, 't', "time", I_, Int32, :_Temporal),
+    TI(12, 'p', "timestamp", J_, Int64, :_Temporal),
+    TI(13, 'm', "month", I_, Int32, :_Temporal),
+    TI(14, 'd', "date", I_, Int32, :_Temporal),
+    TI(15, 'z', "datetime", F_, Float64, :_Temporal),
+    TI(16, 'n', "timespan", J_, Int64, :_Temporal),
+    TI(17, 'u', "minute", I_, Int32, :_Temporal),
+    TI(18, 'v', "second", I_, Int32, :_Temporal),
+    TI(19, 't', "time", I_, Int32, :_Temporal),
 ]
-typeinfo(t::Integer) = (if t > 2; t -= 1 end; TYPE_INFO[t])
-_offset1(t::Integer) = (-2 ≠ t < 0 ? 7 : 15)  # 1-based
-_offset1(x::K_) = x |> t |> _offset1
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
     Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_, (-EE)=>S_,  # XXX: do we need both ±EE?
          100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
          106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
-function ctype(t)
-    if t < 0
-        return C_TYPE[-t]
-    elseif t <= KT || t >= XD
-        return C_TYPE[t]
-    elseif t < 77  # enums
-        return I_
-    else
-        return J_  # nested
-    end
-end
 # returns type, offset and size
 function cinfo(x::K_)
     h = unsafe_load(x)
@@ -215,6 +201,12 @@ sn(x::_AnyString, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)
 ss(x::_AnyString) = ccall((@k_sym :ss), S_, (S_,), x)
 "Create a symbol"
 ks(x::_AnyString) = ccall((@k_sym :ks), K_, (S_,), x)
+"Create a date"
+kd(x::Integer) = ccall((@k_sym :kd), K_, (I_,), x)
+"Create a datetime (deprecated)"
+kz(x::AbstractFloat) = ccall((@k_sym :kz), K_, (F_,), x)
+"Create a time"
+kt(x::Integer) = ccall((@k_sym :kt), K_, (I_,), x)
 
 # vector constructors
 "Create a char array from string"
@@ -280,61 +272,26 @@ k(h::Integer, m::String, x1::K_) = ccall((@k_sym :k),
     K_, (I_, S_, K_, K_), h, m, x1, K_NULL)
 k(h::Integer, m::String, x1::K_, x2::K_) = ccall((@k_sym :k),
     K_, (I_, S_, K_, K_, K_), h, m, x1, x2, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_),
-            h, m, x1, x2, x3, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_),
-            h, m, x1, x2, x3, x4, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_),
-            h, m, x1, x2, x3, x4, x5, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) =
-    ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_),
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_, K_, K_), h, m, x1, x2, x3, K_NULL)
+k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_) = ccall((@k_sym :k),
+    K_, (I_, S_, K_, K_, K_, K_, K_), h, m, x1, x2, x3, x4, K_NULL)
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_) = ccall((@k_sym :k),
+        K_, (I_, S_, K_, K_, K_, K_, K_, K_), h, m, x1, x2, x3, x4, x5, K_NULL)
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_) = ccall((@k_sym :k),
+        K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_),
             h, m, x1, x2, x3, x4, x5, x6, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
-    x7::K_) =
-        ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_),
-                h, m, x1, x2, x3, x4, x5, x6, x7, K_NULL)
-k(h::Integer, m::String, x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
-    x7::K_, x8::K_) =
-        ccall((@k_sym :k), K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_, x7::K_) = ccall((@k_sym :k),
+        K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_),
+            h, m, x1, x2, x3, x4, x5, x6, x7, K_NULL)
+k(h::Integer, m::String,
+    x1::K_, x2::K_, x3::K_, x4::K_, x5::K_, x6::K_,
+        x7::K_, x8::K_) = ccall((@k_sym :k),
+            K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
-# Iterator protocol
-import Base.start, Base.next, Base.done, Base.length, Base.eltype
-struct _State{T} ptr::Ptr{T}; stop::Ptr{T}; stride::J_ end
-eltype(x::K_) = ctype(xt(x))
-function start(x::K_)
-    T = eltype(x)
-    ptr = Ptr{T}(x+16)
-    stride = sizeof(T)
-    stop = ptr + xn(x)*stride
-    return _State{T}(ptr, stop, stride)
-end
-next(x, s) = (unsafe_load(s.ptr), _State(s.ptr + s.stride, s.stop, s.stride))
-done(x, s) = s.ptr == s.stop
-length(x) = xn(x)
-
-# Filling the elements
-import Base.pointer, Base.fill!, Base.copy!
-pointer(x::K_, i=1::Integer) = (T=eltype(x); Ptr{T}(x+_offset1(x)+i))
-function fill!(x::K_, el)
-    n = xn(x)
-    p = pointer(x)
-    T = typeof(p).parameters[1]
-    f = (T === K_ ? r1 : identity)
-    for i in 1:n
-        unsafe_store!(p, T(f(el))::T, i)
-    end
-end
-function copy!(x::K_, iter)
-    p = pointer(x)
-    T = typeof(p).parameters[1]
-    f = (T === K_ ? r1 : identity)
-    for (i, el::T) in enumerate(iter)
-        unsafe_store!(p, f(el), i)
-    end
-end
 
 ## New reference
 K_new(x::K_) = r1(x)
