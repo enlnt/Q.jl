@@ -29,7 +29,7 @@ struct K_Table  <: AbstractDataFrame
         new(a)
     end
 end
-
+kpointer(x::K_Table) = K_(pointer(x.a)-8)
 valptr(x::K_Table, i) = unsafe_load(Ptr{K_}(xy(x.a[])+16), i)
 DataFrames.ncol(x::K_Table) = xn(xx(x.a[]))
 DataFrames.nrow(x::K_Table) = xn(valptr(x, 1))
