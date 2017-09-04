@@ -87,4 +87,27 @@ end
       @test t[3, 1] == 2
     end
   end
+  @testset "dl" begin
+    @test begin
+      f = k(0, ".J.jl.eval_string")
+      fa = asarray(f)
+      g = dl(fa[], 1)
+      ga = asarray(g)
+      fa[] == ga[] && asarray(dot_(f, knk(1, kp("42"))))[] == 42
+    end
+    @test begin
+      p = cglobal(:d9)
+      f = dl(p, 1)
+      fa = asarray(f)
+      fa[] == p && asarray(dot_(f, knk(1, b9(0, kj(42)))))[] == 42
+    end
+    @test begin
+      f(::K_, y::K_) = y
+      cf = cfunction(f, K_, (K_, K_))
+      g = dl(cf, 2)
+      ga = asarray(g)
+      ga[] == cf && unsafe_load(g).u == 2 &&
+          asarray(dot_(g, knk(2, ki(0), kj(42))))[] == 42
+    end
+  end
 end
