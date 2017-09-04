@@ -15,6 +15,6 @@ const side = GOT_Q ? "server" : "client"
   include("vector-tests.jl")
   include("text-tests.jl")
   include("list-tests.jl")
-  GOT_Q || include("table-tests.jl")  # FIXME: crashes server tests
+  include("table-tests.jl")
   include("$side-tests.jl")
 end
