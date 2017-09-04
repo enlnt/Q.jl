@@ -14,7 +14,8 @@
       @test (x[2:end] = 1; xr(kpointer(a)) == 0)
     end
   end
-  @testset "list push!" begin
+  @testset "list push/append" begin
     @test (x = K[]; push!(x, ""); push!(x, 1); x[2][] == 1)
+    @test (x = K[]; append!(x, K["",1]); x[2][] == 1)
   end
 end
