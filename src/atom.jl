@@ -85,4 +85,9 @@ function K_Atom(x::K_)
     ti = typeinfo(t)
     K_CLASS[t]{t,ti.c_type,ti.jl_type}(x)
 end
+# Chars are special
+Base.convert(Char, x::K_char) = Char(x.a[])
+Base.print(io::IO, x::K_char) = print(io, Char(x))
+Base.show(io::IO, x::K_char) = print(io, "K(", repr(Char(x)), ")")
+Base.show(io::IO, ::MIME"text/plain", x::K_char) = show(io, x)
 include("promote_rules.jl")
