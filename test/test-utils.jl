@@ -62,3 +62,8 @@ function server(f::Function; user="")
         end
     end
 end
+function show_to_string(args...)
+  buffer = IOBuffer()
+  show(buffer, args...)
+  String(take!(buffer))
+end

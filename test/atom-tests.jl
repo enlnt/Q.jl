@@ -9,7 +9,7 @@
     (KE, ke, K_real, 3.14f0),
     (KF, kf, K_float, 3.14),
     (KF, kf, K_float, 3.14),
-    (KC, kc, K_char, C_('a')),
+    (KC, kc, K_char, G_('a')),
     (KS, ks, K_symbol, ss("symbol")),
     (KP, a->ktj(-KP, a), K_timestamp, J_(42)),
     (KM, a->ktj(-KM, a), K_month, I_(42)),
@@ -28,7 +28,7 @@
       @test_throws ArgumentError K_x(ktj(101, 0))
     end
   end
-  @test K_char(1.) == Char(1.)
+  @test K_char(1.) == UInt8(1.)
   @testset "atom supertypes" begin
     @test K_boolean <: Integer
     @test K_guid <: Unsigned
@@ -85,5 +85,10 @@
     @test K(1) + 2. === 2 + K(1.)  === 3.
     @test K(Float32(1)) + Int64(2) === 3.
     @test K(1) < K(2.) < 3
+  end
+  @testset "char print and show" begin
+    @test string(K('a')) == "a"
+    @test show_to_string(K('a')) == "K('a')"
+    @test show_to_string(MIME"text/plain"(), K('a')) == "K('a')"
   end
 end

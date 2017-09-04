@@ -9,13 +9,17 @@ struct K_Vector{t,C,T} <: AbstractVector{T}
         return new(a)
     end
 end
-const K_Chars = K_Vector{KC,C_,Char}
+const K_Chars = K_Vector{C_(10),G_,UInt8}
+Base.convert(::Type{String}, x::K_Chars) = String(x.a)
+Base.print(io::IO, x::K_Chars) = print(io, String(x))
+Base.show(io::IO, x::K_Chars) = print(io, "K(", repr(String(x)), ")")
+Base.show(io::IO, ::MIME"text/plain", x::K_Chars) = show(io, x)
 function K_Vector(x::K_)
     t = xt(x)
     ti = typeinfo(t)
     K_Vector{t,ti.c_type,ti.jl_type}(x)
 end
-# XXX: Do we ned this?
+# XXX: Do we need this?
 K_Vector(a::Vector) = K_Vector(K(a))
 
 Base.eltype(v::K_Vector{t,C,T}) where {t,C,T} = T

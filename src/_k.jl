@@ -83,7 +83,7 @@ const TYPE_INFO = [
     TI(8, 'e', "real", E_, Float32, :_Float),
     TI(9, 'f', "float", F_, Float64, :_Float),
 
-    TI(10, 'c', "char", C_, Char, :_Text),
+    TI(10, 'c', "char", G_, UInt8, :_Text),
     TI(11, 's', "symbol", S_, Symbol, :_Text),
 
     TI(12, 'p', "timestamp", J_, Int64, :_Temporal),

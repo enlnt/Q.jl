@@ -7,7 +7,7 @@
     @test (x = K(ktn(KJ, 0)); eltype(x) === Int64)
     @test (x = K(ktn(KE, 0)); eltype(x) === Float32)
     @test (x = K(ktn(KF, 0)); eltype(x) === Float64)
-    @test (x = K(ktn(KC, 0)); eltype(x) === Char)
+    @test (x = K(ktn(KC, 0)); eltype(x) === UInt8)
     @test (x = K(ktn(KS, 0)); eltype(x) === Symbol)
     @test_throws ArgumentError JuQ.K_Chars(ktn(KB,0))
     @test String(K(kp("abc"))) == "abc"
@@ -35,11 +35,17 @@
       x = K(n)
       @test T(x) == n
     end
+    @test String(K("αβγ")) == "αβγ"
   end
   @testset "Vector operations" begin
     x = K[1]
     @test push!(x, 2) == [1, 2]
     @test copy!(x, [10, 20]) == [10, 20]
     @test fill!(x, 0) == [0, 0]
+  end
+  @testset "string print and show" begin
+    @test string(K("αβγ"), K("δ")) == "αβγδ"
+    @test show_to_string(K("δ")) == """K("δ")"""
+    @test show_to_string(MIME"text/plain"(), K("δ")) == """K("δ")"""
   end
 end
