@@ -2,10 +2,10 @@ export @q_cmd
 
 
 function kerror()
-    e = asarray(ee(K_(0)))
+    e = asarray(ee(K_(C_NULL)))
     unsafe_string(e[])
 end
-function apply(f::K, args...)
+function apply(f, args...)
     x = K(args)
     r = dot_(kpointer(f), kpointer(x))
     if r == C_NULL

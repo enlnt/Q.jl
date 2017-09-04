@@ -5,7 +5,22 @@ export KdbException
 include("_k.jl")
 using Base.Dates.AbstractTime
 using JuQ._k
+"""
+    K(x)
 
+Construct a kdb+ object.
+"""
+abstract type K end
+K(x) = convert(K, x)  # allow non-K return types
+"""
+    kpointer(x)
+
+A memory address referring to a kdb+ object.
+"""
+kpointer
+
+Base.convert(::Type{K_}, x) = r1(kpointer(x))
+_k.K_new(x) = r1(kpointer(x))
 """
     KdbException(s)
 
@@ -42,7 +57,7 @@ Base.isless(x::K_Atom, y::K_Atom) = x.a[] < y.a[]
 kpointer(x::Union{K_Atom,K_Other}) = K_(pointer(x.a)-8)
 kpointer(x::Union{K_Vector,K_Lambda,K_guid}) = K_(pointer(x.a)-16)
 
-const K = Union{K_Atom,K_Vector,K_Table,K_Lambda,K_Other}
+#const K = Union{K_Atom,K_Vector,K_Table,K_Lambda,K_Other}
 # TODO: Consider moving all K_new methods here.
 _k.K_new(x::K) = r1(kpointer(x))
 const TI0 = TI(0, 'k', "any", K_, K, :NA)
@@ -55,7 +70,7 @@ _cast(::Type{T}, x::T) where T = x
 _cast(::Type{T}, x::C) where {T,C} = T(x)
 _cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
 _cast(::Type{K}, x::K_) = K(r1(x))
-_cast(::Type{K_}, x::K) = r1(kpointer(x))
+#_cast(::Type{K_}, x::K) = r1(kpointer(x))
 
 # TODO: replace K_Vector with K below once asarray() transition is complete.
 Base.pointer(x::K_Vector, i::Integer=1) = pointer(x.a, i)
