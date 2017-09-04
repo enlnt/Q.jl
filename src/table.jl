@@ -32,9 +32,9 @@ end
 
 DataFrames.ncol(x::K_Table) = xn(xx(x.a[]))
 DataFrames.nrow(x::K_Table) = xn(unsafe_load(Ptr{K_}(xy(x.a[])+16)))
-DataFrames.index(x::K_Table) = DataFrames.Index(Array(K(xx(x.a[]))))
-DataFrames.columns(x::K_Table) = K(xx(x.a[]))
-cols(x::K_Table) = K(xx(x.a[]))
+DataFrames.index(x::K_Table) = DataFrames.Index(Array(K(r1(xx(x.a[])))))
+DataFrames.columns(x::K_Table) = K(r1(xx(x.a[])))
+cols(x::K_Table) = K(r1(xx(x.a[])))
 Base.getindex(x::K_Table, i::Integer) =
     K(r1(unsafe_load(Ptr{K_}(xy(x.a[])+16), i)))
 Base.getindex(x::K_Table, i::Integer, j::Integer) = x[j][i]
