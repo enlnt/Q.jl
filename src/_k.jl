@@ -350,6 +350,10 @@ function asarray(x::K_, own::Bool=true)
     end
     a
 end
-
+Base.convert(::Type{Array}, x::K_) = asarray(x)
+using Core.Intrinsics.bitcast
+Base.convert(::Type{K_}, p::K_) = p
+Base.convert(::Type{K_}, p::Ptr) = bitcast(K_, p)
+Base.convert(::Type{K_}, p::UInt) = bitcast(K_, p)
 
 end # module k

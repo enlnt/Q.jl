@@ -46,7 +46,7 @@ function Base.convert(::Type{K}, x::K_)
     return K_Other(x)
 end
 Base.convert(::Type{K}, x::K) = x
-Base.convert(::Type{K}, x) = K(K_new(x))
+Base.convert(::Type{K}, x) = convert(K, K_new(x))
 
 Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")
 Base.show(io::IO, x::K_boolean) = print(io, x)
