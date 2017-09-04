@@ -35,7 +35,7 @@ function Base.convert(::Type{K}, x::K_)
         throw(KdbException(msg))
     end
     if t < 0
-        return K_Scalar(x)
+        return K_Atom(x)
     elseif 0 <= t <= KS
         return K_Vector(x)
     elseif t == XT

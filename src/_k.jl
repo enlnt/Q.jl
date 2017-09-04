@@ -11,7 +11,7 @@ export k, b9, d9, okx, kclose
 export ymd, dj
 export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc, kd, kz, kt
-export ja, js, jk
+export ja, js, jk, jv
 export ktn, knk, kp, xT, xD
 export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
 export kG, kH, kI, kJ, kE, kF, kC, kS, kK
@@ -233,8 +233,10 @@ xD(x::K_, y::K_) = ccall((@k_sym :xD), K_, (K_, K_), x, y)
 ja(rx::Ref{K_}, y::Ref) = ccall((@k_sym :ja), K_, (Ref{K_}, Ptr{V_}), rx, y)
 "Join a symbol to a list"
 js(rx::Ref{K_}, y::S_) = ccall((@k_sym :js), K_, (Ref{K_}, S_), rx, y)
-"Join another K_ object to a list"
+"Join a K_ object to a list"
 jk(rx::Ref{K_}, y::K_) = ccall((@k_sym :jk), K_, (Ref{K_}, K_), rx, y)
+"Join another K_ list to a list"
+jv(rx::Ref{K_}, y::K_) = ccall((@k_sym :jv), K_, (Ref{K_}, K_), rx, y)
 
 # K b9(I,K) and K d9(K)
 b9(pe::Integer, x::K_) = ccall((@k_sym :b9), K_, (I_, K_), pe, x)

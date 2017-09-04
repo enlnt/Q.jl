@@ -8,4 +8,14 @@
     @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
     @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
   end
+  @testset "list setters" begin
+    let x = K["", 1, 2, 3], a = K(0)
+      @test (x[2:end] = a; xr(x.a[2]) == 3)
+      @test (x[2:end] = 1; xr(kpointer(a)) == 0)
+    end
+  end
+  @testset "list push/append" begin
+    @test (x = K[]; push!(x, ""); push!(x, 1); x[2][] == 1)
+    @test (x = K[]; append!(x, K["",1]); x[2][] == 1)
+  end
 end
