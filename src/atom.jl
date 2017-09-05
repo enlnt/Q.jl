@@ -1,3 +1,5 @@
+using Base.Dates.AbstractTime
+
 # Supertypes for atomic q types.
 const SUPERTYPE = Dict(
     :_Bool     => Integer,

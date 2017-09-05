@@ -18,9 +18,7 @@ export kG, kH, kI, kJ, kE, kF, kC, kS, kK
 export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KZ, KN, KU, KV, KT,
        XT, XD, KK, EE
-export K_new
 export TYPE_INFO, TYPE_CLASSES, TI
-export asarray
 
 include("startup.jl")
 
@@ -101,34 +99,7 @@ const C_TYPE = merge(
          100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
          106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
     Dict(t.number=>t.c_type for t in TYPE_INFO))
-# returns type, offset and size
-function cinfo(x::K_)
-    h = unsafe_load(x)
-    t = h.t
-    if t < 0   # scalar
-        return C_TYPE[-t], (t == -UU ? 16 : 8), ()
-    elseif t <= KT
-        return C_TYPE[t], 16, (xn(x), )
-    elseif t == XT
-        return K_, 8, ()
-    elseif t == XD
-        return K_, 16, (2, )
-    elseif t < 77
-        return I_, 16, (xn(x), )
-    elseif t < XT
-        return J_, 16, (xn(x), )
-    elseif t == 100  # λ
-        return K_, 16, (xn(x), )
-    elseif t < 104
-        return I_, 8, ()
-    elseif t < 106  # projection, composition
-        return K_, 16, (xn(x), )
-    elseif t < 112  # f', f/, f\, ...
-        return K_, 8, ()
-    else
-        return Ptr{V_}, 16, ()
-    end
-end
+
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
@@ -296,7 +267,36 @@ k(h::Integer, m::String,
         x7::K_, x8::K_) = ccall((@k_sym :k),
             K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
-
+end # module k
+using JuQ._k
+# returns type, offset and size
+function cinfo(x::K_)
+    h = unsafe_load(x)
+    t = h.t
+    if t < 0   # scalar
+        return C_TYPE[-t], (t == -UU ? 16 : 8), ()
+    elseif t <= KT
+        return C_TYPE[t], 16, (xn(x), )
+    elseif t == XT
+        return K_, 8, ()
+    elseif t == XD
+        return K_, 16, (2, )
+    elseif t < 77
+        return I_, 16, (xn(x), )
+    elseif t < XT
+        return J_, 16, (xn(x), )
+    elseif t == 100  # λ
+        return K_, 16, (xn(x), )
+    elseif t < 104
+        return I_, 8, ()
+    elseif t < 106  # projection, composition
+        return K_, 16, (xn(x), )
+    elseif t < 112  # f', f/, f\, ...
+        return K_, 8, ()
+    else
+        return Ptr{V_}, 16, ()
+    end
+end
 ## New reference
 K_new(x::K_) = r1(x)
 ## Conversion of simple types
@@ -355,5 +355,3 @@ using Core.Intrinsics.bitcast
 Base.convert(::Type{K_}, p::K_) = p
 Base.convert(::Type{K_}, p::Ptr) = bitcast(K_, p)
 Base.convert(::Type{K_}, p::UInt) = bitcast(K_, p)
-
-end # module k

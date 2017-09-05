@@ -1,5 +1,5 @@
 using JuQ
-import JuQ: kpointer
+import JuQ: kpointer, asarray, K_new
 using JuQ._k, JuQ._k.GOT_Q
 using Base.Test
 using Base.Dates.AbstractTime
