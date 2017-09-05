@@ -13,16 +13,19 @@ function apply(f, args...)
     end
     K(r)
 end
-# TODO: Use dot_ here.
-_apply(f, args...) = K(k(0, ".", K_new(f), K_new(args)))
+
 (f::K_Lambda)() = f(nothing)
 (f::K_Other)() = f(nothing)
 (f::K_Lambda)(args...) = apply(f, args...)
 (f::K_Other)(args...) = apply(f, args...)
 
-const Q_PARSE = "{\$[0=t:type e:parse x;{y;eval x}e;t=-11;eval e;e]}"
-macro q_cmd(s) _E(k(0, Q_PARSE, kp(s))) end
-function Base.show(io::IO, x::K)
+const q_parse = K(k(0, "parse"))
+const q_eval = K(k(0, "eval"))
+
+macro q_cmd(s) q_parse(s) end
+Base.run(x::K_List, args...) = (r = q_eval(x); length(args) == 0 ? r : r(args...))
+
+function Base.show(io::IO, x::Union{K_Other,K_Lambda})
     s = k(0, "{` sv .Q.S[40 80;0;x]}", K_new(x))
     try
         write(io, strip(transcode(String, kG(s))))

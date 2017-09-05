@@ -1,5 +1,5 @@
 module JuQ
-export K, K_Object, K_Vector, K_Table, hopen, hclose, hget
+export K, K_Atom, K_Vector, K_Table, hopen, hclose, hget
 export KdbException
 
 include("_k.jl")
@@ -43,7 +43,6 @@ struct K_Other
     K_Other(x::K_) = new(asarray(x))
 end
 
-Symbol(x::K_symbol) = convert(Symbol, x)
 include("table.jl")
 
 for T in (K_symbol, K_char)
