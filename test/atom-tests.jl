@@ -92,6 +92,10 @@
     @test show_to_string(MIME"text/plain"(), K('a')) == "K('a')"
   end
   @testset "nothing" begin
-    @test (x = K(nothing); ktypecode(x) == 101)
+    let x = K(nothing)
+      @test ktypecode(x) == 101
+      @test kpointer(x) === kpointer(K_None)
+      @test x === K_None
+    end
   end
 end

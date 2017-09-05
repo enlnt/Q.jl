@@ -300,7 +300,8 @@ end
 ## New reference
 K_new(x::K_) = r1(x)
 ## Conversion of simple types
-K_new(::Void) = ktj(101, 0)
+const _none = ktj(101, 0)
+K_new(::Void) = r1(_none)
 K_new(x::Bool) = kb(x)
 K_new(x::UInt128) = ku(x)
 K_new(x::UInt8) = kg(x)
@@ -350,6 +351,8 @@ function asarray(x::K_, own::Bool=true)
     end
     a
 end
+# The _none pointer guard - make sure _none is cleaned up eventually.
+const _none_array = asarray(_none)
 Base.convert(::Type{Array}, x::K_) = asarray(x)
 using Core.Intrinsics.bitcast
 Base.convert(::Type{K_}, p::K_) = p
