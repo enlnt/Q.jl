@@ -14,10 +14,10 @@ function apply(f, args...)
     K(r)
 end
 
-(f::K_Lambda)() = f(nothing)
-(f::K_Other)() = f(nothing)
-(f::K_Lambda)(args...) = apply(f, args...)
-(f::K_Other)(args...) = apply(f, args...)
+for T in (K_Lambda, K_Other, K_symbol)
+    @eval (f::$T)() = f(nothing)
+    @eval (f::$T)(args...) = apply(f, args...)
+end
 
 const q_parse = K(k(0, "parse"))
 const q_eval = K(k(0, "eval"))

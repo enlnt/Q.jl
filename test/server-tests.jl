@@ -55,9 +55,9 @@ end
 
 @testset "q commands" begin
   @test q`+`(1, 2) == 3
-  @test q`til 3`() == q`til`(3) == [0, 1, 2]
+  @test run(q`til 3`) == q`til`(3) == [0, 1, 2]
   # TODO: @test_throws JuQ.KdbException q`1+`("")
-  @test_throws JuQ.KdbException q`1+""`()
+  @test_throws JuQ.KdbException run(q`1+""`)
   @test_throws JuQ.KdbException q`.J.e`("nonexistent")
   let e = q`.J.e`
     @test (x = e("true"); eltype(x) == Bool && x == true)
