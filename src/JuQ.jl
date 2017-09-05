@@ -20,6 +20,14 @@ kpointer
 
 Base.convert(::Type{K_}, x) = r1(kpointer(x))
 K_new(x) = r1(kpointer(x))
+
+"""
+    ktypecode(x)
+
+Get the numeric type code of a `K` object.
+"""
+ktypecode(x) = ktypecode(typeof(x))
+
 """
     KdbException(s)
 
@@ -41,6 +49,7 @@ struct K_Other
     a::Array{T,0} where T
     K_Other(x::K_) = new(asarray(x))
 end
+ktypecode(x::K_Other) = unsafe_load(kpointer(x)).t
 
 include("table.jl")
 

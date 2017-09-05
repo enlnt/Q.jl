@@ -14,9 +14,9 @@ K_CLASSES = Type[]
 for (class, super) in SUPERTYPE
     @eval begin
         export $class
-        struct $class{t,CT,JT} <: $(super)
-            a::Array{CT,0}
-            function $class{t,CT,JT}(x::K_) where {t,CT,JT}
+        struct $class{t,C,T} <: $(super)
+            a::Array{C,0}
+            function $class{t,C,T}(x::K_) where {t,C,T}
                 a = asarray(x)
                 t′ = xt(x)
                 if t != -t′
@@ -25,6 +25,7 @@ for (class, super) in SUPERTYPE
                 new(a)
             end
         end
+        ktypecode(::Type{$class{t,C,T}}) where {t,C,T} = -t
         Base.convert(::Type{$class{t,C,T}}, x::$class{t,C,T}) where {t,C,T} = x
         function Base.convert(::Type{$class{t,C,T}}, x::C) where {t,C,T}
             r = $class{t,C,T}(ka(-t))

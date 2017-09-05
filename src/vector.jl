@@ -9,6 +9,7 @@ struct K_Vector{t,C,T} <: AbstractVector{T}
         return new(a)
     end
 end
+ktypecode(::K_Vector{t,C,T}) where {t,C,T} = t
 const K_Chars = K_Vector{C_(10),G_,UInt8}
 Base.convert(::Type{String}, x::K_Chars) = String(x.a)
 Base.print(io::IO, x::K_Chars) = print(io, String(x))

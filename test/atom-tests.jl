@@ -23,7 +23,7 @@
     let x = K(kx(v))
       @test x == K_x(v) == K_x(kx(v))  # XXX: Is the last form needed?
       @test x.a[] === v
-      @test xt(kpointer(x)) == -t
+      @test ktypecode(x) == xt(kpointer(x)) == -t
       @test xr(kpointer(x)) == 0
       @test_throws ArgumentError K_x(ktj(101, 0))
     end
@@ -90,5 +90,8 @@
     @test string(K('a')) == "a"
     @test show_to_string(K('a')) == "K('a')"
     @test show_to_string(MIME"text/plain"(), K('a')) == "K('a')"
+  end
+  @testset "nothing" begin
+    @test (x = K(nothing); ktypecode(x) == 101)
   end
 end
