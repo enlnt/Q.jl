@@ -181,7 +181,7 @@ kt(x::Integer) = ccall((@k_sym :kt), K_, (I_,), x)
 
 # vector constructors
 "Create a char array from string"
-kp(x::String) = ccall((@k_sym :kp), K_, (S_,), x)
+kp(x::AbstractString) = ccall((@k_sym :kp), K_, (S_,), x)
 "Create a simple list of type and length"
 ktn(t::Integer, n::Integer) = ccall((@k_sym :ktn), K_, (I_, J_), t, n)
 #knk(n) = begin @assert n == 0; ccall((@k_sym :knk), K_, (I_,), 0) end
@@ -307,30 +307,47 @@ K_new(x::UInt128) = ku(x)
 K_new(x::UInt8) = kg(x)
 K_new(x::Int16) = kh(x)
 K_new(x::Int32) = ki(x)
-K_new(x::Int64) = kj(x)
+K_new(x::Integer) = kj(x)
 K_new(x::Float32) = ke(x)
-K_new(x::Float64) = kf(x)
+K_new(x::Real) = kf(x)
 K_new(x::Symbol) = ks(String(x))
 K_new(x::Char) = kc(I_(x))
 K_new(x::String) = kp(x)
 ## Vector conversions
 function K_new(a::Vector{T}) where {T<:Number}
     t = K_TYPE[T]
-    CT = C_TYPE[t]
+    C = C_TYPE[t]
     n = length(a)
     x = ktn(t, n)
-    unsafe_copy!(Ptr{T}(x+16), pointer(a), n)
+    unsafe_copy!(Ptr{C}(x+16), pointer(a), n)
     return x
 end
-function K_new(a::Vector{Symbol})
+function K_new(a::AbstractVector{T}) where {T<:Number}
+    t = K_TYPE[T]
+    C = C_TYPE[t]
+    n = length(a)
+    x = ktn(t, n)
+    for i in 1:n
+        unsafe_store!(Ptr{C}(x+16), C(a[i]), i)
+    end
+    return x
+end
+function K_new(a::AbstractVector{Symbol})
     t = KS
-    CT = S_
-    JT = Symbol
     n = length(a)
     x = ktn(t, n)
     for i in 1:n
         si = ss(a[i])
         unsafe_store!(Ptr{S_}(x+16), si, i)
+    end
+    return x
+end
+function K_new(a::AbstractVector{T}) where {T<:AbstractString}
+    n = length(a)
+    x = ktn(0, n)
+    for i in 1:n
+        si = kp(a[i])
+        unsafe_store!(Ptr{K_}(x+16), si, i)
     end
     return x
 end

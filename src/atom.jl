@@ -26,6 +26,7 @@ for (class, super) in SUPERTYPE
             end
         end
         ktypecode(::Type{$class{t,C,T}}) where {t,C,T} = -t
+        K_new(x::$class{t,C,T}) where {t,C,T} = r1(kpointer(x))
         Base.convert(::Type{$class{t,C,T}}, x::$class{t,C,T}) where {t,C,T} = x
         function Base.convert(::Type{$class{t,C,T}}, x::C) where {t,C,T}
             r = $class{t,C,T}(ka(-t))

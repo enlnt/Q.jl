@@ -50,6 +50,10 @@
     @test K(Int64(0)) isa Signed
     @test K(0.0) isa Real
   end
+  @testset "atom from exotic" begin
+    @test (x = K(BigInt(666)); ktypecode(x) == -KJ &&x == 666)
+    @test (x = K(BigFloat(999)); ktypecode(x) == -KF &&x == 999)
+  end
   @testset "atom roundtrip" for v in [
     true, false,
     0x0102030405060708090a0b0c0d0e0fa0,
