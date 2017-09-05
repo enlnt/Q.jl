@@ -15,10 +15,9 @@ export ja, js, jk, jv
 export ktn, knk, kp, xT, xD
 export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
 export kG, kH, kI, kJ, kE, kF, kC, kS, kK
-export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_, C_TYPE, K_TYPE
+export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KZ, KN, KU, KV, KT,
        XT, XD, KK, EE
-export TYPE_INFO, TYPE_CLASSES, TI
 
 include("startup.jl")
 
@@ -58,52 +57,6 @@ const EE = I_(128)  #   error
 
 Base.show(io::IO, ::Type{K_}) = write(io, "K_")
 
-struct TI
-    number::C_
-    letter::Char
-    name::String
-    c_type::Type
-    jl_type::Type
-    class::Symbol
-end
-
-const TYPE_INFO = [
-    # num ltr name c_type jl_type super
-    TI(1, 'b', "boolean", B_, Bool, :_Bool),
-
-    TI(2, 'g', "guid", U_, UInt128, :_Unsigned),
-    TI(4, 'x', "byte", G_, UInt8, :_Unsigned),
-
-    TI(5, 'h', "short", H_, Int16, :_Signed),
-    TI(6, 'i', "int", I_, Int32, :_Signed),
-    TI(7, 'j', "long", J_, Int64, :_Signed),
-
-    TI(8, 'e', "real", E_, Float32, :_Float),
-    TI(9, 'f', "float", F_, Float64, :_Float),
-
-    TI(10, 'c', "char", G_, UInt8, :_Text),
-    TI(11, 's', "symbol", S_, Symbol, :_Text),
-
-    TI(12, 'p', "timestamp", J_, Int64, :_Temporal),
-    TI(13, 'm', "month", I_, Int32, :_Temporal),
-    TI(14, 'd', "date", I_, Int32, :_Temporal),
-    TI(15, 'z', "datetime", F_, Float64, :_Temporal),
-    TI(16, 'n', "timespan", J_, Int64, :_Temporal),
-    TI(17, 'u', "minute", I_, Int32, :_Temporal),
-    TI(18, 'v', "second", I_, Int32, :_Temporal),
-    TI(19, 't', "time", I_, Int32, :_Temporal),
-]
-const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
-const C_TYPE = merge(
-    Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_, (-EE)=>S_,  # XXX: do we need both ±EE?
-         100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
-         106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
-    Dict(t.number=>t.c_type for t in TYPE_INFO))
-
-const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
-                    UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
-                    Float32=>KE, Float64=>KF,
-                    Char=>KC, Symbol=>KS, Cstring=>KS)
 # reference management
 "Increment the object's reference count"
 r0(x::K_) = ccall((@k_sym :r0), K_, (K_,), x)
@@ -267,8 +220,60 @@ k(h::Integer, m::String,
         x7::K_, x8::K_) = ccall((@k_sym :k),
             K_, (I_, S_, K_, K_, K_, K_, K_, K_, K_, K_, K_),
                 h, m, x1, x2, x3, x4, x5, x6, x7, x8, K_NULL)
+# Make sure we don't redefine basic pointer conversions.
+using Core.Intrinsics.bitcast
+Base.convert(::Type{K_}, p::K_) = p
+Base.convert(::Type{K_}, p::Ptr) = bitcast(K_, p)
+Base.convert(::Type{K_}, p::UInt) = bitcast(K_, p)
 end # module k
 using JuQ._k
+
+struct TI
+    number::C_
+    letter::Char
+    name::String
+    c_type::Type
+    jl_type::Type
+    class::Symbol
+end
+
+const TYPE_INFO = [
+    # num ltr name c_type jl_type super
+    TI(1,  'b', "boolean",   B_, Bool,    :_Bool),
+
+    TI(2,  'g', "guid",      U_, UInt128, :_Unsigned),
+    TI(4,  'x', "byte",      G_, UInt8,   :_Unsigned),
+
+    TI(5,  'h', "short",     H_, Int16,   :_Signed),
+    TI(6,  'i', "int",       I_, Int32,   :_Signed),
+    TI(7,  'j', "long",      J_, Int64,   :_Signed),
+
+    TI(8,  'e', "real",      E_, Float32, :_Float),
+    TI(9,  'f', "float",     F_, Float64, :_Float),
+
+    TI(10, 'c', "char",      G_, UInt8,   :_Text),
+    TI(11, 's', "symbol",    S_, Symbol,  :_Text),
+
+    TI(12, 'p', "timestamp", J_, Int64,   :_Temporal),
+    TI(13, 'm', "month",     I_, Int32,   :_Temporal),
+    TI(14, 'd', "date",      I_, Int32,   :_Temporal),
+    TI(15, 'z', "datetime",  F_, Float64, :_Temporal),
+    TI(16, 'n', "timespan",  J_, Int64,   :_Temporal),
+    TI(17, 'u', "minute",    I_, Int32,   :_Temporal),
+    TI(18, 'v', "second",    I_, Int32,   :_Temporal),
+    TI(19, 't', "time",      I_, Int32,   :_Temporal),
+]
+const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
+const C_TYPE = merge(
+    Dict(KK=>K_, EE=>S_, XT=>K_, XD=>K_, (-EE)=>S_,  # XXX: do we need both ±EE?
+         100=>K_, 101=>I_, 102=>I_, 103=>I_, 104=>K_, 105=>K_,
+         106=>K_, 107=>K_, 108=>K_, 109=>K_, 110=>K_, 111=>K_, 112=>V_),
+    Dict(t.number=>t.c_type for t in TYPE_INFO))
+
+const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
+                    UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
+                    Float32=>KE, Float64=>KF,
+                    Char=>KC, Symbol=>KS, Cstring=>KS)
 # returns type, offset and size
 function cinfo(x::K_)
     h = unsafe_load(x)
@@ -371,7 +376,3 @@ end
 # The _none pointer guard - make sure _none is cleaned up eventually.
 const _none_array = asarray(_none)
 Base.convert(::Type{Array}, x::K_) = asarray(x)
-using Core.Intrinsics.bitcast
-Base.convert(::Type{K_}, p::K_) = p
-Base.convert(::Type{K_}, p::Ptr) = bitcast(K_, p)
-Base.convert(::Type{K_}, p::UInt) = bitcast(K_, p)
