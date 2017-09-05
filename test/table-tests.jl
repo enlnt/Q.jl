@@ -9,5 +9,14 @@
     @test x[1] == [1, 2]
     @test x[2,1] == 2
     @test (x′ = K(r1(kpointer(x))); x == x′)
+    @test begin
+      t = K_Table(a=[0, 1, 2], b=[0., 10., 20.]) 
+      show_to_string(t) == """3×2 JuQ.K_Table
+      │ Row │ a │ b    │
+      ├─────┼───┼──────┤
+      │ 1   │ 0 │ 0.0  │
+      │ 2   │ 1 │ 10.0 │
+      │ 3   │ 2 │ 20.0 │"""
+    end
   end
 end
