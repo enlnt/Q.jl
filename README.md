@@ -1,15 +1,15 @@
 <a name="logo"/>
 <div align="center">
-<a href="https://abalkin.github.io/Q.jl/latest">
+<a href="https://enlnt.github.io/Q.jl/latest">
 <img src="docs/src/juq-logo.png" alt="Q Logo" width="128.5" height="119"></img>
 </a>
 </div>
 
 # Q - Julia for kdb+
-[![Build Status](https://travis-ci.org/abalkin/Q.jl.svg?branch=master)](https://travis-ci.org/abalkin/Q.jl)
-[![codecov](https://codecov.io/gh/abalkin/Q.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/abalkin/Q.jl)
-[![Coverage Status](https://coveralls.io/repos/github/abalkin/Q.jl/badge.svg?branch=master)](https://coveralls.io/github/abalkin/Q.jl?branch=master)
-[![Latest Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://abalkin.github.io/Q.jl/latest)
+[![Build Status](https://travis-ci.org/enlnt/Q.jl.svg?branch=master)](https://travis-ci.org/enlnt/Q.jl)
+[![codecov](https://codecov.io/gh/enlnt/Q.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/enlnt/Q.jl)
+[![Coverage Status](https://coveralls.io/repos/github/enlnt/Q.jl/badge.svg?branch=master)](https://coveralls.io/github/enlnt/Q.jl?branch=master)
+[![Latest Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://enlnt.github.io/Q.jl/latest)
 
 ## Server side
 
