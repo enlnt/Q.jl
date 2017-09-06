@@ -2,13 +2,13 @@
     "docs": [
         {
             "location": "/", 
-            "text": "JuQ.jl - Julia for kdb+\n\n\n\n\nPackage features\n\n\n\n\nCommunicate between a Julia instance and a kdb+ database.\n\n\nRun Julia embedded in a kdb+ database instance.\n\n\n\n\n\n\nManual\n\n\n\n\nCommon API\n\n\nServer side\n\n\nClient side\n\n\nLow level API", 
+            "text": "Q.jl - Julia for kdb+\n\n\n\n\nPackage features\n\n\n\n\nCommunicate between a Julia instance and a kdb+ database.\n\n\nRun Julia embedded in a kdb+ database instance.\n\n\n\n\n\n\nManual\n\n\n\n\nCommon API\n\n\nServer side\n\n\nClient side\n\n\nLow level API", 
             "title": "Home"
         }, 
         {
-            "location": "/#juqjl-julia-for-kdb", 
+            "location": "/#qjl-julia-for-kdb", 
             "text": "", 
-            "title": "JuQ.jl - Julia for kdb+"
+            "title": "Q.jl - Julia for kdb+"
         }, 
         {
             "location": "/#package-features", 
