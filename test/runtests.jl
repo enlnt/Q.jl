@@ -1,6 +1,6 @@
-using JuQ
-import JuQ: kpointer, ktypecode, asarray, K_new, K_None
-using JuQ._k, JuQ._k.GOT_Q
+using Q
+import Q: kpointer, ktypecode, asarray, K_new, K_None
+using Q._k, Q._k.GOT_Q
 using Base.Test
 using Base.Dates.AbstractTime
 using DataFrames
@@ -8,7 +8,7 @@ using DataFrames
 include("test-utils.jl")
 const side = GOT_Q ? "server" : "client"
 
-@testset "JuQ tests" begin
+@testset "Q tests" begin
   include("lowlevel-tests.jl")
   include("refcount-tests.jl")
   include("atom-tests.jl")

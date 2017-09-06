@@ -1,4 +1,4 @@
-# JuQ.jl - Julia for kdb+
+# Q.jl - Julia for kdb+
 
 ## Package features
 

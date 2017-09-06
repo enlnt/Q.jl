@@ -1,15 +1,15 @@
 <a name="logo"/>
 <div align="center">
-<a href="https://abalkin.github.io/JuQ.jl/latest">
-<img src="docs/src/juq-logo.png" alt="JuQ Logo" width="128.5" height="119"></img>
+<a href="https://abalkin.github.io/Q.jl/latest">
+<img src="docs/src/juq-logo.png" alt="Q Logo" width="128.5" height="119"></img>
 </a>
 </div>
 
-# JuQ - Julia for kdb+
-[![Build Status](https://travis-ci.org/abalkin/JuQ.jl.svg?branch=master)](https://travis-ci.org/abalkin/JuQ.jl)
-[![codecov](https://codecov.io/gh/abalkin/JuQ.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/abalkin/JuQ.jl)
-[![Coverage Status](https://coveralls.io/repos/github/abalkin/JuQ.jl/badge.svg?branch=master)](https://coveralls.io/github/abalkin/JuQ.jl?branch=master)
-[![Latest Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://abalkin.github.io/JuQ.jl/latest)
+# Q - Julia for kdb+
+[![Build Status](https://travis-ci.org/abalkin/Q.jl.svg?branch=master)](https://travis-ci.org/abalkin/Q.jl)
+[![codecov](https://codecov.io/gh/abalkin/Q.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/abalkin/Q.jl)
+[![Coverage Status](https://coveralls.io/repos/github/abalkin/Q.jl/badge.svg?branch=master)](https://coveralls.io/github/abalkin/Q.jl?branch=master)
+[![Latest Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://abalkin.github.io/Q.jl/latest)
 
 ## Server side
 
@@ -23,9 +23,9 @@ q)J)println(42)
 With kdb+ running on a local port 8888:
 
 ```
-julia> using JuQ
+julia> using Q
 julia> hget(("localhost", 8888), "([]s:`a`b`c;a:11 22 33)")
-3×2 JuQ.K_Table
+3×2 Q.K_Table
 │ Row │ s │ a  │
 ├─────┼───┼────┤
 │ 1   │ a │ 11 │

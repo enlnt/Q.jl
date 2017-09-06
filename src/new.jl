@@ -1,4 +1,4 @@
-using JuQ._k
+using Q._k
 
 """
     K_new(x)

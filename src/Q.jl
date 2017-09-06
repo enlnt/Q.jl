@@ -1,4 +1,4 @@
-module JuQ
+module Q
 export K, K_Atom, K_Vector, K_Table, hopen, hclose, hget
 export KdbException
 
@@ -103,8 +103,8 @@ function Base.getindex(::Type{K}, v...)
 end
 
 if GOT_Q
-    include("q.jl")
+    include("server.jl")
 else
     include("communications.jl")
 end
-end # module JuQ
+end # module Q

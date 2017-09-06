@@ -9,7 +9,7 @@
     @test (x = K(ktn(KF, 0)); eltype(x) === Float64)
     @test (x = K(ktn(KC, 0)); eltype(x) === UInt8)
     @test (x = K(ktn(KS, 0)); eltype(x) === Symbol)
-    @test_throws ArgumentError JuQ.K_Chars(ktn(KB,0))
+    @test_throws ArgumentError Q.K_Chars(ktn(KB,0))
     @test String(K(kp("abc"))) == "abc"
   end  # "vector from low level"
   @testset "vector constructors" begin
