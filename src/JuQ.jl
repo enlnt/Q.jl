@@ -3,7 +3,7 @@ export K, K_Atom, K_Vector, K_Table, hopen, hclose, hget
 export KdbException
 
 include("_k.jl")
-
+include("new.jl")
 """
     K(x)
 
