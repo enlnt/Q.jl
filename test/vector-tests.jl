@@ -17,6 +17,7 @@
     @test K_Vector([:a, :b]) == K([:a, :b]) == [:a, :b]
     @test (x = K[1]; eltype(x) == Int && Array(x) == [1])
     @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
+    @test K(["", ""]) == K["", ""]
   end
   @testset "vector indexing" begin
     let x = K[1, 2]
