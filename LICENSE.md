@@ -1,4 +1,4 @@
-The JuQ.jl package is licensed under the Simplified "2-clause" BSD License:
+The Q.jl package is licensed under the Simplified "2-clause" BSD License:
 
 > Copyright (c) 2017: Alexander Belopolsky.
 > All rights reserved.

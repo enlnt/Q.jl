@@ -1,3 +1,3 @@
 ```
-julia> using Base.Test, JuQ, JuQ._k; include("test/lowlevel-tests.jl");
+julia> using Base.Test, Q, Q._k; include("test/lowlevel-tests.jl");
 ```

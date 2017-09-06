@@ -1,4 +1,4 @@
-# Conversions between Julia and q types for the JuQ module.
+# Conversions between Julia and q types for the Q module.
 #########################################################################
 const K_None = K_Other(K_new(nothing))
 

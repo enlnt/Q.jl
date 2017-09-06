@@ -1,6 +1,6 @@
 # [Common API](@id man-common-api)
 
 ```@docs
-JuQ.KdbException
-JuQ._E
+Q.KdbException
+Q._E
 ```

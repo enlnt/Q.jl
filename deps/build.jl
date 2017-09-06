@@ -1,4 +1,4 @@
-println("Building JuQ...")
+println("Building Q...")
 const OS = Dict(:Darwin => 'm', :Linux => 'l')
 QARCH = string(OS[Sys.KERNEL], Sys.WORD_SIZE)
 QHOME = get(ENV, "QHOME", "")
