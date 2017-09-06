@@ -13,22 +13,10 @@ for T in (Int8, Int16, Int32, Int64, Int128, Float32, Float64)
     end
 end
 
-# Conversion from the Vector of K's to K_
-function Base.convert(::Type{K_}, v::Vector{K_Vector})
-    n = length(v)
-    x = ktn(KK, n)
-    p = pointer(x)
-    for (i, vi) in enumerate(v)
-        unsafe_store!(p, r1(vi.o.x), i)
-    end
-    return x
-end
 # Julia to K conversions
 Base.convert(::Type{K}, ::Void) = K_None
 function Base.convert(::Type{K}, x::K_)
-    if x == C_NULL
-        return K_None
-    end
+    @assert x != C_NULL
     t = xt(x)
     if t == -EE
        	msg = xs(x)
@@ -46,7 +34,6 @@ function Base.convert(::Type{K}, x::K_)
     end
     return K_Other(x)
 end
-Base.convert(::Type{K}, x::K) = x
 Base.convert(::Type{K}, x) = convert(K, K_new(x))
 
 Base.print(io::IO, x::K_boolean) = print(io, Bool(x) ? "1b" : "0b")

@@ -102,4 +102,10 @@
       @test x === K_None
     end
   end
+  @testset "char" begin
+    let x = K('a')
+      @test Symbol(x) == :a
+      @test String(x) == "a"
+    end
+end
 end
