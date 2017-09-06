@@ -3,7 +3,7 @@
  * [Julia Package Development Kit (PkgDev)](https://github.com/JuliaLang/PkgDev.jl)
  * [Making Your Package Available (Julia manual)](https://docs.julialang.org/en/stable/manual/packages/#Making-Your-Package-Available-1)
  * [AttoBot (a package release bot)](https://github.com/attobot/attobot)
- * [Creating Releases (Github Help](https://help.github.com/articles/creating-releases)
+ * [Creating Releases (Github Help)](https://help.github.com/articles/creating-releases)
  
  ## Steps
  
@@ -35,3 +35,4 @@ Test Summary: | Pass  Total
 Q tests       |  369    369
 ```
 
+Follow [Github release procedure](https://help.github.com/articles/creating-releases)
