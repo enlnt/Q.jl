@@ -8,11 +8,3 @@ function Base.push!(x::K_List, el)
     resetvector(x.a, n′, p′+16)
     x
 end
-function Base.append!(x::K_List, y::K_List)
-    n′ = length(x) + length(y)
-    px = K_(pointer(x)-16)
-    py = K_(pointer(y)-16)
-    p′ = jv(Ref{K_}(px), r1(py))
-    resetvector(x.a, n′, p′+16)
-    x
-end
