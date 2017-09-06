@@ -155,4 +155,5 @@ function asarray(x::K_, own::Bool=true)
 end
 # The _none pointer guard - make sure _none is cleaned up eventually.
 const _none_array = asarray(_none)
-Base.convert(::Type{Array}, x::K_) = asarray(x)
+# TODO: Consider using Array(x) instead of asarray(x).
+# Base.convert(::Type{Array}, x::K_) = asarray(x)
