@@ -5,7 +5,7 @@
 </a>
 </div>
 
-# Q - Julia for kdb+
+# Q.jl - Julia for kdb+
 [![Build Status](https://travis-ci.org/enlnt/Q.jl.svg?branch=master)](https://travis-ci.org/enlnt/Q.jl)
 [![codecov](https://codecov.io/gh/enlnt/Q.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/enlnt/Q.jl)
 [![Coverage Status](https://coveralls.io/repos/github/enlnt/Q.jl/badge.svg?branch=master)](https://coveralls.io/github/enlnt/Q.jl?branch=master)
