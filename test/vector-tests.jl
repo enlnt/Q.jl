@@ -13,10 +13,11 @@
     @test String(K(kp("abc"))) == "abc"
   end  # "vector from low level"
   @testset "vector constructors" begin
-    @test K_Vector([1, 2]) == K([1, 2]) == [1, 2]
+    @test K_Vector([1, 2]) == K([1, 2]) == K(1:2) == [1, 2]
     @test K_Vector([:a, :b]) == K([:a, :b]) == [:a, :b]
     @test (x = K[1]; eltype(x) == Int && Array(x) == [1])
     @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
+    @test K(["", ""]) == K["", ""]
   end
   @testset "vector indexing" begin
     let x = K[1, 2]

@@ -23,7 +23,7 @@
     let x = K(kx(v))
       @test x == K_x(v) == K_x(kx(v))  # XXX: Is the last form needed?
       @test x.a[] === v
-      @test xt(kpointer(x)) == -t
+      @test ktypecode(x) == xt(kpointer(x)) == -t
       @test xr(kpointer(x)) == 0
       @test_throws ArgumentError K_x(ktj(101, 0))
     end
@@ -49,6 +49,10 @@
     @test K(Int32(0)) isa Signed
     @test K(Int64(0)) isa Signed
     @test K(0.0) isa Real
+  end
+  @testset "atom from exotic" begin
+    @test (x = K(BigInt(666)); ktypecode(x) == -KJ &&x == 666)
+    @test (x = K(BigFloat(999)); ktypecode(x) == -KF &&x == 999)
   end
   @testset "atom roundtrip" for v in [
     true, false,
@@ -91,4 +95,17 @@
     @test show_to_string(K('a')) == "K('a')"
     @test show_to_string(MIME"text/plain"(), K('a')) == "K('a')"
   end
+  @testset "nothing" begin
+    let x = K(nothing)
+      @test ktypecode(x) == 101
+      @test kpointer(x) === kpointer(K_None)
+      @test x === K_None
+    end
+  end
+  @testset "char" begin
+    let x = K('a')
+      @test Symbol(x) == :a
+      @test String(x) == "a"
+    end
+end
 end

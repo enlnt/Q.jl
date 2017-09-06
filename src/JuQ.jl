@@ -3,8 +3,7 @@ export K, K_Atom, K_Vector, K_Table, hopen, hclose, hget
 export KdbException
 
 include("_k.jl")
-using Base.Dates.AbstractTime
-using JuQ._k
+include("new.jl")
 """
     K(x)
 
@@ -20,7 +19,15 @@ A memory address referring to a kdb+ object.
 kpointer
 
 Base.convert(::Type{K_}, x) = r1(kpointer(x))
-_k.K_new(x) = r1(kpointer(x))
+K_new(x) = r1(kpointer(x))
+
+"""
+    ktypecode(x)
+
+Get the numeric type code of a `K` object.
+"""
+ktypecode(x) = ktypecode(typeof(x))
+
 """
     KdbException(s)
 
@@ -42,6 +49,7 @@ struct K_Other
     a::Array{T,0} where T
     K_Other(x::K_) = new(asarray(x))
 end
+ktypecode(x::K_Other) = unsafe_load(kpointer(x)).t
 
 include("table.jl")
 
@@ -58,7 +66,7 @@ kpointer(x::Union{K_Vector,K_Lambda,K_guid}) = K_(pointer(x.a)-16)
 
 #const K = Union{K_Atom,K_Vector,K_Table,K_Lambda,K_Other}
 # TODO: Consider moving all K_new methods here.
-_k.K_new(x::K) = r1(kpointer(x))
+K_new(x::K) = r1(kpointer(x))
 const TI0 = TI(0, 'k', "any", K_, K, :NA)
 typeinfo(t::Integer) = t == 0 ? TI0 : TYPE_INFO[t - (t>2)]
 
