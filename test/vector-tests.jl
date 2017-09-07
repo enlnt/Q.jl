@@ -9,6 +9,7 @@
     @test (x = K(ktn(KF, 0)); eltype(x) === Float64)
     @test (x = K(ktn(KC, 0)); eltype(x) === UInt8)
     @test (x = K(ktn(KS, 0)); eltype(x) === Symbol)
+    @test (x = K(ktn(KD, 0)); eltype(x) === Date)
     @test_throws ArgumentError Q.K_Chars(ktn(KB,0))
     @test String(K(kp("abc"))) == "abc"
   end  # "vector from low level"
@@ -50,5 +51,8 @@
     @test string(K("αβγ"), K("δ")) == "αβγδ"
     @test show_to_string(K("δ")) == """K("δ")"""
     @test show_to_string(MIME"text/plain"(), K("δ")) == """K("δ")"""
+  end
+  @testset "temporal" begin
+    @test (x = K[Date(2002)]; x[1] = Date(2000); x.a[1] == 0)
   end
 end
