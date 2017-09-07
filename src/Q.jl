@@ -59,14 +59,12 @@ for T in (K_symbol, K_char)
     @eval Base.:(==)(x::$T, y::$T) = x[] == y[]
 end
 Base.:(==)(x::T, y::T) where {T<:K_Atom} = x.a[] == y.a[]
-Base.isless(x::K_Atom, y::K_Atom) = x.a[] < y.a[]
+Base.:(<)(x::K_Atom, y::K_Atom) = x.a[] < y.a[]
+Base.:(<)(x::K_symbol, y::K_symbol) = x[] < y[]
 
 kpointer(x::Union{K_Atom,K_Other}) = K_(pointer(x.a)-8)
 kpointer(x::Union{K_Vector,K_Lambda,K_guid}) = K_(pointer(x.a)-16)
 
-#const K = Union{K_Atom,K_Vector,K_Table,K_Lambda,K_Other}
-# TODO: Consider moving all K_new methods here.
-K_new(x::K) = r1(kpointer(x))
 const TI0 = TI(0, 'k', "any", K_, K, :NA)
 typeinfo(t::Integer) = t == 0 ? TI0 : TYPE_INFO[t - (t>2)]
 
