@@ -1,4 +1,21 @@
+
 # communications
+function hopen(spec::AbstractString)
+    parts = split(spec, ":"; limit=3)
+    n = length(parts)
+    if n == 1
+        port = parse(Int, parts[1])
+        return hopen(port)
+    end
+    host = parts[1]
+    port = parse(Int, parts[2])
+    if n == 2
+        return hopen(host, port)
+    else
+        user = parts[3]
+        return hopen(host, port, user)
+    end
+end
 hopen(host::String, port::Integer, user::String, timeout::Integer) =
     khpun(host, port, user, timeout)
 hopen(host::String, port::Integer, user::String) = khpu(host, port, user)

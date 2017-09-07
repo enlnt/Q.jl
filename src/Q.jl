@@ -106,6 +106,8 @@ end
 if GOT_Q
     include("server.jl")
 else
-    include("communications.jl")
+    include("client.jl")
 end
+include("parser.jl")
+include("q-prompt.jl")
 end # module Q
