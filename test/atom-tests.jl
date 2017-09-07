@@ -49,6 +49,7 @@
     @test K(Int32(0)) isa Signed
     @test K(Int64(0)) isa Signed
     @test K(0.0) isa Real
+    @test K(Date(2000)) isa AbstractTime
   end
   @testset "atom from exotic" begin
     @test (x = K(BigInt(666)); ktypecode(x) == -KJ &&x == 666)
@@ -62,9 +63,10 @@
     map(Int32, (1, 2, 3))...,
     map(Int64, (1, 2, 3))...,
     1, 2, 3, 3.14f0, 3.14e0,
-    'a', :a,  # TODO: Temporal types.
+    # NB: Char type does not roundtrip.
+    :a,  Date(2008, 8, 8), # TODO: Other temporal types.
   ]
-    @test (T = typeof(v); T(K(v)) === v)
+    @test K(v)[] === v
   end
   @testset "atom get/set!" begin
     let x = K(1)
@@ -106,6 +108,7 @@
     let x = K('a')
       @test Symbol(x) == :a
       @test String(x) == "a"
+      @test Char(x) == 'a'
     end
 end
 end
