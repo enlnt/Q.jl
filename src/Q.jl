@@ -76,6 +76,9 @@ include("list.jl")
 _cast(::Type{T}, x::T) where T = x
 _cast(::Type{T}, x::C) where {T,C} = T(x)
 _cast(::Type{Symbol}, x::S_) = Symbol(unsafe_string(x))
+const K_EPOCH_DATE = Date(2000)
+_cast(::Type{Date}, x::I_) =  K_EPOCH_DATE + Dates.Day(x)
+_cast(::Type{I_}, x::Date) = I_(DATE_SHIFT + Dates.value(x))
 _cast(::Type{K}, x::K_) = K(r1(x))
 #_cast(::Type{K_}, x::K) = r1(kpointer(x))
 
@@ -90,7 +93,7 @@ Base.getindex(::Type{K}) = K(ktn(0,0))
 function Base.getindex(::Type{K}, v)
     t = K_TYPE[typeof(v)]
     r = K(ktn(t, 1))
-    r.a[1] = _cast(eltype(r), v)
+    r.a[1] = _cast(eltype(r.a), v)
     r
 end
 function Base.getindex(::Type{K}, v...)

@@ -36,7 +36,7 @@ const TYPE_INFO = [
 
     TI(12, 'p', "timestamp", J_, Int64,   :_Temporal),
     TI(13, 'm', "month",     I_, Int32,   :_Temporal),
-    TI(14, 'd', "date",      I_, Int32,   :_Temporal),
+    TI(14, 'd', "date",      I_, Date,   :_Temporal),
     TI(15, 'z', "datetime",  F_, Float64, :_Temporal),
     TI(16, 'n', "timespan",  J_, Int64,   :_Temporal),
     TI(17, 'u', "minute",    I_, Int32,   :_Temporal),
@@ -53,7 +53,8 @@ const C_TYPE = merge(
 const K_TYPE = Dict(Bool=>KB, UInt128=>UU,
                     UInt8=>KG, Int16=>KH, Int32=>KI, Int64=>KJ,
                     Float32=>KE, Float64=>KF,
-                    Char=>KC, Symbol=>KS, Cstring=>KS)
+                    Char=>KC, Symbol=>KS, Cstring=>KS,
+                    Date=>KD,)
 # returns type, offset and size
 function cinfo(x::K_)
     h = unsafe_load(x)
@@ -96,6 +97,8 @@ K_new(x::Integer) = kj(x)
 K_new(x::Float32) = ke(x)
 K_new(x::Real) = kf(x)
 K_new(x::Symbol) = ks(String(x))
+const DATE_SHIFT = -Dates.value(Date(2000))
+K_new(x::Date) = kd(DATE_SHIFT + Dates.value(x))
 K_new(x::Char) = kc(I_(x))
 K_new(x::String) = kp(x)
 ## Vector conversions

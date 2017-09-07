@@ -49,10 +49,10 @@ for (class, super) in SUPERTYPE
         # payload
         Base.eltype(::Type{$class{t,C,T}}) where {t,C,T} = T
         Base.eltype(x::$class) = eltype(typeof(x))
-        Base.getindex(x::$class) = eltype(x)(x)
-        Base.pointer(x::$class{t,CT,JT}) where {t,CT,JT} = pointer(x.a)
-        Base.show(io::IO, x::$class{t,CT,JT}) where {t,CT,JT} = print(io,
-            "K(", repr(JT(x.a[])), ")")
+        Base.getindex(x::$class) = _cast(eltype(x), x.a[])
+        Base.pointer(x::$class{t,C,T}) where {t,C,T} = pointer(x.a)
+        Base.show(io::IO, x::$class{t,C,T}) where {t,C,T} = print(io,
+            "K(", repr(_cast(T, x.a[])), ")")
     end
 end
 @eval const K_Atom = Union{$(K_CLASSES...)}
