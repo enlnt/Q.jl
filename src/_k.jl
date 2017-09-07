@@ -14,7 +14,7 @@ export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc, kd, kz, kt
 export ja, js, jk, jv
 export ktn, knk, kp, xT, xD
 export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
-export kG, kH, kI, kJ, kE, kF, kC, kS, kK
+export kG, kH, kI, kJ, kE, kF, kC, kS, kK, kX
 export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KZ, KN, KU, KV, KT,
        XT, XD, KK, EE
@@ -88,6 +88,8 @@ kF(x::K_) = unsafe_wrap(Array, Ptr{F_}(x+16), (x|>n,))
 kC(x::K_) = unsafe_wrap(Array, Ptr{C_}(x+16), (x|>n,))
 kS(x::K_) = unsafe_wrap(Array, Ptr{S_}(x+16), (x|>n,))
 kK(x::K_) = unsafe_wrap(Array, Ptr{K_}(x+16), (x|>n,))
+# Not in k.h, but useful
+kX(::Type{C}, x::K_) where {C} = unsafe_wrap(Array, Ptr{C}(x+16), (x|>n,))
 
 # table and dict accessors
 xk(x::K_) = unsafe_load(Ptr{K_}(x+8))

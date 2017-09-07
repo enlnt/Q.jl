@@ -7,6 +7,7 @@
     @test (x = K[1, ""]; eltype(x) == K && x[1] == 1)
     @test (x = K((1, [2, 3])); x[1] == 1 && x[2] == [2, 3])
     @test (x = K((1, 2.)); x[1] == 1 && x[2] == 2.)
+    @test (x = K([1 2]); x[2][1] == 2)
   end
   @testset "list setters" begin
     let x = K["", 1, 2, 3], a = K(0)

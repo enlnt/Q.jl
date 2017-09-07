@@ -43,6 +43,8 @@
     @test push!(x, 2) == [1, 2]
     @test copy!(x, [10, 20]) == [10, 20]
     @test fill!(x, 0) == [0, 0]
+    @test append!(x, 1:2) == [0, 0, 1, 2]
+    @test empty!(x) == Int[]
   end
   @testset "string print and show" begin
     @test string(K("αβγ"), K("δ")) == "αβγδ"

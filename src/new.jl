@@ -144,7 +144,21 @@ function K_new(a::Union{Tuple,Vector{Any}})
     end
     r.x
 end
-
+# TODO: Add a fast specialization for the concrete Matrix type.
+function K_new(m::AbstractMatrix)
+    T = eltype(m)
+    t = K_TYPE[T]
+    C = C_TYPE[t]
+    nrows, ncols = size(m)
+    x = ktn(0, ncols)
+    for j in 1:ncols
+        pcol = kK(x)[j] = ktn(t, nrows)
+        for i in 1:nrows
+            kX(C, pcol)[i] = _cast(C, m[i,j])
+        end
+    end
+    x
+end
 function asarray(x::K_, own::Bool=true)
     T, o, s = cinfo(x)
     a = unsafe_wrap(Array, Ptr{T}(x + o), s)

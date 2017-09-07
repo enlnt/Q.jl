@@ -20,6 +20,12 @@ function K_Vector(x::K_)
     ti = typeinfo(t)
     K_Vector{t,ti.c_type,ti.jl_type}(x)
 end
+const KnownLength = Union{Base.HasLength, Base.HasShape}
+_vector(t::Integer, n::Integer) = K_Vector(ktn(t, n))
+_vector(t::Integer, itr, ::KnownLength) =
+    (r = _vector(t, Int(length(itr)::Integer));copy!(r, itr);r)
+K_Vector{t,C,T}(itr) where {t,C,T} =
+    _vector(t, itr, Base.iteratorsize(itr))::K_Vector{t,C,T}
 # XXX: Do we need this?
 K_Vector(a::Vector) = K_Vector(K(a))
 
@@ -63,12 +69,29 @@ function resetvector(a::Vector, size::Integer, data::Ptr)
     @assert d.length == d.nrows == length(a) == size
 end
 
-# Extending vectors (☡)
+# ⚠️ Extending vectors
 function Base.push!(x::K_Vector{t,C,T}, y) where {t,C,T}
     n′ = length(x) + 1
     a = _cast(C, T(y))
-    p = K_(pointer(x)-16)
+    p = kpointer(x)
     p′ = ja(Ref{K_}(p), Ref(a))
     resetvector(x.a, n′, p′+16)
+    x
+end
+function Base.append!(x::K_Vector{t,C,T}, y::K_Vector{t,C,T}) where {t,C,T}
+    n′ = length(x) + length(y)
+    px = kpointer(x)
+    py = kpointer(y)
+    p′ = jv(Ref{K_}(px), py)
+    resetvector(x.a, n′, p′+16)
+    x
+end
+Base.append!(x::K_Vector{t,C,T}, y) where {t,C,T} =
+    append!(x, K_Vector{t,C,T}(y))
+function Base.empty!(x::K_Vector{t,C,T}) where {t,C,T}
+    p = kpointer(x)
+    p′ = ktn(t, 0)
+    resetvector(x.a, 0, p′+16)
+    r0(p)
     x
 end
