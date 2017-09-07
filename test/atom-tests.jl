@@ -110,5 +110,10 @@
       @test String(x) == "a"
       @test Char(x) == 'a'
     end
-end
+  end
+  @testset "compare" begin
+    @test K(:a) < K(:b)
+    @test K('a') < K('b')
+    @test K(1) < K(2)
+  end
 end
