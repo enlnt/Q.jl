@@ -192,6 +192,20 @@ end
       end
     end
   end
+  @testset "communications" begin
+    server() do port
+      let h = khp("", port)
+        @test h > 0
+        # XXX: On the server, the first call to k(h, ..) gets
+        # 'rcv. OS reports: Resource temporarily unavailable.
+        # TODO: Figure out a cause and write a robust "hget".
+        # Q.GOT_Q && r0(ee(k(h, "666")))
+        # @test 666 == auto_r0(k, h, "666") do x
+        #  xj(x)
+        # end
+      end
+    end
+  end
 end  # "Low level"
 
 
