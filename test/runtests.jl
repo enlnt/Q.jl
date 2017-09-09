@@ -18,5 +18,5 @@ const side = GOT_Q ? "server" : "client"
   include("table-tests.jl")
   include("parser-tests.jl")
   include("$side-tests.jl")
-  GOT_Q && include("repl-tests.jl")
+  include("repl-tests.jl")
 end

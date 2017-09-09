@@ -2,6 +2,7 @@ module KdbMode
     import Base: LineEdit, REPL
     import Q._k: k, kj, kp
     using Q, Q.K_new, Q.chkparens
+
     const PROMPT = "q)"
     const PROMPT_COLOR = :light_blue
     const MODE_NAME = :q
@@ -18,17 +19,22 @@ module KdbMode
         else
             server_spec = get(ENV, "KDB", "")
             if isempty(server_spec)
-                handle = -1
+                port, process = Q.Kdb.start()
+                handle = hopen(port)
+                atexit() do
+                    rc = Q.Kdb.stop(handle, process)
+                    info("Slave kdb+ exited with code $rc.")
+                end
+                push!(msg, "Connected to $port.")
             else
                 try
                     handle = hopen(server_spec)
+                    push!(msg, "Connected to $server_spec.")
                 catch error
                     warn(repl.t.err_stream,
                          "Could not connect to $server_spec. $error")
+                    handle = -1
                 end
-            end
-            if handle > 0
-                push!(msg, "Connected to $(ENV["KDB"]).")
             end
         end
         if handle >= 0

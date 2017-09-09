@@ -110,4 +110,5 @@ else
 end
 include("parser.jl")
 include("q-prompt.jl")
+include("kdb.jl")
 end # module Q
