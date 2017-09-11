@@ -116,4 +116,7 @@
     @test K('a') < K('b')
     @test K(1) < K(2)
   end
+  @testset "show" begin
+    @test show_to_string(K) == "K"
+  end
 end

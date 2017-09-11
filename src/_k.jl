@@ -178,11 +178,20 @@ ymd(y::Integer, m::Integer, d::Integer) = ccall((@k_sym :ymd),
 dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
 if GOT_Q
-    export dot_, #= avoid conflict with Base.dot. =# ee, dl
+    export dot_, #= avoid conflict with Base.dot. =# ee, dl, khp
     dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
     ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
     # dl(V*f,I)
     dl(f::Ptr{V_}, n::Integer) = ccall((@k_sym :dl), K_, (Ptr{V_}, I_), f, n)
+    # Simulate khp with hopen
+    function khp(h::String, p::Integer)
+        x = k(0, "hopen", ks(string(":", h, ":", p)))
+        try
+            return xi(x)
+        finally
+            r0(x)
+        end
+    end
 else
     # communications (not included in q server)
     export khpun, khpu, khp
