@@ -16,6 +16,7 @@ const side = GOT_Q ? "server" : "client"
   include("text-tests.jl")
   include("list-tests.jl")
   include("table-tests.jl")
+  include("key-table-tests.jl")
   include("parser-tests.jl")
   include("$side-tests.jl")
   include("repl-tests.jl")
