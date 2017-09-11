@@ -1,5 +1,6 @@
 module Q
-export K, K_Atom, K_Vector, K_Table, hopen, hclose, hget
+export K, K_Atom, K_Vector, K_Table, K_KeyTable
+export hopen, hclose, hget
 export KdbException
 
 include("_k.jl")
@@ -52,6 +53,7 @@ end
 ktypecode(x::K_Other) = unsafe_load(kpointer(x)).t
 
 include("table.jl")
+include("key-table.jl")
 
 for T in (K_symbol, K_char)
     @eval Base.:(==)(x::$T, y) = x[] == y

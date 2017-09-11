@@ -10,8 +10,9 @@
     @test x[2,1] == 2
     @test (x′ = K(r1(kpointer(x))); x == x′)
     @test begin
-      t = K_Table(a=[0, 1, 2], b=[0., 10., 20.]) 
-      show_to_string(t) == """3×2 Q.K_Table
+      t = K_Table(a=[0, 1, 2], b=[0., 10., 20.])
+      show_to_string(t) == """
+      3×2 Q.K_Table
       │ Row │ a │ b    │
       ├─────┼───┼──────┤
       │ 1   │ 0 │ 0.0  │
