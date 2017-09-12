@@ -31,11 +31,13 @@ keyvalptr(x::K_KeyTable, i) = unsafe_load(Ptr{K_}(xy(xk(x.a[1]))+16), i)
 valvalptr(x::K_KeyTable, i) = unsafe_load(Ptr{K_}(xy(xk(x.a[2]))+16), i)
 nkey(x::K_KeyTable) = Int(xn(xx(xk(x.a[1]))))
 nval(x::K_KeyTable) = Int(xn(xx(xk(x.a[2]))))
+colnames(x::K_KeyTable) = [K(r1(xx(xk(x.a[1]))));
+                           K(r1(xx(xk(x.a[2]))))]
+
 DataFrames.ncol(x::K_KeyTable) = nkey(x) + nval(x)
 DataFrames.nrow(x::K_KeyTable) = Int(xn(keyvalptr(x, 1)))
-DataFrames.index(x::K_KeyTable) = DataFrames.Index(Array(DataFrames.columns(x)))
-DataFrames.columns(x::K_KeyTable) = [K(r1(xx(xk(x.a[1]))));
-                                     K(r1(xx(xk(x.a[2]))))]
+DataFrames.index(x::K_KeyTable) = DataFrames.Index(Array(colnames(x)))
+
 function Base.getindex(x::K_KeyTable, i::Integer)
     k = nkey(x)
     p = i <= k ? keyvalptr(x, i) : valvalptr(x, i - k)

@@ -29,11 +29,14 @@ struct K_Table  <: AbstractDataFrame
         new(a)
     end
 end
+
 kpointer(x::K_Table) = K_(pointer(x.a)-8)
 valptr(x::K_Table, i) = unsafe_load(Ptr{K_}(xy(x.a[])+16), i)
+colnames(x::K_Table) = K(r1(xx(x.a[])))
+
 DataFrames.ncol(x::K_Table) = Int(xn(xx(x.a[])))
 DataFrames.nrow(x::K_Table) = Int(xn(valptr(x, 1)))
-DataFrames.index(x::K_Table) = DataFrames.Index(Array(K(r1(xx(x.a[])))))
-DataFrames.columns(x::K_Table) = K(r1(xx(x.a[])))
+DataFrames.index(x::K_Table) = DataFrames.Index(Array(colnames(x)))
+
 Base.getindex(x::K_Table, i::Integer) = K(r1(valptr(x, i)))
 Base.getindex(x::K_Table, i::Integer, j::Integer) = x[j][i]
