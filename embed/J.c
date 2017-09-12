@@ -102,7 +102,8 @@ Z K1(J_eval_string){
   R ktj(101,0);}
 
 K1(jl){
-  S er;DL h;P(xt!=KC||xC[xn-1],krr("type"));
+  S er;DL h;P(xt!=KC,krr("type"));
+  ja(&x, &eos);
   h=dlopen((S)xC,RTLD_NOW|RTLD_GLOBAL);
   er=(S)dlerror();P(!h,krr(er));
   x = ktn(KS, 3);
