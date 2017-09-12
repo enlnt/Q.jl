@@ -44,3 +44,4 @@ function Base.getindex(x::K_KeyTable, i::Integer)
     K(r1(p))
 end
 Base.getindex(x::K_KeyTable, i::Integer, j::Integer) = x[j][i]
+Base.getindex(x::K_KeyTable, i::Symbol) = x[DataFrames.index(x)[i]]

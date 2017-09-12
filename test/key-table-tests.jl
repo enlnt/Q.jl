@@ -17,4 +17,5 @@ using Q.K_KeyTable
     │ 2   │ 1 │ 10.0 │
     │ 3   │ 2 │ 20.0 │"""
   end
+  @test (x = K_KeyTable(1;a=Int[],b=Int[]); x[:a] == x[:b] == Int[])
 end
