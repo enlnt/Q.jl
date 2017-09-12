@@ -110,4 +110,10 @@ end
           asarray(dot_(g, knk(2, ki(0), kj(42))))[] == 42
     end
   end
+  @testset "julia command" begin
+    @test begin
+      v = readstring(`$(Base.julia_cmd()) --version`)
+      chomp(v) == "julia version $VERSION"
+    end
+  end
 end
