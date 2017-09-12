@@ -1,5 +1,3 @@
-using DataFrames
-
 struct K_Table  <: AbstractDataFrame
     a::Array{K_,0}
     function K_Table(x::K_)
@@ -29,7 +27,7 @@ struct K_Table  <: AbstractDataFrame
         new(a)
     end
 end
-
+K_Table(df::AbstractDataFrame) = K_Table(K_new(df))
 kpointer(x::K_Table) = K_(pointer(x.a)-8)
 valptr(x::K_Table, i) = unsafe_load(Ptr{K_}(xy(x.a[])+16), i)
 colnames(x::K_Table) = K(r1(xx(x.a[])))

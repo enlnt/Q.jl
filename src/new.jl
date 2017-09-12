@@ -162,6 +162,16 @@ function K_new(m::AbstractMatrix)
     end
     x
 end
+
+function K_new(df::AbstractDataFrame)
+    x = K_new(names(df))
+    y = ktn(0, xn(x))
+    for (i, col) in enumerate(DataFrames.columns(df))
+        kK(y)[i] = K_new(col)
+    end
+    xT(xD(x, y))
+end
+
 function asarray(x::K_, own::Bool=true)
     T, o, s = cinfo(x)
     a = unsafe_wrap(Array, Ptr{T}(x + o), s)
