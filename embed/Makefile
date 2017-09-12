@@ -8,10 +8,10 @@ SOFLAGS_Linux = -shared -fPIC
 SOFLAGS_Darwin = -bundle -undefined dynamic_lookup
 SOFLAGS  += $(SOFLAGS_$(shell uname))
 
-JULIA_HOME = $(shell julia -e 'print(joinpath(JULIA_HOME))')
-JULIA_LIB = $(shell julia -e 'print(Libdl.dlpath("libjulia"))')
+JULIA_HOME = $(shell julia -e 'print(JULIA_HOME)')
+JULIA_LIB = $(shell julia -e 'print(abspath(Libdl.dlpath("libjulia")))')
 JULIA_DEBUG_LIB = \
-  $(shell $(JULIA_HOME)/julia-debug -e 'print(Libdl.dlpath("libjulia-debug"))')
+  $(shell $(JULIA_HOME)/julia-debug -e 'print(abspath(Libdl.dlpath("libjulia-debug")))')
 
 J.so: J.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS)
@@ -23,6 +23,11 @@ install: J.so
 	echo ".J.lib:\"$(JULIA_LIB)\"" >> $(QHOME)/julia-config.q
 	echo "#! $(QHOME)/$(QARCH)/q" | cat - julia.q > $(QHOME)/julia.q
 	chmod +x $(QHOME)/julia.q
+	echo ".J.home:\"$(JULIA_HOME)\"" > $(QHOME)/julia-debug-config.q
+	echo ".J.lib:\"$(JULIA_DEBUG_LIB)\"" >> $(QHOME)/julia-debug-config.q
+	printf "#! $(QHOME)/$(QARCH)/q\n\\l julia-debug-config.q\n" | \
+            cat - julia.q > $(QHOME)/julia-debug.q
+	chmod +x $(QHOME)/julia-debug.q
 
 all: J.so
 
