@@ -35,6 +35,11 @@ colnames(x::K_Table) = K(r1(xx(x.a[])))
 DataFrames.ncol(x::K_Table) = Int(xn(xx(x.a[])))
 DataFrames.nrow(x::K_Table) = Int(xn(valptr(x, 1)))
 DataFrames.index(x::K_Table) = DataFrames.Index(Array(colnames(x)))
+function DataFrames.names!(x::K_Table, vals; allow_duplicates=true)
+    u = DataFrames.make_unique(vals, allow_duplicates=allow_duplicates)
+    kS(kK(x.a[])[1])[:] = map(ss, u)
+    x
+end
 
 Base.getindex(x::K_Table, i::Integer) = K(r1(valptr(x, i)))
 Base.getindex(x::K_Table, i::Integer, j::Integer) = x[j][i]
