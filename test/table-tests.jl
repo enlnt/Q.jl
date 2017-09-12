@@ -21,5 +21,6 @@
     end
     @test (x = DataFrame(a=1:3, b=[10., 20, 30]); x == K(x));
     @test (x = K_Table(a=Int[]); names(names!(x, [:b])) == [:b])
+    @test (x = K_Table(a=Int[]); x[:a] == Int[])
   end
 end

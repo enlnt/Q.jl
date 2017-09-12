@@ -43,3 +43,4 @@ end
 
 Base.getindex(x::K_Table, i::Integer) = K(r1(valptr(x, i)))
 Base.getindex(x::K_Table, i::Integer, j::Integer) = x[j][i]
+Base.getindex(x::K_Table, i::Symbol) = x[DataFrames.index(x)[i]]
