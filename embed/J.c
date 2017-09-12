@@ -11,7 +11,9 @@
 typedef void *DL;
 typedef void (*jl_parse_opts_t)(int *argcp, char ***argvp);
 typedef void (*jl_set_ARGS_t)(int argc, char **argv);
-typedef void (*jl_init_t)(void);
+typedef void (*jl_init_with_image_t)(const char *julia_home_dir,
+                                     const char *image_relative_path);
+typedef char* (*jl_get_default_sysimg_path_t)(void);
 typedef void (*jl_atexit_hook_t)(int);
 typedef jl_value_t* (*jl_eval_string_t)(const char *);
 typedef jl_value_t* (*jl_exception_occurred_t)(void);
@@ -26,7 +28,8 @@ typedef double (*jl_unbox_float64_t)(jl_value_t *v);
 
 Z jl_parse_opts_t jl_parse_opts_p;
 Z jl_set_ARGS_t jl_set_ARGS_p;
-Z jl_init_t jl_init_p;
+Z jl_init_with_image_t jl_init_with_image_p;
+Z jl_get_default_sysimg_path_t jl_get_default_sysimg_path_p;
 Z jl_atexit_hook_t jl_atexit_hook_p;
 Z jl_eval_string_t jl_eval_string_p;
 Z jl_exception_occurred_t jl_exception_occurred_p;
@@ -52,9 +55,11 @@ Z jl_datatype_t *jl_int64_type_p;
 
 ZJ eos = 0;
 
-Z K1(J_init){
+Z K2(J_init){
   K argk; /* abuse KS type for extra storage */
   I argc; S* argv;
+  P(y->t!=KC,krr("y type"));
+  y = ja(&y, &eos);
   P(xt,krr("x type"));
   DO(xn,P(xK[i]->t!=KC,krr("x[i] type")));
   DO(xn,ja(xK+i,&eos));
@@ -65,7 +70,7 @@ Z K1(J_init){
   /* Parse an argc/argv pair to extract general julia options, passing
      back out any arguments that should be passed on to the script. */
   jl_parse_opts_p(&argc, &argv);
-  jl_init_p();
+  jl_init_with_image_p(kC(y), jl_get_default_sysimg_path_p());
   /* Set julia-level ARGS array */
   jl_set_ARGS_p(argc, argv);
   r0(argk);
@@ -104,7 +109,8 @@ K1(jl){
 
   DLF(jl_parse_opts);
   DLF(jl_set_ARGS);
-  DLF(jl_init);
+  DLF(jl_init_with_image);
+  DLF(jl_get_default_sysimg_path);
   DLF(jl_atexit_hook);
   DLF(jl_eval_string);
   DLF(jl_exception_occurred);
@@ -128,7 +134,7 @@ K1(jl){
   xS[0] = ss("init");
   xS[1] = ss("eval_string");
   xS[2] = ss("atexit_hook");
-  R xD(x,knk(3, dl(J_init,1),
+  R xD(x,knk(3, dl(J_init,2),
              dl(J_eval_string,1),
 	     dl(J_atexit_hook,1)));
 }
