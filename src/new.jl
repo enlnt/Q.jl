@@ -8,6 +8,16 @@ caller is reponsible for calling `r0` once the object is no longer needed.
 """
 K_new
 
+"""
+    K_Ref(x)
+
+Construct a Julia GC managed object that owns a kdb+ reference.
+"""
+mutable struct K_Ref
+    x::K_
+    K_Ref(p::K_) = (x = new(p); finalizer(x, (x)->r0(x.x));x)
+end
+
 struct TI
     number::C_
     letter::Char

@@ -1,5 +1,5 @@
 using Q
-import Q: kpointer, ktypecode, asarray, K_new, K_None
+import Q: kpointer, ktypecode, asarray, K_new, K_None, K_Ref
 using Q._k, Q._k.GOT_Q
 using Base.Test
 using Base.Dates.AbstractTime
