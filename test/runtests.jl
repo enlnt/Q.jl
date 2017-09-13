@@ -10,6 +10,7 @@ const side = GOT_Q ? "server" : "client"
 
 @testset "Q tests" begin
   include("lowlevel-tests.jl")
+  include("new-tests.jl")
   include("refcount-tests.jl")
   include("atom-tests.jl")
   include("vector-tests.jl")

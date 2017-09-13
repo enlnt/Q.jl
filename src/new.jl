@@ -109,6 +109,7 @@ K_new(x::Real) = kf(x)
 K_new(x::Symbol) = ks(String(x))
 const DATE_SHIFT = -Dates.value(Date(2000))
 K_new(x::Date) = kd(DATE_SHIFT + Dates.value(x))
+K_new(x::DateTime) = ktj(-KP, 10^6*Dates.toms(x - DateTime(2000)))
 K_new(x::Char) = kc(I_(x))
 K_new(x::String) = kp(x)
 ## Vector conversions
