@@ -51,7 +51,7 @@ const TYPE_INFO = [
     TI(16, 'n', "timespan",  J_, TimeSpan,   :_Period),
     TI(17, 'u', "minute",    I_, Minute,   :_Time),
     TI(18, 'v', "second",    I_, Second,   :_Time),
-    TI(19, 't', "time",      I_, TimeMS,   :_Time),
+    TI(19, 't', "time",      I_, Time,   :_Time),
 ]
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
@@ -107,7 +107,6 @@ K_new(x::Integer) = kj(x)
 K_new(x::Float32) = ke(x)
 K_new(x::Real) = kf(x)
 K_new(x::Symbol) = ks(String(x))
-const DATE_SHIFT = -Dates.value(Date(2000))
 K_new(x::Date) = kd(DATE_SHIFT + Dates.value(x))
 K_new(x::DateTime) = ktj(-KP, 10^6*Dates.toms(x - DateTime(2000)))
 K_new(x::Dates.TimePeriod) = ktj(-KN, Dates.tons(x))
