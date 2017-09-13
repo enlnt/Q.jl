@@ -39,8 +39,8 @@
     @test K_real <: AbstractFloat
     @test K_date <: AbstractTime
     @test K_datetime <: AbstractTime
-    @test K_timespan <: AbstractTime
-    @test K_timestamp <: AbstractTime
+    @test K_timespan <: Dates.Period
+    @test K_timestamp <: Dates.TimeType
     # instances
     @test K(false) isa Integer
     @test K(0x0102030405060708090a0b0c0d0e0fa0) isa Unsigned

@@ -6,6 +6,7 @@ export KdbException
 using DataFrames
 
 include("_k.jl")
+include("temporal.jl")
 include("new.jl")
 """
     K(x)

@@ -44,14 +44,14 @@ const TYPE_INFO = [
     TI(10, 'c', "char",      G_, UInt8,   :_Text),
     TI(11, 's', "symbol",    S_, Symbol,  :_Text),
 
-    TI(12, 'p', "timestamp", J_, Int64,   :_Temporal),
-    TI(13, 'm', "month",     I_, Int32,   :_Temporal),
-    TI(14, 'd', "date",      I_, Date,   :_Temporal),
-    TI(15, 'z', "datetime",  F_, Float64, :_Temporal),
-    TI(16, 'n', "timespan",  J_, Int64,   :_Temporal),
-    TI(17, 'u', "minute",    I_, Int32,   :_Temporal),
-    TI(18, 'v', "second",    I_, Int32,   :_Temporal),
-    TI(19, 't', "time",      I_, Int32,   :_Temporal),
+    TI(12, 'p', "timestamp", J_, TimeStamp,   :_Time),
+    TI(13, 'm', "month",     I_, Month,   :_Time),
+    TI(14, 'd', "date",      I_, Date,    :_Time),
+    TI(15, 'z', "datetime",  F_, DateTimeF, :_Time),
+    TI(16, 'n', "timespan",  J_, TimeSpan,   :_Period),
+    TI(17, 'u', "minute",    I_, Minute,   :_Time),
+    TI(18, 'v', "second",    I_, Second,   :_Time),
+    TI(19, 't', "time",      I_, TimeMS,   :_Time),
 ]
 const TYPE_CLASSES = unique(t.class for t in TYPE_INFO)
 const C_TYPE = merge(
