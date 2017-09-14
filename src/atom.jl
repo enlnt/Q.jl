@@ -7,7 +7,8 @@ const SUPERTYPE = Dict(
     :_Signed   => Signed,
     :_Float    => AbstractFloat,
     :_Text     => Any,
-    :_Temporal => AbstractTime
+    :_Time     => Dates.TimeType,
+    :_Period   => Dates.TimePeriod,
 )
 K_CLASSES = Type[]
 # Create a parametrized type for each type class.
@@ -35,7 +36,9 @@ for (class, super) in SUPERTYPE
         end
         function Base.convert(::Type{$class{t,C,T}}, x) where {t,C,T}
             r = $class{t,C,T}(ka(-t))
-            r.a[] = _cast(C, T(x))::C
+            tmp1 = T(x)::T
+            tmp2 = _cast(C, tmp1)::C
+            r.a[] = tmp2
             r
         end
         push!(K_CLASSES, $class)
@@ -99,5 +102,7 @@ Symbol(x::K_symbol) = convert(Symbol, x)
 #Base.print(io::IO, x::K_symbol) = print(io, Symbol(x))
 Base.show(io::IO, x::K_symbol) = print(io, "K(", repr(Symbol(x)), ")")
 Base.show(io::IO, ::MIME"text/plain", x::K_symbol) = show(io, x)
+
+Base.convert(::Type{K_timespan}, x::Integer) = K_timespan(TimeSpan(x))
 
 include("promote_rules.jl")

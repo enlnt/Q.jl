@@ -65,6 +65,12 @@ end
       r0(y)
       x === y && n == 1
     end
+    @test begin
+      x = K_Ref(kj(666))
+      y = K_Ref(r1(x.x))
+      finalize(x)
+      xr(y.x) == 0
+    end
   end
   @testset "Scalar constructors" begin
     @xtest (x = kb(1); xt(x) == -KB && xg(x) === G_(1))
