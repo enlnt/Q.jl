@@ -50,8 +50,8 @@ end
 
 # Constructors
 # TODO: Add argument checking
-Month(y, m=1) = Month(Int32(y), Int32(d))
-Month(y::Int32, m::Int32=1) = Month(Int, Int32(12)*y + m - 1)
+Month(y, m=1) = Month(Int32(y), Int32(m))
+Month(y::Int32, m::Int32=1) = Month(Int, Int32(12)*(y-Int32(2000)) + m - 1)
 
 Minute(h, mi=0) = Minute(Int32(h), Int32(mi))
 Minute(h::Int32, mi::Int32=0) = Minute(Int, Int32(60)*h + mi)
@@ -66,7 +66,11 @@ Time(h::Int32, mi::Int32=0, s::Int32=0, ms::Int32=0) = Time(Int,
 
 # Accessors
 using Base.Dates.value
+Dates.year(m::Month) = fld(Int32(24000)+value(m), Int32(12))
+Dates.month(m::Month) = 1 + mod(value(m), Int32(12))
+Dates.days(m::Month) = Dates.totaldays(Dates.year(m), Dates.month(m), 1)
 Dates.days(t::TimeStamp) = fld(Dates.value(t), 86400*10^9) - DATE_SHIFT
+
 let T = TimeStamp
     Dates.hour(t::T) = mod(fld(value(t), Int64(3600*10^9)), Int64(24))
     Dates.minute(t::T) = mod(fld(value(t), Int64(60*10^9)), Int64(60))
@@ -101,4 +105,27 @@ let T = Time
     Dates.millisecond(t::T) = mod(value(t), Int32(10^3))
     Dates.microsecond(t::T) = Int32(0)
     Dates.nanosecond(t::T) = Int32(0)
+end
+
+# Text representation
+
+Base.string(x::TimeStamp) = string(Dates.format(x,
+    dateformat"YYYY.mm.ddDHH:MM:SS.s", 32),
+    @sprintf("%03d%03d", Dates.microsecond(x), Dates.nanosecond(x)))
+
+function Base.show(io::IO, x::TimeStamp)
+    Dates.format(io, x, dateformat"YYYY.mm.ddDHH:MM:SS.s")
+    @printf(io, "%03d%03d", Dates.microsecond(x), Dates.nanosecond(x))
+end
+
+Dates.default_format(::Type{Month}) = dateformat"YYYY.mm\m"
+Dates.default_format(::Type{Minute}) = dateformat"HH:MM"
+Dates.default_format(::Type{Second}) = dateformat"HH:MM:SS"
+Dates.default_format(::Type{Time}) = dateformat"HH:MM:SS.s"
+
+for T in [:Month, :Minute, :Second, :Time]
+    @eval begin
+        Base.string(x::$T) = Dates.format(x, Dates.default_format($T))
+        Base.show(io::IO, x::$T) = Dates.format(io, x, Dates.default_format($T))
+    end
 end

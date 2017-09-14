@@ -10,6 +10,13 @@
         @test Dates.millisecond(x) == 123
         @test Dates.microsecond(x) == 456
         @test Dates.nanosecond(x) == 789
+        @test string(x) == show_to_string(x) ==
+            "2001.01.02D03:04:05.123456789"
+    end
+    let x = Q.Month(2012, 3)
+        @test Dates.year(x) == 2012
+        @test Dates.month(x) == 3
+        @test string(x) == show_to_string(x) == "2012.03m"
     end
     let x = Q.Minute(1, 2)
         @test Dates.hour(x) == 1
@@ -18,6 +25,7 @@
         @test Dates.millisecond(x) == 0
         @test Dates.microsecond(x) == 0
         @test Dates.nanosecond(x) == 0
+        @test string(x) == show_to_string(x) == "01:02"
     end
     let x = Q.Second(1, 2, 3)
         @test Dates.hour(x) == 1
@@ -26,6 +34,7 @@
         @test Dates.millisecond(x) == 0
         @test Dates.microsecond(x) == 0
         @test Dates.nanosecond(x) == 0
+        @test string(x) == show_to_string(x) == "01:02:03"
     end
     let x = Q.Time(1, 2, 3, 123)
         @test Dates.hour(x) == 1
@@ -34,5 +43,6 @@
         @test Dates.millisecond(x) == 123
         @test Dates.microsecond(x) == 0
         @test Dates.nanosecond(x) == 0
+        @test string(x) == show_to_string(x) == "01:02:03.123"
     end
 end
