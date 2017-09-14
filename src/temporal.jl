@@ -14,7 +14,7 @@ struct TimeStamp <: Dates.TimeType
     TimeStamp(::Type{Int}, x::Integer) = new(x)
 end
 
-TimeStamp(y, m=1, d=1, h=0, mi=0, s=0, ms=0, us=0, ns=0) = DateTime(Int64(y),
+TimeStamp(y, m=1, d=1, h=0, mi=0, s=0, ms=0, us=0, ns=0) = TimeStamp(Int64(y),
     Int64(m), Int64(d), Int64(h), Int64(mi), Int64(s),
     Int64(ms), Int64(us), Int64(ns))
 
@@ -69,11 +69,11 @@ using Base.Dates.value
 Dates.year(m::Month) = fld(Int32(24000)+value(m), Int32(12))
 Dates.month(m::Month) = 1 + mod(value(m), Int32(12))
 Dates.days(m::Month) = Dates.totaldays(Dates.year(m), Dates.month(m), 1)
-Dates.days(t::TimeStamp) = fld(Dates.value(t), 86400*10^9) - DATE_SHIFT
+Dates.days(t::TimeStamp) = fld(Dates.value(t), Int64(86400)*10^9) - DATE_SHIFT
 
 let T = TimeStamp
-    Dates.hour(t::T) = mod(fld(value(t), Int64(3600*10^9)), Int64(24))
-    Dates.minute(t::T) = mod(fld(value(t), Int64(60*10^9)), Int64(60))
+    Dates.hour(t::T) = mod(fld(value(t), Int64(3600)*10^9), Int64(24))
+    Dates.minute(t::T) = mod(fld(value(t), Int64(60)*10^9), Int64(60))
     Dates.second(t::T) = mod(fld(value(t), Int64(10^9)), Int64(60))
     Dates.millisecond(t::T) = mod(fld(value(t), Int64(10^6)), Int64(10^3))
     Dates.microsecond(t::T) = mod(fld(value(t), Int64(10^3)), Int64(10^3))
