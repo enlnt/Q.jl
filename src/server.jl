@@ -1,5 +1,5 @@
 export @q_cmd
-const HANDLE = 0
+KDB_HANDLE[] = 0
 
 function kerror()
     e = asarray(ee(K_(C_NULL)))
