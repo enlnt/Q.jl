@@ -74,7 +74,7 @@ xi(x::K_) = unsafe_load(Ptr{I_}(x+8))
 xj(x::K_) = unsafe_load(Ptr{J_}(x+8))
 xe(x::K_) = unsafe_load(Ptr{E_}(x+8))
 xf(x::K_) = unsafe_load(Ptr{F_}(x+8))
-xs(x::K_) = unsafe_string(unsafe_load(Ptr{S_}(x+8)))
+xs(x::K_) = (s = unsafe_load(Ptr{S_}(x+8)); s == C_NULL?"null":unsafe_string(s))
 
 # vector accessors
 const xn = n(x::K_) = unsafe_load(Ptr{J_}(x+8))
