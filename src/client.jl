@@ -104,6 +104,18 @@ function open_default_kdb_handle(msg_io=STDERR)
     end
     KDB_HANDLE[] = handle
 end
+# Client-side q`..`
+export @q_cmd
+struct Qcmd
+    cmd::String
+end
 
+macro q_cmd(cmd) Qcmd(cmd) end
+
+Base.show(io::IO, x::Qcmd) = print(io, "q`", x.cmd, "`")
+
+function (x::Qcmd)(args...)
+    K(k(KDB_HANDLE[], x.cmd, map(K_new, args)...))
+end
 # Initialise memory without making a connection
 khp("", -1)
