@@ -80,6 +80,9 @@ end
     @test q`{[a;b;c;d;e;f;g]g}`(1, 2, 3, 4, 5, 6, 7) == 7
     @test q`{[a;b;c;d;e;f;g;h]h}`(1, 2, 3, 4, 5, 6, 7, 8) == 8
   end
+  @testset "q object" begin
+    @test q("til 5") == q.til(5) == [0, 1, 2, 3, 4]
+  end
   @testset "server-side table" begin
     let t = q`{([]a:til x)}`(5)
       @test size(t) == (5, 1)

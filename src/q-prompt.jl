@@ -1,7 +1,7 @@
 module KdbMode
     import Base: LineEdit, REPL
     import Q._k: k, kj, kp
-    import Q: K_new, chkparens, open_default_kdb_handle
+    import Q: K_new, chkparens
     using Q
 
     const PROMPT = "q)"
@@ -14,7 +14,7 @@ module KdbMode
     end
 
     function install_kdb_mode(repl)
-        handle = Q.GOT_Q ? 0 : open_default_kdb_handle(repl.t.err_stream)
+        handle = Q.GOT_Q ? 0 : Q.open_default_kdb_handle(repl.t.err_stream)
         if handle >= 0
             install_kdb_mode(repl, handle)
             info(repl.t.err_stream, "Press '\\' for q) prompt.")

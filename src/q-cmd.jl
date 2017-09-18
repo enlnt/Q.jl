@@ -1,6 +1,4 @@
 export q
-struct _Q
-end
 
 const q = _Q()
 

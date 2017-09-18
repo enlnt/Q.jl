@@ -25,6 +25,18 @@ const q_eval = K(k(0, "eval"))
 macro q_cmd(s) q_parse(s) end
 Base.run(x::K_List, args...) = (r = q_eval(x); length(args) == 0 ? r : r(args...))
 
+const res = ["abs", "acos", "asin", "atan", "avg", "bin", "binr", "cor", "cos",
+             "cov", "dev", "div", "enlist", "exit", "exp", "getenv", "in",
+             "insert", "last", "like", "log", "max", "min", "prd", "setenv",
+             "sin", "sqrt", "ss", "sum", "tan", "var", "wavg",
+             "within", "wsum", "xexp", "til"]
+
+@eval struct _Q
+    $([Symbol(x) for x in res]...)
+    _Q() = new($([K(k(0, x)) for x in res]...))
+end
+
+
 # function Base.show(io::IO, x::Union{K_Other,K_Lambda})
 #     s = k(0, "{` sv .Q.S[40 80;0;x]}", K_new(x))
 #     try

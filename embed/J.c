@@ -70,7 +70,7 @@ Z K2(J_init){
   /* Parse an argc/argv pair to extract general julia options, passing
      back out any arguments that should be passed on to the script. */
   jl_parse_opts_p(&argc, &argv);
-  jl_init_with_image_p(kC(y), jl_get_default_sysimg_path_p());
+  jl_init_with_image_p((S)kC(y), jl_get_default_sysimg_path_p());
   /* Set julia-level ARGS array */
   jl_set_ARGS_p(argc, argv);
   r0(argk);
@@ -86,7 +86,7 @@ Z K1(J_eval_string){
   T = jl_typeof_str_p(v);
   /* printf("typeof(v) = %s\n", T); */
   /* XXX: For some reason we cannot use jl_typeis() or compare
-          to singletons. */ 
+          to singletons. */
   /*
   P(v==jl_nothing_p,ktj(101,0));
   P(v==jl_false_p,kb(0));

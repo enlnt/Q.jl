@@ -105,6 +105,9 @@ function open_default_kdb_handle(msg_io=STDERR)
     KDB_HANDLE[] = handle
 end
 # Client-side q`..`
+struct _Q
+end
+
 export @q_cmd
 struct Qcmd
     cmd::String
