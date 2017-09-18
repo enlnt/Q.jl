@@ -36,7 +36,8 @@ end
     write(stdin, "42\r")
     @test (out = readuntil(stdout, "\n\n"); contains(out, "42\n"))
     @test install_kdb_mode(repl) &&
-        (out = readline(stderr); contains(out, "q)"))
+        (contains(readline(stderr), "q)") ||
+         contains(readline(stderr), "q)"))
     write(stdin, "\\")
     readuntil(stdout, "q)")
     write(stdin, "til 10\r")

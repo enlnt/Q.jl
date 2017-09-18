@@ -79,5 +79,46 @@ function hget(h::Tuple{String,Integer}, m, x...)
    end
 end
 
+function open_default_kdb_handle(msg_io=STDERR)
+    if KDB_HANDLE[] > 0
+        return KDB_HANDLE[]
+    end
+    server_spec = get(ENV, "KDB", "")
+    if isempty(server_spec)
+        port, process = Q.Kdb.start()
+        handle = hopen(port)
+        atexit() do
+            rc = Q.Kdb.stop(handle, process)
+            info("Slave kdb+ exited with code $rc.")
+        end
+        info(msg_io, "Connected to $port.")
+    else
+        try
+            handle = hopen(server_spec)
+            info(msg_io, "Connected to $server_spec.")
+        catch error
+            warn(msg_io,
+                 "Could not connect to $server_spec. $error")
+            handle = -1
+        end
+    end
+    KDB_HANDLE[] = handle
+end
+# Client-side q`..`
+struct _Q
+end
+
+export @q_cmd
+struct Qcmd
+    cmd::String
+end
+
+macro q_cmd(cmd) Qcmd(cmd) end
+
+Base.show(io::IO, x::Qcmd) = print(io, "q`", x.cmd, "`")
+
+function (x::Qcmd)(args...)
+    K(k(KDB_HANDLE[], x.cmd, map(K_new, args)...))
+end
 # Initialise memory without making a connection
 khp("", -1)

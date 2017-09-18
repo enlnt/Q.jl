@@ -1,7 +1,8 @@
 module KdbMode
     import Base: LineEdit, REPL
     import Q._k: k, kj, kp
-    using Q, Q.K_new, Q.chkparens
+    import Q: K_new, chkparens
+    using Q
 
     const PROMPT = "q)"
     const PROMPT_COLOR = :light_blue
@@ -13,34 +14,10 @@ module KdbMode
     end
 
     function install_kdb_mode(repl)
-        msg = String[]
-        if Q.GOT_Q
-            handle = 0
-        else
-            server_spec = get(ENV, "KDB", "")
-            if isempty(server_spec)
-                port, process = Q.Kdb.start()
-                handle = hopen(port)
-                atexit() do
-                    rc = Q.Kdb.stop(handle, process)
-                    info("Slave kdb+ exited with code $rc.")
-                end
-                push!(msg, "Connected to $port.")
-            else
-                try
-                    handle = hopen(server_spec)
-                    push!(msg, "Connected to $server_spec.")
-                catch error
-                    warn(repl.t.err_stream,
-                         "Could not connect to $server_spec. $error")
-                    handle = -1
-                end
-            end
-        end
+        handle = Q.GOT_Q ? 0 : Q.open_default_kdb_handle(repl.t.err_stream)
         if handle >= 0
-            push!(msg, "Press '\\' for q) prompt.")
             install_kdb_mode(repl, handle)
-            info(repl.t.err_stream, join(msg, " "))
+            info(repl.t.err_stream, "Press '\\' for q) prompt.")
             true
         else
             false

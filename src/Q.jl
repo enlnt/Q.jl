@@ -5,6 +5,16 @@ export KdbException
 
 using DataFrames
 
+"""
+   KDB_HANDLE
+
+The handle to a kdb+ server.  When `Q.jl` is embedded in kdb+, `KDB_HANDLE[]`
+is always `0`, which is the handle to the current process.  When `Q.jl` is
+loaded in a client process, `KDB_HANDLE[]` is either `-1` indicating that
+no connection has been established or a handle to the default kdb+ server.
+"""
+const KDB_HANDLE = Ref{Int32}(-1)
+
 include("_k.jl")
 include("temporal.jl")
 include("new.jl")
@@ -116,4 +126,5 @@ end
 include("parser.jl")
 include("q-prompt.jl")
 include("kdb.jl")
+include("q-cmd.jl")
 end # module Q
