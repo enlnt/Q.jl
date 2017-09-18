@@ -5,10 +5,10 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Description...">
+  
   <meta name="author" content="Alexander Belopolsky">
   <link rel="shortcut icon" href="./img/favicon.ico">
-  <title>Home - Q.jl</title>
+  <title>Q.jl</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="./css/theme.css" type="text/css" />
@@ -16,16 +16,12 @@
   <link rel="stylesheet" href="./css/highlight.css">
   <link href="./assets/Documenter.css" rel="stylesheet">
   
-  <script>
-    // Current page data
-    var mkdocs_page_name = "Home";
-    var mkdocs_page_input_path = "index.md";
-    var mkdocs_page_url = "/";
-  </script>
-  
   <script src="./js/jquery-2.1.1.min.js"></script>
   <script src="./js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  <script type="text/javascript" src="./js/highlight.pack.js"></script>
+  <script>var base_url = '.';</script>
+  <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
+
   
 </head>
 
@@ -48,23 +44,9 @@
 	<ul class="current">
 	  
           
-            <li class="toctree-l1 current">
+            <li class="toctree-l1">
 		
-    <a class="current" href=".">Home</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l2"><a href="#qjl-julia-for-kdb">Q.jl - Julia for kdb+</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l3" href="#package-features">Package features</a></li>
-        
-            <li><a class="toctree-l3" href="#manual">Manual</a></li>
-        
-        </ul>
-    
-
-    </ul>
+    <a class="" href=".">Home</a>
 	    </li>
           
         </ul>
@@ -87,13 +69,8 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".">Docs</a> &raquo;</li>
     
-      
     
-    <li>Home</li>
     <li class="wy-breadcrumbs-aside">
-      
-        <a href="https://github.com/enlnt/Q.jl/edit/master/docs/index.md"
-          class="icon icon-github"> Edit on GitHub</a>
       
     </li>
   </ul>
@@ -102,23 +79,19 @@
           <div role="main">
             <div class="section">
               
-                <p><a id='Q.jl-Julia-for-kdb-1'></a></p>
-<h1 id="qjl-julia-for-kdb">Q.jl - Julia for kdb+</h1>
-<p><a id='Package-features-1'></a></p>
-<h2 id="package-features">Package features</h2>
-<ul>
-<li>Communicate between a Julia instance and a kdb+ database.</li>
-<li>Run Julia embedded in a kdb+ database instance.</li>
-</ul>
-<p><a id='Manual-1'></a></p>
-<h2 id="manual">Manual</h2>
-<ul>
-<li><a href="manual/common-api.md#man-common-api-1">Common API</a></li>
-<li><a href="manual/server.md#man-server-1">Server side</a></li>
-<li><a href="manual/client.md#man-client-1">Client side</a></li>
-<li><a href="manual/low-level.md#man-low-level-1">Low level API</a></li>
-</ul>
-              
+
+  <h1 id="search">Search Results</h1>
+
+  <form id="content_search" action="search.html">
+    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+    <input name="q" id="mkdocs-search-query" type="text" class="search_input search-query ui-autocomplete-input" placeholder="Search the Docs" autocomplete="off" autofocus>
+  </form>
+
+  <div id="mkdocs-search-results" class="search-results">
+    Searching...
+  </div>
+
+
             </div>
           </div>
           <footer>
@@ -156,8 +129,3 @@
 
 </body>
 </html>
-
-<!--
-MkDocs version : 0.16.3
-Build Date UTC : 2017-09-18 19:25:11
--->
