@@ -17,7 +17,7 @@ module KdbMode
         handle = Q.GOT_Q ? 0 : Q.open_default_kdb_handle(repl.t.err_stream)
         if handle >= 0
             install_kdb_mode(repl, handle)
-            info(repl.t.err_stream, "Press '\\' for q) prompt.")
+            info(repl.t.err_stream, "Press \u005c\u20e3 for q) prompt.")
             true
         else
             false
