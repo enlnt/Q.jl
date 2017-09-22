@@ -187,14 +187,14 @@ function call(f, a, b, c)
 end
 
 function call(f, args...)  # 4 or more args
-    n = length(args)
-    g = K_Ref(ks(f))
-    if xt(g.x) == -KS
-        args = map(a->K_Ref(K_new(a)), args)
-        return knk(n+1, r1(g.x), map(a->r1(a.x), args)...)
-    else
-        error("nyi")
+    args = map(a->K_Ref(K_new(a)), args)
+    if f in (:+, :*)
+        g = K_Ref(op2(f))
+        r = foldr((x,y)->K_Ref(knk(3, r1(g.x), r1(x.x), r1(y.x))), args)
+        return r1(r.x)
     end
+    g = f === :enlist ? K_Ref(op1(f)) : K_Ref(ks(f))
+    knk(length(args) + 1, r1(g.x), map(a->r1(a.x), args)...)
 end
 
 function tree(ex::Expr)
