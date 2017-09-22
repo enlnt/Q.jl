@@ -173,7 +173,7 @@ function call(f, a, b)
     g = K_Ref(op2(f))
     x = K_Ref(K_new(a))
     y = K_Ref(K_new(b))
-    r = knk(3, r1(g.x), r1(x.x), r1(y.x))
+    knk(3, r1(g.x), r1(x.x), r1(y.x))
 end
 
 function call(f, a, b, c)
@@ -181,7 +181,9 @@ function call(f, a, b, c)
     x = K_Ref(K_new(a))
     y = K_Ref(K_new(b))
     z = K_Ref(K_new(c))
-    r = knk(4, r1(g.x), r1(x.x), r1(y.x), r1(z.x))
+    f in (:+, :*) ?
+        knk(3, r1(g.x), r1(x.x), knk(3, r1(g.x), r1(y.x), r1(z.x))) :
+        knk(4, r1(g.x), r1(x.x), r1(y.x), r1(z.x))
 end
 
 function call(f, args...)  # 4 or more args

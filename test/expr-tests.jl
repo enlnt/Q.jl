@@ -1,5 +1,6 @@
 @testset "expr conversions" begin
     @test K(:(a + b)) == q("(+;`a;`b)")
+    @test K(:(a + b + c)) == q("(+;`a;(+;`b;`c))")
     @test K(:(a + b * c)) == q("(+;`a;(*;`b;`c))")
     @test K(:(-a)) == K(:(neg(a))) == q("(neg;`a)")
 end
