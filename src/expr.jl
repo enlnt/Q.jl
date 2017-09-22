@@ -47,10 +47,11 @@ const OPCODE1 = Dict(
     :dev        => 43,
 )
 const OPCODE2 = Dict(
+    :(=)=>0,      # :
     :+ => 1,
     :- => 2,
     :* => 3,
-    :/ => 4,
+    :/ => 4,  # %
     :& => 5,
     :| => 6,
     :^ => 7,  # should this be 32 (xexp)?
@@ -197,9 +198,16 @@ function call(f, args...)  # 4 or more args
     knk(length(args) + 1, r1(g.x), map(a->r1(a.x), args)...)
 end
 
+function set(x::Symbol, y)
+    v = K_Ref(K_new(y))
+    knk(3, ktj(102, 0), ks(x), r1(v.x))
+end
+
 function tree(ex::Expr)
     if ex.head === :call
         return call(ex.args[1], ex.args[2:end]...)
+    elseif ex.head === :(=)
+        return set(ex.args...)
     end
     error("expression is too complex")
 end

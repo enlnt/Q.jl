@@ -10,4 +10,5 @@ end
 
 @testset "expr eval" begin
     @test q("eval", :(til(5))) == Array(0:4)
+    @test (q("eval", :(a = 42)); q("a") == 42)
 end
