@@ -17,6 +17,7 @@ const KDB_HANDLE = Ref{Int32}(-1)
 
 include("_k.jl")
 include("temporal.jl")
+include("expr.jl")
 include("new.jl")
 """
     K(x)
@@ -76,6 +77,11 @@ end
 Base.:(==)(x::T, y::T) where {T<:K_Atom} = x.a[] == y.a[]
 Base.:(<)(x::K_Atom, y::K_Atom) = x.a[] < y.a[]
 Base.:(<)(x::K_symbol, y::K_symbol) = x[] < y[]
+function Base.:(==)(x::K_Other, y::K_Other)
+    # TODO: Specialize this for λ's etc.
+    ktypecode(x) == ktypecode(y) && x.a[] == y.a[]
+end
+Base.:(==)(x::K_Other, y) = false
 
 kpointer(x::Union{K_Atom,K_Other}) = K_(pointer(x.a)-8)
 kpointer(x::Union{K_Vector,K_Lambda,K_guid}) = K_(pointer(x.a)-16)
