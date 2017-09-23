@@ -204,6 +204,7 @@ function set(x::Symbol, y)
 end
 
 function block(args)
+    args = filter(a->(a.head !== :line), args)
     args = map(a->K_Ref(K_new(a)), args)
     knk(length(args) + 1, kc(';'), map(a->r1(a.x), args)...)
 end
