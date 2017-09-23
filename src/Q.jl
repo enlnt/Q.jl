@@ -17,8 +17,8 @@ const KDB_HANDLE = Ref{Int32}(-1)
 
 include("_k.jl")
 include("temporal.jl")
-include("expr.jl")
 include("new.jl")
+include("expr.jl")
 """
     K(x)
 
