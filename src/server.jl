@@ -25,15 +25,171 @@ const q_eval = K(k(0, "eval"))
 macro q_cmd(s) q_parse(s) end
 Base.run(x::K_List, args...) = (r = q_eval(x); length(args) == 0 ? r : r(args...))
 
-const res = ["abs", "acos", "asin", "atan", "avg", "bin", "binr", "cor", "cos",
-             "cov", "dev", "div", "enlist", "exit", "exp", "getenv", "in",
-             "insert", "last", "like", "log", "max", "min", "prd", "setenv",
-             "sin", "sqrt", "ss", "sum", "tan", "var", "wavg",
-             "within", "wsum", "xexp", "til"]
+const b100 = [  # in alphabetical order
+    "aj",
+    "aj0",
+    "asc",
+    "asof",
+    "avgs",
+    "cols",
+    "cross",
+    "cut",
+    "desc",
+    "each",
+    "ej",
+    "ema",
+    "except",
+    "fby",
+    "fkeys",
+    "gtime",
+    "iasc",
+    "idesc",
+    "ij",
+    "ijf",
+    "inter",
+    "keys",
+    "lj",
+    "ljf",
+    "lower",
+    "ltrim",
+    "mavg",
+    "mcount",
+    "mdev",
+    "med",
+    "meta",
+    "mmax",
+    "mmin",
+    "mod",
+    "msum",
+    "next",
+    "over",
+    "parse",
+    "peach",
+    "pj",
+    "prior",
+    "rand",
+    "rank",
+    "rotate",
+    "rtrim",
+    "scan",
+    "scov",
+    "sdev",
+    "set",
+    "show",
+    "signum",
+    "ssr",
+    "sublist",
+    "sv",
+    "svar",
+    "tables",
+    "til",
+    "trim",
+    "uj",
+    "ujf",
+    "ungroup",
+    "upper",
+    "view",
+    "views",
+    "vs",
+    "wj",
+    "wj1",
+    "ww",
+    "xasc",
+    "xbar",
+    "xcol",
+    "xcols",
+    "xdesc",
+    "xgroup",
+    "xkey",
+    "xlog",
+    "xprev",
+    "xrank",
+]
+
+const b101 = [
+    # "::",       #  0
+    "flip",       #  1 +:
+    "neg",        #  2 -:
+    "first",      #  3 *:
+    "reciprocal", #  4 %:
+    "where",      #  5 &:
+    "reverse",    #  6 |:
+    "null",       #  7 ^:
+    "group",      #  8 =:
+    "hopen",      #  9 <:
+    "hclose",     # 10 >:
+    "string",     # 11 $:
+    #             # 12 ,:
+    "count",      # 13 #:
+    "floor",      # 14 _:
+    "not",        # 15 ~:
+    "key",        # 16 !:
+    "distinct",   # 17 ?:
+    "type_",      # 18 @:
+    "value",      # 19 .:
+    "read0",      # 20 0::
+    "read1",      # 21 1::
+    #             # 22 2::
+    "avg",        # 23
+    "last",       # 24
+    "sum",        # 25
+    "prd",        # 26
+    "min",        # 27
+    "max",        # 28
+    "exit",       # 29
+    "getenv",     # 30
+    "abs",        # 31
+    "sqrt",       # 32
+    "log",        # 33
+    "exp",        # 34
+    "sin",        # 35
+    "asin",       # 36
+    "cos",        # 37
+    "acos",       # 38
+    "tan",        # 39
+    "atan",       # 40
+    "enlist",     # 41
+    "var",        # 42
+    "dev",        # 43
+]
+
+const b102 = [
+    "and",        #  5 &
+    "or",         #  6 |
+    # ...
+    "mmu",        # 11 $
+    # ...
+    "lsq",        # 16 !
+    "in",         # 23
+    "within",     # 24
+    "like",       # 25
+    "bin",        # 26
+    "ss",         # 27
+    "insert",     # 28
+    "wsum",       # 29
+    "wavg",       # 30
+    "div",        # 31
+    "xexp",       # 32
+    "setenv",     # 33
+    "binr",       # 34
+    "cov",        # 35
+    "cor",        # 36
+]
+
+const b104 = [
+    "md5",
+    "attr",
+    "upsert",
+    "hcount",
+    "eval",
+    "reval",
+]
+
+const res = [b100; b101; b102; b104]
 
 @eval struct _Q
     $([Symbol(x) for x in res]...)
-    _Q() = new($([K(k(0, x)) for x in res]...))
+    _Q() = new($([K(k(0, rstrip(x, ['_']))) for x in res]...))
 end
 
 
