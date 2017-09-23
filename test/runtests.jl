@@ -23,4 +23,5 @@ const side = GOT_Q ? "server" : "client"
   include("$side-tests.jl")
   include("repl-tests.jl")
   include("expr-tests.jl")
+  include("q-macro-tests.jl")
 end
