@@ -97,6 +97,8 @@ Base.convert(Char, x::K_char) = Char(x.a[])
 Base.print(io::IO, x::K_char) = print(io, Char(x))
 Base.show(io::IO, x::K_char) = print(io, "K(", repr(Char(x)), ")")
 Base.show(io::IO, ::MIME"text/plain", x::K_char) = show(io, x)
+Base.hash(x::K_char, h::UInt) = hash(x.a[], h)
+Base.hash(x::K_symbol, h::UInt) = hash(x.a[], h)
 
 Symbol(x::K_symbol) = convert(Symbol, x)
 #Base.print(io::IO, x::K_symbol) = print(io, Symbol(x))
