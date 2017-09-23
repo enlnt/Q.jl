@@ -14,4 +14,5 @@
         Q.resolve!(e, f)
         e == K(:(42+y))
     end
+    @test (x = 42; 43 == @q let x;x+1 end)
 end
