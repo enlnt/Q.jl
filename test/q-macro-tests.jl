@@ -8,4 +8,10 @@
         end
         @q(a) == 2 && @q(b) == 42
     end
+    @test begin
+        f = Dict(:x=>42)
+        e = K(:(x+y))
+        Q.resolve!(e, f)
+        e == K(:(42+y))
+    end
 end
