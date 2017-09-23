@@ -9,5 +9,5 @@ function (f::_Q)(cmd::String, args...)
 end
 
 macro q(ex)
-    q("eval", ex)
+    :(q("eval", $(esc(K(ex)))))
 end
