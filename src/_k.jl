@@ -120,6 +120,7 @@ ke(x::Real) = ccall((@k_sym :ke), K_, (F_,), x)
 kf(x::Real) = ccall((@k_sym :kf), K_, (F_,), x)
 "Create a char"
 kc(x::Integer) = ccall((@k_sym :kc), K_, (I_,), x)
+kc(x::Char) = kc(UInt8(x))
 const _AnyString = Union{String, Symbol, Cstring}
 "Intern n chars from a string"
 sn(x::_AnyString, n::Integer) = ccall((@k_sym :sn), S_, (S_,I_), x, n)

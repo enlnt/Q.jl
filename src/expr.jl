@@ -203,13 +203,20 @@ function set(x::Symbol, y)
     knk(3, ktj(102, 0), ks(x), r1(v.x))
 end
 
+function block(args)
+    args = map(a->K_Ref(K_new(a)), args)
+    knk(length(args) + 1, kc(';'), map(a->r1(a.x), args)...)
+end
+
 function tree(ex::Expr)
     if ex.head === :call
         return call(ex.args[1], ex.args[2:end]...)
     elseif ex.head === :(=)
         return set(ex.args...)
+    elseif ex.head === :block
+        return block(ex.args)
     end
-    error("expression is too complex")
+    error("expression $ex is too complex")
 end
 
 K_new(ex::Expr) = tree(ex)
