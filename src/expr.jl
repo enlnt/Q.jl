@@ -206,20 +206,29 @@ function set(x::Symbol, y)
 end
 
 function block(args)
-    args = filter(a->(a.head !== :line), args)
+    args = Iterators.filter(a->(a.head !== :line), args)
     args = map(a->K_Ref(K_new(a)), args)
     knk(length(args) + 1, kc(';'), map(a->r1(a.x), args)...)
 end
 
+unmangle(x::String) = x[1] == '_' ? "."*x[2:end] : x
+dotted(ex) = ks(unmangle(dotted_string(ex)))
+dotted_string(ex::QuoteNode) = string(ex.value)
+dotted_string(ex::Symbol) = string(ex)
+dotted_string(ex::Expr) = join(map(dotted_string, ex.args), ".")
+
 function tree(ex::Expr)
     if ex.head === :call
-        return call(ex.args[1], ex.args[2:end]...)
+        call(ex.args[1], ex.args[2:end]...)
     elseif ex.head === :(=)
-        return set(ex.args...)
+        set(ex.args...)
     elseif ex.head === :block
-        return block(ex.args)
+        block(ex.args)
+    elseif ex.head === :.
+        dotted(ex)
+    else
+        error("expression $ex is too complex")
     end
-    error("expression $ex is too complex")
 end
 
 K_new(ex::Expr) = tree(ex)
