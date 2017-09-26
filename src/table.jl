@@ -88,17 +88,11 @@ Base.eltype{T,TS}(iter::K_Table_Iter{T,TS}) = T
 Base.start{T,TS}(iter::K_Table_Iter{T,TS}) = 1
 
 @generated function Base.next{T,TS}(iter::K_Table_Iter{T,TS}, state)
-    constructor_call = Expr(:call, :($T))
+    constructor_call = :($T())
     for i in 1:length(iter.types[2].types)
-        push!(constructor_call.args, :(columns[$i][i]))
+        push!(constructor_call.args, :(iter.columns[$i][state]))
     end
-
-    quote
-        i = state
-        columns = iter.columns
-        a = $constructor_call
-        a, state + 1
-    end
+    :($constructor_call, state + 1)
 end
 
 Base.done{T,TS}(iter::K_Table_Iter{T,TS}, state) = state > length(iter)
