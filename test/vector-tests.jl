@@ -19,6 +19,7 @@
     @test (x = K[1]; eltype(x) == Int && Array(x) == [1])
     @test (x = K[1, 2., 3]; eltype(x) == Float64 && Array(x) == [1, 2, 3])
     @test K(["", ""]) == K["", ""]
+    @test Q._vector(Int, 2) == Int[0, 0]
   end
   @testset "vector indexing" begin
     let x = K[1, 2]

@@ -24,6 +24,7 @@ function K_Vector(x::K_)
 end
 const KnownLength = Union{Base.HasLength, Base.HasShape}
 _vector(t::Integer, n::Integer) = K_Vector(ktn(t, n))
+_vector(::Type{T}, n::Integer) where T = _vector(ktypecode(T), n)
 _vector(t::Integer, itr, ::KnownLength) =
     (r = _vector(t, Int(length(itr)::Integer));copy!(r, itr);r)
 K_Vector{t,C,T}(itr) where {t,C,T} =
