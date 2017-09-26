@@ -24,3 +24,18 @@
     @test (x = K_Table(a=Int[]); x[:a] == Int[])
   end
 end
+
+using TableTraits
+using NamedTuples
+@testset "table iterator tests" begin
+  let t = K_Table(a=[0, 1, 2], b=[0., 10., 20.]), ti = getiterator(t)
+    @test length(ti) == 3
+    @test eltype(ti) == typeof(@NT(a=0, b=0.))
+    @test start(ti) == 1
+    @test collect(ti) == [
+      @NT(a=0, b=0.),
+      @NT(a=1, b=10.),
+      @NT(a=2, b=20.),
+    ]
+  end
+end
