@@ -31,6 +31,12 @@ struct K_Table  <: AbstractDataFrame
     end
 end
 K_Table(df::AbstractDataFrame) = K_Table(K_new(df))
+function K_Table(::Type{T}, n::Integer) where T <: NamedTuples.NamedTuple
+    cols = fieldnames(T)
+    x = K_new(cols)
+    y = knk(length(cols), (ktn(ktypecode(S), n) for S in T.types)...)
+    K_Table(xT(xD(x, y)))
+end
 kpointer(x::K_Table) = K_(pointer(x.a)-8)
 valptr(x::K_Table, i) = unsafe_load(Ptr{K_}(xy(x.a[])+16), i)
 colnames(x::K_Table) = K(r1(xx(x.a[])))
@@ -96,3 +102,13 @@ Base.start{T,TS}(iter::K_Table_Iter{T,TS}) = 1
 end
 
 Base.done{T,TS}(iter::K_Table_Iter{T,TS}, state) = state > length(iter)
+
+function K_Table(source)
+    iter = TableTraits.getiterator(source)
+    x = K_Table(eltype(iter), length(iter))
+    for (i, row) in enumerate(iter)
+        for (j, v) in enumerate(row)
+            x[j][i] = v
+        end
+    end
+end
