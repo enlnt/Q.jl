@@ -56,6 +56,8 @@ for (class, super) in SUPERTYPE
         Base.pointer(x::$class{t,C,T}) where {t,C,T} = pointer(x.a)
         Base.show(io::IO, x::$class{t,C,T}) where {t,C,T} = print(io,
             "K(", repr(_cast(T, x.a[])), ")")
+        Base.serialize(io::AbstractSerializer, x::$class) =
+            _serialize(io, x, typeof(x))
     end
 end
 @eval const K_Atom = Union{$(K_CLASSES...)}

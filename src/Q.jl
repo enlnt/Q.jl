@@ -53,6 +53,7 @@ struct KdbException <: Exception
     s::String
 end
 
+include("serialize.jl")
 include("atom.jl")
 include("vector.jl")
 
