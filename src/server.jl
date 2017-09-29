@@ -196,7 +196,11 @@ function process_julia_events(d::I_)
     # NB: process_events(false) calls jl_process_events(loop)
     # which in turn calls uv_run(loop, UV_RUN_NOWAIT).
     k(0, "1 enlist\".\"")
-    Base.process_events(false)
+    try
+        Base.process_events(false)
+    catch err
+        println(err)
+    end
     0
 end
 const process_julia_events_c = cfunction(process_julia_events, Int, (I_, ))
