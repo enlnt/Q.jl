@@ -191,6 +191,7 @@ const res = [b100; b101; b102; b104]
     $([Symbol(x) for x in res]...)
     _Q() = new($([K(k(0, rstrip(x, ['_']))) for x in res]...))
 end
+include("tty.jl")
 include("async.jl")
 # function Base.show(io::IO, x::Union{K_Other,K_Lambda})
 #     s = k(0, "{` sv .Q.S[40 80;0;x]}", K_new(x))

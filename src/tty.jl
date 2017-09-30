@@ -19,3 +19,8 @@ function reopen_tty()
         end
     end
 end
+
+function reopen_stdin()
+    f = Filesystem.open("/dev/tty", Filesystem.JL_O_RDONLY)
+    eval(Base, :(STDIN = TTY($f.handle; readable=true)))
+end
