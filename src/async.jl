@@ -6,14 +6,14 @@ function process_julia_events(d::I_)
     try
         n = Base.process_events(false)
     catch err
-        println(err)
+        Core.println(err)
     end
     #k(0, "1 string $n")
     write(notification_pipe.in, 'e')
     ccall(:jl_breakpoint, Void, (Any,), d)
-    0
+    I_(0)
 end
-const process_julia_events_c = cfunction(process_julia_events, Int, (I_, ))
+const process_julia_events_c = cfunction(process_julia_events, I_, (I_, ))
 
 function process_julia_notification(d::I_)
     c = read(notification_pipe.out, 1)
@@ -21,7 +21,7 @@ function process_julia_notification(d::I_)
     process_julia_events(d)
 end
 const process_julia_notification_c = cfunction(process_julia_notification,
-    Int, (I_, ))
+    I_, (I_, ))
 
 const notification_pipe = Pipe()
 function start_julia()
