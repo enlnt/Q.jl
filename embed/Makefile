@@ -12,12 +12,13 @@ JULIA_HOME = $(shell julia -e 'print(JULIA_HOME)')
 JULIA_LIB = $(shell julia -e 'print(abspath(Libdl.dlpath("libjulia")))')
 JULIA_DEBUG_LIB = \
   $(shell $(JULIA_HOME)/julia-debug -e 'print(abspath(Libdl.dlpath("libjulia-debug")))')
+LDFLAGS += -Wl,-rpath $(shell dirname $(JULIA_LIB))
 
 J.so: J.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS)
 
 jl.so: jl.c
-		$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS) -Wl,-rpath /Applications/Julia-0.6.app/Contents/Resources/julia/lib -ljulia
+		$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS) -ljulia
 
 install: J.so
 	cp J.k $(QHOME)
