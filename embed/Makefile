@@ -1,5 +1,5 @@
 JL_SHARE = $(shell julia -e 'print(joinpath(JULIA_HOME,Base.DATAROOTDIR,"julia"))')
-CFLAGS   += -DKXVER=3
+CFLAGS   += -DKXVER=3 -O0 -g
 CFLAGS   += $(shell $(JL_SHARE)/julia-config.jl --cflags)
 CXXFLAGS += $(shell $(JL_SHARE)/julia-config.jl --cflags)
 LDFLAGS  += $(shell $(JL_SHARE)/julia-config.jl --ldflags)
@@ -15,6 +15,9 @@ JULIA_DEBUG_LIB = \
 
 J.so: J.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS)
+
+jl.so: jl.c
+		$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(SOFLAGS) -Wl,-rpath /Applications/Julia-0.6.app/Contents/Resources/julia/lib -ljulia
 
 install: J.so
 	cp J.k $(QHOME)
