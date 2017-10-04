@@ -34,6 +34,9 @@ nval(x::K_KeyTable) = Int(xn(xx(xk(x.a[2]))))
 colnames(x::K_KeyTable) = [K(r1(xx(xk(x.a[1]))));
                            K(r1(xx(xk(x.a[2]))))]
 
+Base.serialize(io::AbstractSerializer, x::K_KeyTable) =
+    _serialize(io, x, typeof(x))
+
 DataFrames.ncol(x::K_KeyTable) = nkey(x) + nval(x)
 DataFrames.nrow(x::K_KeyTable) = Int(xn(keyvalptr(x, 1)))
 DataFrames.index(x::K_KeyTable) = DataFrames.Index(Array(colnames(x)))
