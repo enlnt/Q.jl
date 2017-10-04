@@ -5,8 +5,8 @@
 #define DLX(T,v) do{S r;v##_p=(T)dlsym(h,#v);		\
                   P(!v##_p,(r=(S)dlerror(),krr(r)));}while(0)
 #define DLF(v) DLX(v##_t,v)
-#define DLV(v) DLX(jl_value_t*,v)
-#define DLT(v) DLX(jl_datatype_t*,v)
+#define DLV(v) DLX(jl_value_t**,v)
+#define DLT(v) DLX(jl_datatype_t**,v)
 
 typedef void *DL;
 typedef void (*jl_parse_opts_t)(int *argcp, char ***argvp);
@@ -45,13 +45,13 @@ Z jl_unbox_float32_t jl_unbox_float32_p;
 Z jl_unbox_float64_t jl_unbox_float64_p;
 
 /* singleton values */
-Z jl_value_t *jl_true_p;
-Z jl_value_t *jl_false_p;
-Z jl_value_t *jl_nothing_p;
+Z jl_value_t **jl_true_p;
+Z jl_value_t **jl_false_p;
+Z jl_value_t **jl_nothing_p;
 
 /* julia types */
-Z jl_datatype_t *jl_int32_type_p;
-Z jl_datatype_t *jl_int64_type_p;
+Z jl_datatype_t **jl_int32_type_p;
+Z jl_datatype_t **jl_int64_type_p;
 
 ZJ eos = 0;
 

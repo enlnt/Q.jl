@@ -1,6 +1,11 @@
 #include <julia.h>
 #include <stdlib.h>
 #include "k.h"
+#if defined(__linux__)
+#include "jl-lib.h"
+#else
+#define QJL_IMPORT_JULIA_LIBRARY do{}while(0)
+#endif
 
 ZK none;
 ZJ eos = 0;
@@ -12,9 +17,11 @@ Z K1(qjl_init){
   a = k(0, ".z.x", (K)0);
   argc = a->n + 1;
   argv = malloc(argc * sizeof(S*));
-  argv[0] = "julia";
+  argv[0] = strdup("julia");
   for (i = 1; i < argc; ++i) {
     n = (I)(e = kK(a)[i-1])->n;
+    /* drop trailing @ from args */
+    if (n > 0 && kC(e)[n-1] == '@') --n;
     argv[i] = malloc((n+1) * sizeof(S));
     memcpy(argv[i], kC(e), n);
     argv[i][n] = '\0';
@@ -41,6 +48,7 @@ Z K1(qjl_atexit){
 }
 
 K1(qjl){
+  QJL_IMPORT_JULIA_LIBRARY;
   none = k(0, "::", (K)0);
   x = ktn(KS, 4);
   xS[0] = ss("");

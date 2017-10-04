@@ -42,7 +42,7 @@ end
       @test (a = asarray(k(0, "*$c")); asarray(a[], false)[] == 3)
       @test (a = asarray(k(0, "*$(c):")); asarray(a[], false)[] == 3)
   end
-  @test (a = asarray(k(0, ".J.jl.init")); eltype(a) == Ptr{V_})
+  @test (a = asarray(k(0, ".J.init")); eltype(a) == Ptr{V_})
   @test cdtemp() do  # enum
     qa("`:a set `:sym?`a`b`c")
     qa("get`:a") == [0, 1, 2]
@@ -92,7 +92,7 @@ end
   end
   @testset "dl" begin
     @test begin
-      f = k(0, ".J.jl.eval_string")
+      f = k(0, ".J.e")
       fa = asarray(f)
       g = dl(fa[], 1)
       ga = asarray(g)
