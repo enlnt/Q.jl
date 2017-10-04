@@ -34,6 +34,7 @@ Z K1(qjl_init){
   R r1(none);}
 
 Z K1(qjl_eval){
+  K r;
   jl_value_t *v;
   P(xt!=KC,krr("type"));
   ja(&x, &eos);
@@ -52,6 +53,18 @@ Z K1(qjl_eval){
     R kb(0);
   if (v == jl_true)
     R kb(1);
+  if (jl_typeis(v, jl_int64_type))
+    R kj(jl_unbox_int64(v));
+  if (jl_typeis(v, jl_int32_type))
+    R ki(jl_unbox_int32(v));
+  if (jl_typeis(v, jl_int16_type))
+    R kh(jl_unbox_int16(v));
+  if (jl_typeis(v, jl_uint8_type))
+    R kg(jl_unbox_uint8(v));
+  if (jl_typeis(v, jl_float64_type))
+    R kf(jl_unbox_float64(v));
+  if (jl_typeis(v, jl_float32_type))
+    R ke(jl_unbox_float32(v));
   R kp((S)jl_typeof_str(v));
 }
 
