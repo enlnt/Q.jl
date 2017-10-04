@@ -31,7 +31,13 @@ DLF(unbox_float64);                \
 DLF(unbox_float32);                \
 DLV(true);                         \
 DLV(false);                        \
-DLV(nothing)
+DLV(nothing);                      \
+DLT(float32_type);                 \
+DLT(float64_type);                 \
+DLT(uint8_type);                   \
+DLT(int16_type);                   \
+DLT(int32_type);                   \
+DLT(int64_type)
 
 typedef void *DL;
 
@@ -110,4 +116,4 @@ Z jl_datatype_t **jl_int32_type_p;
 Z jl_datatype_t **jl_int64_type_p;
 #define jl_int64_type (*jl_int64_type_p)
 Z jl_datatype_t **jl_uint8_type_p;
-#define jl_uint16_type (*jl_uint8_type_p)
+#define jl_uint8_type (*jl_uint8_type_p)
