@@ -38,7 +38,21 @@ Z K1(qjl_eval){
   P(xt!=KC,krr("type"));
   ja(&x, &eos);
   v = jl_eval_string((S)xC);
-  R r1(none);
+  if (jl_exception_occurred())
+    R krr(ss((S)jl_typeof_str(jl_exception_occurred())));
+    /* TODO: Add something like this:
+        jl_call2(jl_get_function(jl_base_module, "showerror"),
+                 jl_stderr_obj(),
+                 jl_exception_occurred());
+        jl_printf(jl_stderr_stream(), "\n");
+    */
+  if (v == jl_nothing)
+    R r1(none);
+  if (v == jl_false)
+    R kb(0);
+  if (v == jl_true)
+    R kb(1);
+  R kp((S)jl_typeof_str(v));
 }
 
 Z K1(qjl_atexit){
