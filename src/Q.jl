@@ -124,7 +124,7 @@ function Base.getindex(::Type{K}, v...)
     copy!(r.a, map(e->_cast(C, T(e)), v))
     r
 end
-
+include("eval.jl")
 if GOT_Q
     include("server.jl")
 else
