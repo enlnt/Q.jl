@@ -96,7 +96,6 @@ end
 ## New reference
 K_new(x::K_) = r1(x)
 ## Conversion of simple types
-const _none = ktj(101, 0)
 K_new(::Void) = r1(_none)
 K_new(x::Bool) = kb(x)
 K_new(x::UInt128) = ku(x)
@@ -191,7 +190,13 @@ function asarray(x::K_, own::Bool=true)
     end
     a
 end
-# The _none pointer guard - make sure _none is cleaned up eventually.
-const _none_array = asarray(_none)
+
+function __init__()
+    global const _none = ktj(101, 0)
+    # The _none pointer guard - make sure _none is cleaned up eventually.
+    global const _none_array = asarray(_none)
+    global const K_None = K_Other(K_new(nothing))
+    GOT_Q || khp("", -1)
+end
 # TODO: Consider using Array(x) instead of asarray(x).
 # Base.convert(::Type{Array}, x::K_) = asarray(x)

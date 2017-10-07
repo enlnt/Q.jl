@@ -1,6 +1,5 @@
 # Conversions between Julia and q types for the Q module.
 #########################################################################
-const K_None = K_Other(K_new(nothing))
 
 Base.convert(::Type{String}, x::K_symbol) =
     unsafe_string(unsafe_load(pointer(x)))

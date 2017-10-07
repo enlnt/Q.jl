@@ -121,4 +121,4 @@ function (x::Qcmd)(args...)
     K(k(KDB_HANDLE[], x.cmd, map(K_new, args)...))
 end
 # Initialise memory without making a connection
-khp("", -1)
+#khp("", -1)

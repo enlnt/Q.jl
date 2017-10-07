@@ -1,3 +1,4 @@
+__precompile__()
 module Q
 export K, K_Atom, K_Vector, K_Table, K_KeyTable
 export hopen, hclose, hget
@@ -132,11 +133,8 @@ function Base.getindex(::Type{K}, v...)
     r
 end
 include("eval.jl")
-if GOT_Q
-    include("server.jl")
-else
-    include("client.jl")
-end
+include("server.jl")
+include("client.jl")
 include("parser.jl")
 include("q-prompt.jl")
 include("kdb.jl")
