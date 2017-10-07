@@ -188,7 +188,7 @@ krr(x::AbstractString) = ccall((@k_sym :krr), K_, (S_, ), x)
 orr(x::AbstractString) = ccall((@k_sym :orr), K_, (S_, ), x)
 export khpun, khpu, khp
 # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
-khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpu),
+khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpun),
     I_, (S_, I_, S_, I_), h, p, u, n)
 khpu(h::String, p::Integer, u::String) = ccall((@k_sym :khpu),
     I_, (S_, I_, S_), h, p, u)

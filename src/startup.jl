@@ -1,5 +1,5 @@
 export GOT_Q, @k_sym, C_SO
-C_SO = C_NULL
+#C_SO = C_NULL
 const SYS_CHAR = Dict(
     :Linux => 'l',
     :Darwin => 'm',
@@ -19,26 +19,25 @@ function __init__()
     global GOT_Q = Libdl.dlsym_e(h, :b9) != C_NULL
     global __dot, __ee, __dl, __khp
     if GOT_Q  # Get q C API from the current process
-        global C_SO = h
+        global const C_SO = h
         __khp = cfunction(impl_khp, I_, (Cstring, Cint))
     else
         path = joinpath(dirname(@__FILE__), SYS_ARCH, "c")
-        global C_SO = Libdl.dlopen(path,
+        global const C_SO = Libdl.dlopen(path,
                 Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
-        __dot = cfunction(impl_dot, K_, (K_, K_))
-        __ee = cfunction(impl_ee, K_, (K_, ))
-        __dl = cfunction(impl_dl, K_, (Ptr{V_}, I_))
+        __dot[] = cfunction(impl_dot, K_, (K_, K_))
+        __ee[] = cfunction(impl_ee, K_, (K_, ))
+        __dl[] = cfunction(impl_dl, K_, (Ptr{V_}, I_))
     end
 end  # __init__
 
 macro k_sym(func)
     z = Symbol("__", func.args[1])
-    @eval global $z = C_NULL
+    isdefined(z) || @eval global const $z = Ref{Ptr{Void}}(C_NULL)
     quote begin
-        global $z
-        if $z::Ptr{Void} == C_NULL
-            $z::Ptr{Void} = Libdl.dlsym(C_SO::Ptr{Void}, $(esc(func)))
+        if $z[] == C_NULL
+            $z[] = Libdl.dlsym(C_SO::Ptr{Void}, $(esc(func)))
         end
-        $z::Ptr{Void}
+        $z[]
     end end
 end
