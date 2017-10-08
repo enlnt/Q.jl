@@ -6,6 +6,19 @@ export KdbException
 
 using DataFrames
 
+function __init__()
+    global const _none = ktj(101, 0)
+    # The _none pointer guard - make sure _none is cleaned up eventually.
+    global const _none_array = asarray(_none)
+    global const K_None = K_Other(K_new(nothing))
+    if GOT_Q
+        KDB_HANDLE[] = 0
+    else
+        khp("", -1)
+    end
+    init_q!(q)
+end
+
 """
    KDB_HANDLE
 
@@ -139,4 +152,5 @@ include("parser.jl")
 include("q-prompt.jl")
 include("kdb.jl")
 include("q-cmd.jl")
+@show KDB_HANDLE
 end # module Q

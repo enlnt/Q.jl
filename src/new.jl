@@ -191,17 +191,5 @@ function asarray(x::K_, own::Bool=true)
     a
 end
 
-function __init__()
-    global const _none = ktj(101, 0)
-    # The _none pointer guard - make sure _none is cleaned up eventually.
-    global const _none_array = asarray(_none)
-    global const K_None = K_Other(K_new(nothing))
-    if GOT_Q
-        KDB_HANDLE[] = 0
-    else
-        khp("", -1)
-    end
-    init_q!(q)
-end
 # TODO: Consider using Array(x) instead of asarray(x).
 # Base.convert(::Type{Array}, x::K_) = asarray(x)
