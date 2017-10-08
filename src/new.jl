@@ -196,7 +196,11 @@ function __init__()
     # The _none pointer guard - make sure _none is cleaned up eventually.
     global const _none_array = asarray(_none)
     global const K_None = K_Other(K_new(nothing))
-    GOT_Q || khp("", -1)
+    if GOT_Q
+        KDB_HANDLE[] = 0
+    else
+        khp("", -1)
+    end
     init_q!(q)
 end
 # TODO: Consider using Array(x) instead of asarray(x).
