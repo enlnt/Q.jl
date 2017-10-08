@@ -16,22 +16,13 @@ function __init__()
         __ee[] = cfunction(impl_ee, K_, (K_, ))
         __dl[] = cfunction(impl_dl, K_, (Ptr{V_}, I_))
     end
-    @show C_SO
 end  # __init__
-#C_SO = C_NULL
+
 const SYS_CHAR = Dict(
     :Linux => 'l',
     :Darwin => 'm',
 )
 const SYS_ARCH = @sprintf("%c%d", SYS_CHAR[Sys.KERNEL], Sys.WORD_SIZE)
-
-impl_dot(x, y) = (error("not implemented"); x)
-impl_ee(x) = (error("not implemented"); x)
-impl_dl(f, n) = (error("not implemented"); K_NULL)
-function impl_khp(h::Cstring, p::Cint)
-    x = k(0, "hopen", ks(string(":", unsafe_string(h), ":", p)))
-    x == K_NULL ? Cint(-1) : xi(x)
-end
 
 macro k_sym(func)
     z = Symbol("__", func.args[1])

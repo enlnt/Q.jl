@@ -227,4 +227,5 @@ using Core.Intrinsics.bitcast
 Base.convert(::Type{K_}, p::K_) = p
 Base.convert(::Type{K_}, p::Ptr) = bitcast(K_, p)
 Base.convert(::Type{K_}, p::UInt) = bitcast(K_, p)
+include("impl.jl")
 end # module k

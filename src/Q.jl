@@ -152,5 +152,4 @@ include("parser.jl")
 include("q-prompt.jl")
 include("kdb.jl")
 include("q-cmd.jl")
-@show KDB_HANDLE
 end # module Q
