@@ -20,7 +20,7 @@ function __init__()
     global __dot, __ee, __dl, __khp
     if GOT_Q  # Get q C API from the current process
         global const C_SO = h
-        __khp = cfunction(impl_khp, I_, (Cstring, Cint))
+        __khp[] = cfunction(impl_khp, I_, (Cstring, Cint))
     else
         path = joinpath(dirname(@__FILE__), SYS_ARCH, "c")
         global const C_SO = Libdl.dlopen(path,

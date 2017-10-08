@@ -197,6 +197,7 @@ function __init__()
     global const _none_array = asarray(_none)
     global const K_None = K_Other(K_new(nothing))
     GOT_Q || khp("", -1)
+    init_q!(q)
 end
 # TODO: Consider using Array(x) instead of asarray(x).
 # Base.convert(::Type{Array}, x::K_) = asarray(x)

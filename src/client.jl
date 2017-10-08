@@ -80,9 +80,8 @@ function hget(h::Tuple{String,Integer}, m, x...)
 end
 
 function open_default_kdb_handle(msg_io=STDERR)
-    if KDB_HANDLE[] > 0
-        return KDB_HANDLE[]
-    end
+    KDB_HANDLE[] >= 0 && return KDB_HANDLE[]
+    GOT_Q && return KDB_HANDLE[] = 0
     server_spec = get(ENV, "KDB", "")
     if isempty(server_spec)
         port, process = Q.Kdb.start()
@@ -104,9 +103,6 @@ function open_default_kdb_handle(msg_io=STDERR)
     end
     KDB_HANDLE[] = handle
 end
-# Client-side q`..`
-struct _Q
-end
 
 export @q_cmd
 struct Qcmd
@@ -114,7 +110,7 @@ struct Qcmd
 end
 
 macro q_cmd(cmd) Qcmd(cmd) end
-
+Base.run(x::Qcmd, args...) = x(args...)
 Base.show(io::IO, x::Qcmd) = print(io, "q`", x.cmd, "`")
 
 function (x::Qcmd)(args...)

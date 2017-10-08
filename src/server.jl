@@ -1,5 +1,4 @@
 export @q_cmd
-KDB_HANDLE[] = 0
 
 function kerror()
     e = asarray(ee(K_(C_NULL)))
@@ -18,12 +17,6 @@ for T in (K_Lambda, K_Other, K_symbol)
     @eval (f::$T)() = f(nothing)
     @eval (f::$T)(args...) = apply(f, args...)
 end
-
-const q_parse = K(k(0, "parse"))
-const q_eval = K(k(0, "eval"))
-
-macro q_cmd(s) q_parse(s) end
-Base.run(x::K_List, args...) = (r = q_eval(x); length(args) == 0 ? r : r(args...))
 
 const b100 = [  # in alphabetical order
     "aj",
@@ -186,12 +179,18 @@ const b104 = [
 ]
 
 const res = [b100; b101; b102; b104]
-
-@eval struct _Q
+_q(x) = (p = k(0, rstrip(x, ['_'])); xt(p) == -128 ? (r0(p);"nyi") : K(p))
+@eval mutable struct _Q
     $([Symbol(x) for x in res]...)
-    _Q() = new($([K(k(0, rstrip(x, ['_']))) for x in res]...))
+    _Q() = new($([nothing for x in res]...))
 end
 
+function init_q!(x)
+    for s in res
+        setfield!(x, Symbol(s), _q(s))
+    end
+    x
+end
 
 # function Base.show(io::IO, x::Union{K_Other,K_Lambda})
 #     s = k(0, "{` sv .Q.S[40 80;0;x]}", K_new(x))
