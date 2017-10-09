@@ -111,4 +111,5 @@ function K_Table(source)
             x[j][i] = v
         end
     end
+    x
 end
