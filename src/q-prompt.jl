@@ -38,7 +38,7 @@ module KdbMode
             size = max.([10, 0], Int[displaysize(out)...] - [n, 0])
             try
                 x = K(k(handle, "{.Q.S[x-3 0;y;]value z}",
-                        K_new(size), kj(0), kp("(::)"*cmd)))
+                        K_new(size), kj(0), kp("get$(repr(cmd))")))
             catch error
                 if error isa KdbException
                     print_with_color(:red, out, "'", error.s)

@@ -13,7 +13,7 @@ export r0, r1
 export ktj, ka, kb, ku, kg, kh, ki, kj, ke, kf, sn, ss, ks, kc, kd, kz, kt
 export ja, js, jk, jv
 export ktn, knk, kp, xT, xD
-export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, n, xk, xx, xy
+export xa, xt, t, xr, r, xg, xh, xi, xj, xe, xf, xs, xn, xp, n, xk, xx, xy
 export kG, kH, kI, kJ, kE, kF, kC, kS, kK, kX
 export B_, C_, S_, G_, H_, I_, J_, E_, F_, V_, U_, K_
 export KB, UU, KG, KH, KI, KJ, KE, KF, KC, KS, KP, KM, KD, KZ, KN, KU, KV, KT,
@@ -78,6 +78,7 @@ xs(x::K_) = (s = unsafe_load(Ptr{S_}(x+8)); s == C_NULL?"null":unsafe_string(s))
 
 # vector accessors
 const xn = n(x::K_) = unsafe_load(Ptr{J_}(x+8))
+xp(x::K_) = unsafe_string(Ptr{UInt8}(x+16), xn(x))
 
 kG(x::K_) = unsafe_wrap(Array, Ptr{G_}(x+16), (x|>n,))
 kH(x::K_) = unsafe_wrap(Array, Ptr{H_}(x+16), (x|>n,))
@@ -180,6 +181,7 @@ dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
 if GOT_Q
     export dot_, #= avoid conflict with Base.dot. =# ee, dl, khp
+    export krr, orr
     dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
     ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
     # dl(V*f,I)
@@ -193,15 +195,23 @@ if GOT_Q
             r0(x)
         end
     end
+    krr(x::AbstractString) = ccall((@k_sym :krr), K_, (S_, ), x)
+    orr(x::AbstractString) = ccall((@k_sym :orr), K_, (S_, ), x)
 else
     # communications (not included in q server)
-    export khpun, khpu, khp
+    export khpun, khpu, khp, krr, orr
     # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
     khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpu),
         I_, (S_, I_, S_, I_), h, p, u, n)
     khpu(h::String, p::Integer, u::String) = ccall((@k_sym :khpu),
         I_, (S_, I_, S_), h, p, u)
     khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
+    function krr(x::AbstractString)
+        e = ka(-128)
+        unsafe_store!(Ptr{S_}(e+8), ss(x))
+        e
+    end
+    orr(x::AbstractString) = krr(String(x, ": ", Libc.strerror()))
 end
 
 const K_NULL = K_(C_NULL)

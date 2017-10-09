@@ -82,6 +82,7 @@ end
   end
   @testset "q object" begin
     @test q("til 5") == q.til(5) == [0, 1, 2, 3, 4]
+    @test q("J)[1, 2]") == [1, 2]
   end
   @testset "server-side table" begin
     let t = q`{([]a:til x)}`(5)
@@ -111,6 +112,26 @@ end
       ga = asarray(g)
       ga[] == cf && unsafe_load(g).u == 2 &&
           asarray(dot_(g, knk(2, ki(0), kj(42))))[] == 42
+    end
+    @test begin  # krr
+      f(x) = krr("xxx")
+      cf = cfunction(f, K_, (K_, ))
+      g = K_Ref(dl(cf, 1))
+      x = K_Ref(knk(1, kj(0)))
+      r = K_Ref(ee(dot_(g.x, x.x)))
+      xt(r.x) == -128 && xs(r.x) == "xxx"
+    end
+    @test begin  # orr
+      function f(x)
+        buf = C_[0]
+        ccall(:read, Cssize_t, (I_, Ptr{V_}, Csize_t), -1, buf, 1)
+        orr("xxx")
+      end
+      cf = cfunction(f, K_, (K_, ))
+      g = K_Ref(dl(cf, 1))
+      x = K_Ref(knk(1, kj(0)))
+      r = K_Ref(ee(dot_(g.x, x.x)))
+      xt(r.x) == -128 && xs(r.x) == "xxx. OS reports: Bad file descriptor"
     end
   end
   @testset "julia command" begin
