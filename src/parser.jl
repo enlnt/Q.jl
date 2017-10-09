@@ -8,6 +8,7 @@ is balanced, and -1 if there are more open parentheses than closed.
 """
 function chkparens(cmd::Array{UInt8})
     # Allow a language prefix such as k) or J).
+    isempty(cmd) && return 0
     if length(cmd) > 1 && cmd[2] == 0x29  # ')'
         cmd = cmd[3:end]
     end
