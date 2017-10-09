@@ -102,6 +102,7 @@
       @test ktypecode(x) == 101
       @test kpointer(x) === kpointer(K_None)
       @test x === K_None
+      @test x != 0
     end
   end
   @testset "char" begin

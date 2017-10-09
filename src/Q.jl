@@ -43,6 +43,8 @@ Get the numeric type code of a `K` object.
 """
 ktypecode(x) = ktypecode(typeof(x))
 
+ktypecode(T::Type{DataType}) = error("Type ", T, " is not known to q.")
+
 """
     KdbException(s)
 

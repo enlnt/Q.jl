@@ -88,7 +88,12 @@ for ti in TYPE_INFO
         @eval Base.hex(x::$ktype, pad::Int=1, neg::Bool=false) =
             hex(x.a[], pad, neg)
     end
+    if ti.number != KC
+        @eval ktypecode(::Type{$ti.jl_type}) = $ti.number
+    end
 end
+ktypecode(::Type{Char}) = KC
+
 function K_Atom(x::K_)
     t = -xt(x)
     ti = typeinfo(t)
