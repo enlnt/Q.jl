@@ -82,6 +82,7 @@ end
   end
   @testset "q object" begin
     @test q("til 5") == q.til(5) == [0, 1, 2, 3, 4]
+    @test q("J)[1, 2]") == [1, 2]
   end
   @testset "server-side table" begin
     let t = q`{([]a:til x)}`(5)
