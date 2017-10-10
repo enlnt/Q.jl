@@ -37,7 +37,7 @@ Base.size(v::K_Vector{t,C,T}) where {t,C,T} = size(v.a)
 Base.getindex(v::K_Vector{t,C,T}, i::Integer) where {t,C,T} = _cast(T, v.a[i])
 # Setting the vector elements
 Base.setindex!(v::K_Vector{t,C,T}, el, i::Integer) where {t,C,T} = begin
-    v.a[i] = _cast(C, T(el))
+    v.a[i] = _cast(C, el)
     v
 end
 
