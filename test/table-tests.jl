@@ -27,6 +27,12 @@ using NamedTuples
     @test (x = K_Table(a=Int[]); x[:a] == Int[])
   end
   @test (x = K_Table(@NT(a::Int, b::Float64), 3); size(x) == (3, 2))
+  @test begin
+    t = K_Table(a=[1])
+    Q.coldata(t)[1] = push!(t[1], 2)
+    Q.coldata(t)[1] = push!(t[1], 3)
+    t[1] == [1, 2, 3]
+  end
 end
 
 @testset "table iterator tests" begin
