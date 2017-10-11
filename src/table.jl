@@ -105,10 +105,34 @@ Base.done{T,TS}(iter::K_Table_Iter{T,TS}, state) = state > length(iter)
 
 function K_Table(source)
     iter = TableTraits.getiterator(source)
+    _table(Base.iteratorsize(iter), iter)
+end
+
+_table(::Base.IsInfinite, iter) = error("infinite source")
+_table(::Base.HasShape, iter) = _table_prealloc(iter)
+_table(::Base.HasLength, iter) = _table_prealloc(iter)
+
+function _table_prealloc(iter)
     x = K_Table(eltype(iter), length(iter))
     for (i, row) in enumerate(iter)
         for (j, v) in enumerate(row)
             x[j][i] = v
+        end
+    end
+    x
+end
+
+function _raw_eltype(T)
+    exprs = [Expr(:(::), n, eltype(t))
+        for (n, t) in zip(fieldnames(T), T.types)]
+    NamedTuples.make_tuple(exprs)
+end
+
+function _table(::Base.SizeUnknown, iter)
+    x = K_Table(eltype(iter), 0)
+    for row in iter
+        for (i, v) in enumerate(row)
+            Q.coldata(x)[i] = push!(x[i], row[i])
         end
     end
     x
