@@ -1,5 +1,6 @@
 using TableTraits
 using NamedTuples
+import IterableTables
 
 @testset "table tests" begin
   let x = K_Table(a=[1, 2])
@@ -49,4 +50,5 @@ end
     ]
   end
   @test K_Table([@NT(a=1), @NT(a=2)]) == DataFrame(a=[1,2])
+  @test K_Table(@NT(a=i) for i in 1:3 if i != 2) == DataFrame(a=[1,3])
 end
