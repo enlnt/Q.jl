@@ -47,6 +47,7 @@ install:
   - source ./.travis/install.sh
 before_script:
   - echo '-1"kdb+ "," "sv string .z.o,.z.K,.z.k;exit 0' | $HOME/q/?32/q
+  - julia -e 'Pkg.add("IterableTables")'
   - julia -e 'versioninfo()'
 ## uncomment the following lines to override the default test script
 script:
