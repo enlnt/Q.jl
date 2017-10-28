@@ -63,6 +63,11 @@ struct K_Lambda
     a::Vector{K_}
     K_Lambda(x::K_) = new(asarray(x))
 end
+function Base.show(io::IO, f::K_Lambda)
+    x = f.a[end]
+    code = unsafe_string(Ptr{G_}(x+16), xn(x))
+    write(io, "q(", repr(code), ")")
+end
 struct K_Other
     a::Array{T,0} where T
     K_Other(x::K_) = new(asarray(x))
