@@ -201,7 +201,3 @@ end
 #     end
 #     nothing
 # end
-function __init__()
-    f = dl(_eval_string_c, 1)
-    r0(k(0, "{.J.e::x}", f))
-end

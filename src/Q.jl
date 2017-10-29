@@ -13,6 +13,8 @@ function __init__()
     global const K_None = K_Other(K_new(nothing))
     if GOT_Q
         KDB_HANDLE[] = 0
+        f = dl(_eval_string_c, 1)
+        r0(k(0, "{.J.e::x}", f))
     else
         khp("", -1)
     end
