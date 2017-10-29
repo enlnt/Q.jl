@@ -198,11 +198,11 @@ function call(f, args...)  # 4 or more args
     knk(length(args) + 1, r1(g.x), map(a->r1(a.x), args)...)
 end
 
-const ASSIGN = K_Ref(GOT_Q ? k(0, ":") : ktj(102, 0))
+ASSIGN() = K_Ref(GOT_Q ? k(0, ":") : ktj(102, 0))
 
 function set(x::Symbol, y)
     v = K_Ref(K_new(y))
-    knk(3, r1(ASSIGN.x), ks(x), r1(v.x))
+    knk(3, r1(ASSIGN().x), ks(x), r1(v.x))
 end
 
 function block(args)

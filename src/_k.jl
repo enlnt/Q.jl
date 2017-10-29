@@ -179,40 +179,20 @@ ymd(y::Integer, m::Integer, d::Integer) = ccall((@k_sym :ymd),
 "Convert q date to yyyymmdd integer"
 dj(j::Integer) = ccall((@k_sym :dj), I_, (I_, ), j)
 
-if GOT_Q
-    export dot_, #= avoid conflict with Base.dot. =# ee, dl, khp
-    export krr, orr
-    dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
-    ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
-    # dl(V*f,I)
-    dl(f::Ptr{V_}, n::Integer) = ccall((@k_sym :dl), K_, (Ptr{V_}, I_), f, n)
-    # Simulate khp with hopen
-    function khp(h::String, p::Integer)
-        x = k(0, "hopen", ks(string(":", h, ":", p)))
-        try
-            return xi(x)
-        finally
-            r0(x)
-        end
-    end
-    krr(x::AbstractString) = ccall((@k_sym :krr), K_, (S_, ), x)
-    orr(x::AbstractString) = ccall((@k_sym :orr), K_, (S_, ), x)
-else
-    # communications (not included in q server)
-    export khpun, khpu, khp, krr, orr
-    # I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
-    khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpu),
-        I_, (S_, I_, S_, I_), h, p, u, n)
-    khpu(h::String, p::Integer, u::String) = ccall((@k_sym :khpu),
-        I_, (S_, I_, S_), h, p, u)
-    khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
-    function krr(x::AbstractString)
-        e = ka(-128)
-        unsafe_store!(Ptr{S_}(e+8), ss(x))
-        e
-    end
-    orr(x::AbstractString) = krr(String(x, ": ", Libc.strerror()))
-end
+export dot_, #= avoid conflict with Base.dot. =# ee, dl, khp
+dot_(x::K_, y::K_) = ccall((@k_sym :dot), K_, (K_, K_), x, y)
+ee(x::K_) = ccall((@k_sym :ee), K_, (K_, ), x)
+# dl(V*f,I)
+dl(f::Ptr{V_}, n::Integer) = ccall((@k_sym :dl), K_, (Ptr{V_}, I_), f, n)
+krr(x::AbstractString) = ccall((@k_sym :krr), K_, (S_, ), x)
+orr(x::AbstractString) = ccall((@k_sym :orr), K_, (S_, ), x)
+export khpun, khpu, khp
+# I khpun(const S,I,const S,I),khpu(const S,I,const S),khp(const S,I)
+khpun(h::String, p::Integer, u::String, n::Integer) = ccall((@k_sym :khpun),
+    I_, (S_, I_, S_, I_), h, p, u, n)
+khpu(h::String, p::Integer, u::String) = ccall((@k_sym :khpu),
+    I_, (S_, I_, S_), h, p, u)
+khp(h::String, p::Integer) = ccall((@k_sym :khp), I_, (S_, I_), h, p)
 
 const K_NULL = K_(C_NULL)
 # K k(I,const S,...)
@@ -247,4 +227,5 @@ using Core.Intrinsics.bitcast
 Base.convert(::Type{K_}, p::K_) = p
 Base.convert(::Type{K_}, p::Ptr) = bitcast(K_, p)
 Base.convert(::Type{K_}, p::UInt) = bitcast(K_, p)
+include("impl.jl")
 end # module k

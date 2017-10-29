@@ -7,7 +7,7 @@ function (f::_Q)(cmd::String, args...)
     systemerror("k", x == C_NULL)
     K(x)
 end
-
+Base.show(io::IO, ::_Q) = write(io, "q")
 macro q(ex::Expr)
     if ex.head === :let
         f = :(Dict())

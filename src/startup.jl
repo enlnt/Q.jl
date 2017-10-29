@@ -1,24 +1,36 @@
-export GOT_Q, @k_sym
-let h = unsafe_load(cglobal(:jl_exe_handle, Ptr{Void}))
+export GOT_Q, @k_sym, C_SO
+
+function __init__()
+    h = unsafe_load(cglobal(:jl_exe_handle, Ptr{Void}))
     # Is Julia running embedded in q?
-    global const GOT_Q = Libdl.dlsym_e(h, :b9) != C_NULL
-end
-
-if GOT_Q  # Get q C API from the current process
-    macro k_sym(func)
-        esc(func)
-    end
-else      # Load "c" DLL
-    const SYS_CHAR = Dict(
-        :Linux => 'l',
-        :Darwin => 'm',
-    )
-    const SYS_ARCH = @sprintf("%c%d", SYS_CHAR[Sys.KERNEL], Sys.WORD_SIZE)
-    const C_SO_PATH = joinpath(dirname(@__FILE__), SYS_ARCH, "c")
-    const C_SO = Libdl.dlopen(C_SO_PATH,
+    global GOT_Q = Libdl.dlsym_e(h, :b9) != C_NULL
+    global __dot, __ee, __dl, __khp
+    if GOT_Q  # Get q C API from the current process
+        global const C_SO = h
+        __khp[] = cfunction(impl_khp, I_, (Cstring, Cint))
+    else
+        path = joinpath(dirname(@__FILE__), SYS_ARCH, "c")
+        global const C_SO = Libdl.dlopen(path,
                 Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
-
-    macro k_sym(func)
-        :(($(esc(func)), C_SO_PATH))
+        __dot[] = cfunction(impl_dot, K_, (K_, K_))
+        __ee[] = cfunction(impl_ee, K_, (K_, ))
+        __dl[] = cfunction(impl_dl, K_, (Ptr{V_}, I_))
     end
+end  # __init__
+
+const SYS_CHAR = Dict(
+    :Linux => 'l',
+    :Darwin => 'm',
+)
+const SYS_ARCH = @sprintf("%c%d", SYS_CHAR[Sys.KERNEL], Sys.WORD_SIZE)
+
+macro k_sym(func)
+    z = Symbol("__", func.args[1])
+    isdefined(z) || @eval global const $z = Ref{Ptr{Void}}(C_NULL)
+    quote begin
+        if $z[] == C_NULL
+            $z[] = Libdl.dlsym(C_SO::Ptr{Void}, $(esc(func)))
+        end
+        $z[]
+    end end
 end

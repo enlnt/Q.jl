@@ -1,9 +1,25 @@
+__precompile__()
 module Q
 export K, K_Atom, K_Vector, K_Table, K_KeyTable
 export hopen, hclose, hget
 export KdbException
 
 using DataFrames
+
+function __init__()
+    global const _none = ktj(101, 0)
+    # The _none pointer guard - make sure _none is cleaned up eventually.
+    global const _none_array = asarray(_none)
+    global const K_None = K_Other(K_new(nothing))
+    if GOT_Q
+        KDB_HANDLE[] = 0
+        f = dl(_eval_string_c, 1)
+        r0(k(0, "{.J.e::x}", f))
+    else
+        khp("", -1)
+    end
+    init_q!(q)
+end
 
 """
    KDB_HANDLE
@@ -132,11 +148,8 @@ function Base.getindex(::Type{K}, v...)
     r
 end
 include("eval.jl")
-if GOT_Q
-    include("server.jl")
-else
-    include("client.jl")
-end
+include("server.jl")
+include("client.jl")
 include("parser.jl")
 include("q-prompt.jl")
 include("kdb.jl")

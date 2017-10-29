@@ -106,6 +106,13 @@ end
       fa[] == p && asarray(dot_(f, knk(1, b9(0, kj(42)))))[] == 42
     end
     @test begin
+      p = cglobal(:d9)
+      f = K_Ref(dl(p, 1))
+      g = K_Ref(impl_dl(p, 1))
+      unsafe_wrap(Array, Ptr{G_}(f.x), 24) ==
+        unsafe_wrap(Array, Ptr{G_}(g.x), 24)
+    end
+    @test begin
       f(::K_, y::K_) = y
       cf = cfunction(f, K_, (K_, K_))
       g = dl(cf, 2)
